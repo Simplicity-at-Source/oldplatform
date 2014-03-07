@@ -15,7 +15,7 @@ class ControllerSpec extends Specification {
   MockMvc mockMVC
 
   @Unroll
-  def "#url delegated to #commandClass"() {
+  def "post to #url delegated to #commandClass"() {
     given:
     def command = Mock(commandClass)
 
@@ -36,7 +36,26 @@ class ControllerSpec extends Specification {
 
     where:
     commandClass    || commandName              || url
-    CreateContainer || "createContainerCommand" || "/container/create"
+    CreateContainer || "createContainerCommand" || "/container"
+  }
+
+  @Unroll
+  def "delete to #url delegated to #commandClass"() {
+    given:
+    def command = Mock(commandClass)
+
+    mockMVC = standaloneSetup(new ApiController("${commandName}": command)).build()
+
+    when:
+    def response = mockMVC.perform(MockMvcRequestBuilders.delete(url))
+
+    then:
+    response.andExpect(MockMvcResultMatchers.status().isOk())
+    1 * command.call("12345")
+
+    where:
+    commandClass     || commandName              || url
+    DestroyContainer || "destroyContainerCommand" || "/container/12345"
   }
 
   def json(map) {
