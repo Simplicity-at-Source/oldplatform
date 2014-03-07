@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.ResponseBody
 
 import static groovyx.net.http.ContentType.*
@@ -24,7 +25,7 @@ class ApiController {
   @Autowired
   CreateContainer createContainerCommand
 
-  @RequestMapping("/container/create")
+  @RequestMapping(value="/container", method = RequestMethod.POST)
   @ResponseBody
   def createContainer(@RequestBody String json) {
     try {
@@ -46,7 +47,6 @@ class ApiController {
   }
 
   @Bean JSONApi api() { new JSONApi() }
-  @Bean RouterApi routerApi() { new RouterApi() }
   @Bean CreateContainer createContainerBean() { new CreateContainer() }
 
   static void main(String[] args) throws Exception {
@@ -56,34 +56,23 @@ class ApiController {
 
 class CreateContainer {
   @Autowired JSONApi dockerApi
-  @Autowired RouterApi routerApi
 
   def call(json) {
 
-    def response = setupDependencies(json)
-
     def dockerRet = dockerApi.post("/containers/create", new JsonBuilder([
             "Image":json.imageId,
-            "Env": getEnvironmentVariables(response)
+            "Env": getEnvironmentVariables(json)
     ]).toString())
 
-    ["message": "Container created", id:dockerRet.Id]
-  }
-
-  def setupDependencies(json) {
-    //instruct router to expose ports from existing containers for this one to access
-
-    def dependencies = json.dependencies.collect {
-      it
-    }
-
-    routerApi.post("/expose", new JsonBuilder(dependencies).toString())
+    [message: "Container created",
+     id:dockerRet.Id
+    ]
   }
 
   List getEnvironmentVariables(json) {
     json?.dependencies?.collect {
-      "${it.dependency}_PORT=${it.port}"
-    }
+      ["${it.dependency}_PORT=${it.port}", "${it.dependency}_HOST=${it.host}"]
+    }?.flatten()
   }
 }
 
@@ -109,49 +98,3 @@ class JSONApi {
   }
 
 }
-
-class RouterApi {
-
-  @Autowired JSONApi api
-
-  def post(def url, def data) {
-    //TODO, where should the router be running?
-    //can this be looked up?
-
-    def routerHost = getRouterHost()
-
-    def http = new HTTPBuilder("http://${routerHost}:8080/${url}")
-    def jsonResp
-    http.request( POST, JSON ) { req ->
-      body = data
-
-      response.success = { resp, json ->
-        jsonResp=json
-      }
-    }
-    jsonResp
-  }
-
-  def getRouterHost() {
-    def json = api.get("/containers/json")
-
-    def localRouterContainer = json.find {
-      it.Names.find { it == "/sp-router" }
-    }
-
-    if (!localRouterContainer) {
-      throw new IllegalStateException("Router is not running on the local Docker. SimplePaaS will NOT run correctly in this state.")
-    }
-    def inspection = api.get("/containers/${localRouterContainer.Id}/json")
-
-    inspection.NetworkSettings.IPAddress
-  }
-
-  def get(def url) {
-    def jsonText = new URL("http://172.17.42.1:4321/${url}").text
-
-    new JsonSlurper().parseText(jsonText)
-  }
-
-}
-

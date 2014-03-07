@@ -7,18 +7,23 @@ import spock.lang.Specification
 class CreateContainerSpec extends Specification {
 
   JSONApi api = Mock(JSONApi)
-  RouterApi routerApi = Mock(RouterApi)
 
   def "Correctly calls the docker API"() {
     given:
-    def command = new CreateContainer(dockerApi: api, routerApi: routerApi)
-    routerApi.post(_, _ ) >> [
-            dependencies: [[dependency:"POSTGRES", port:123456]]
-    ]
+    def command = new CreateContainer(dockerApi: api)
     def jsonRequest = [
             imageId: "123456",
-            dependencies: [
-                    postgres:"7bc809cfee127e680bace099e247a9f13ef6c6661524d33b201e90896b509c43"
+            dependencies:  [
+                    [
+                            dependency:"postgres",
+                            host:"172.40.1.3",
+                            port:746578
+                    ],
+                    [
+                            dependency:"wibbleApi",
+                            host:"172.40.1.7",
+                            port:66666
+                    ]
             ]
     ]
 
@@ -29,56 +34,25 @@ class CreateContainerSpec extends Specification {
     1 * api.post("/containers/create", {
       def json = new JsonSlurper().parseText(it)
       json.Image == "123456" &&
-      json.Env.find { it.contains("POSTGRES") } != null
-    })
+      json.Env.find { it.contains("postgres") } != null
+    }) >> [Id:"THEIDOFDOOM"]
   }
 
-  def "Correctly calls the router API"() {
+  def "Correctly interprets the dependency info to build ENV"() {
     given:
-    def command = new CreateContainer(dockerApi: api, routerApi: routerApi)
-
-    def jsonRequest = [
-            imageId: "123456",
-            dependencies: [
-                    [
-                            dependency:"postgres",
-                            container:"7bc809cfee127e680bace099e247a9f13ef6c6661524d33b201e90896b509c43",
-                            port:1234
-                    ],
-                    [
-                            dependency:"wibbleApi",
-                            container:"7bc809cfee127e680bace099e247a9f13ef6c6661524d33b201e90896b509c43",
-                            port:7894
-                    ]
-            ]
-    ]
-
-    when:
-    command(jsonRequest)
-
-    then:
-    1 * routerApi.post("/expose", {
-      def json = new JsonSlurper().parseText(it)
-      json[0].container == "7bc809cfee127e680bace099e247a9f13ef6c6661524d33b201e90896b509c43" &&
-      json[0].port == 1234 &&
-      json[1].container == "7bc809cfee127e680bace099e247a9f13ef6c6661524d33b201e90896b509c43"
-      json[1].port == 7894
-    })
-  }
-
-  def "Correctly interprets the router response to build ENV"() {
-    given:
-    def command = new CreateContainer(dockerApi: api, routerApi: routerApi)
+    def command = new CreateContainer(dockerApi: api)
 
     def jsonResponse = [
             containerId: "789456",
             dependencies: [
                     [
                             dependency:"postgres",
+                            host:"172.40.1.3",
                             port:746578
                     ],
                     [
                             dependency:"wibbleApi",
+                            host:"172.40.1.7",
                             port:66666
                     ]
             ]
@@ -88,9 +62,11 @@ class CreateContainerSpec extends Specification {
     def env = command.getEnvironmentVariables(jsonResponse)
 
     then:
-    env.size() == 2
+    env.size() == 4
     env[0] == "postgres_PORT=746578"
-    env[1] == "wibbleApi_PORT=66666"
+    env[1] == "postgres_HOST=172.40.1.3"
+    env[2] == "wibbleApi_PORT=66666"
+    env[3] == "wibbleApi_HOST=172.40.1.7"
   }
 
   def json(map) {
