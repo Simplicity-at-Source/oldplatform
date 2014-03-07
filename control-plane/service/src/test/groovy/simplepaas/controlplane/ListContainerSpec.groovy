@@ -30,7 +30,10 @@ class ListContainerSpec extends Specification {
     api.get("/containers/json") >> [
             [Id:"wibble"]
     ]
-    api.get("/containers/wibble/json") >> [data:"inserted"]
+    api.get("/containers/wibble/json") >> [
+            data:"inserted",
+            Config: [Env:null]
+    ]
 
     when:
     def ret = command()
@@ -38,6 +41,29 @@ class ListContainerSpec extends Specification {
     then:
     ret[0].inspection.data == "inserted"
   }
+
+  def "Handle the PROVIDES env correctly"() {
+    given:
+    def command = new ListContainers(dockerApi: api)
+    api.get("/containers/json") >> [
+            [Id:"wibble"]
+    ]
+    api.get("/containers/wibble/json") >> [
+            Config: [
+                    Env:[
+                    "HOME=/",
+                    "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+                    "PROVIDES=sp-control-plane:8080,sp-service-reg:9090"
+            ]]
+    ]
+
+    when:
+    def ret = command()
+
+    then:
+    ret[0].provides == [[name:"sp-control-plane", port:"8080"], [name:"sp-service-reg", port:"9090"]]
+  }
+
 
   def json(map) {
     new JsonBuilder(map).toString()

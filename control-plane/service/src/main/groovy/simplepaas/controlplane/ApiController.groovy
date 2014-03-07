@@ -39,6 +39,7 @@ class ApiController {
   }
 
   @RequestMapping(value="/container", method = RequestMethod.GET)
+  @ResponseBody
   def listContainer() {
     try {
       listContainersCommand()
@@ -77,7 +78,25 @@ class ListContainers {
 
     return dockerRet.collect {
       it.inspection = dockerApi.get("/containers/${it.Id}/json")
+      it.provides = generateProvides(it.inspection)
       it
+    }
+  }
+
+  def generateProvides(containerInspection) {
+    def provides = containerInspection.Config?.Env?.find {
+      it.startsWith("PROVIDES")
+    }
+
+    if (!provides) {
+      return []
+    }
+
+    def provisions = provides.substring(9)?.split(",")
+
+    return provisions.collect {
+      def (name, port) = it.split(":")
+      [name:name, port:port]
     }
   }
 }
