@@ -1,0 +1,29 @@
+#!/bin/bash
+
+DIR="$( cd "$( dirname "$0" )" && pwd )" 
+
+commands() {
+  
+  local COMMANDS=$(ls $DIR/commands)
+
+  echo ""
+  echo ""
+  echo "Simple PaaS, the Antifragile Micro Services Platform"
+  echo ""
+  echo "Available Commands: "
+  echo ""
+  for cmd in $COMMANDS; do 
+    echo $cmd
+  done
+  echo ""
+}
+
+exec-command() {
+  $DIR/commands/$1 $@
+}
+
+if [[ -z $1 ]]; then
+  commands
+else
+  exec-command $@
+fi

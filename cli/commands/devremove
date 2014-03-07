@@ -1,0 +1,33 @@
+#!/bin/bash
+
+delete_service() {
+  local IMAGE="spi-$2"
+  local CONTAINER="sp-$2"
+
+  local current_id=$(docker ps -a|grep $CONTAINER|tr -s ' ' | cut -d ' ' -f 1)
+
+  if [[ -n $current_id ]]; then
+     local running_id=$(docker ps |grep $CONTAINER|tr -s ' ' | cut -d ' ' -f 1)
+     if [[ -n $running_id ]]; then
+      docker_boot=$(docker stop $current_id)
+      echo "Simple Paas: $CONTAINER halted"
+     fi
+     docker_boot=$(docker rm $CONTAINER)
+     docker_boot=$(docker rmi $IMAGE)
+     echo "Simple Paas: $CONTAINER destroyed"
+  else
+    echo "Simple PaaS: $CONTAINER not running"
+  fi
+}
+
+
+echo "Simple PaaS: Uninstalling core local components"
+
+#delete_service "Service Discovery Registry", sp-service-discovery-registry
+#delete_service "TCP Router", sp-router
+delete_service "SVC Reg", service-discovery-registry
+delete_service "ROuter", router
+delete_service "Local Control Plane", control-plane
+
+echo ""
+echo "Simple PaaS: Installation Removed, Simple PaaS is not running."

@@ -1,0 +1,7 @@
+#!/bin/bash
+
+LOCALDIR="$( cd "$( dirname "$0" )" && pwd )" 
+
+. $LOCALDIR/../lib/library.sh
+
+boot_service $2

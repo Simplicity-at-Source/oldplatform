@@ -118,7 +118,7 @@ class CreateContainer {
 
   def call(json) {
 
-    def dockerRet = dockerApi.post("/containers/create", new JsonBuilder([
+    def dockerRet = dockerApi.post("/containers/create?name=${json.name}", new JsonBuilder([
             "Image":json.imageId,
             "Env": getEnvironmentVariables(json)
     ]).toString())

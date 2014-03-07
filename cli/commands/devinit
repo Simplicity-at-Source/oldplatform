@@ -1,0 +1,50 @@
+#!/bin/bash
+
+LOCALDIR="$( cd "$( dirname "$0" )" && pwd )" 
+
+. $LOCALDIR/../lib/library.sh
+
+
+boot_control_plane() {
+  local IMAGE="spi-control-plane"
+  local CONTAINER="sp-control-plane"
+
+  local current_id=$(docker ps -a|grep $CONTAINER|tr -s ' ' | cut -d ' ' -f 1)
+  if [[ -n $current_id ]]; then
+     local running_id=$(docker ps |grep $CONTAINER|tr -s ' ' | cut -d ' ' -f 1)
+     if [[ -z $running_id ]]; then
+      docker_boot=$(docker start $current_id)
+     fi
+     echo "Simple Paas: Control Plane already exists and is running with ID $current_id"
+  else
+    echo "Simple PaaS: Booting Control Plane"
+    CP_PS=$(docker run --name="$CONTAINER" -d $IMAGE)
+  fi
+
+  local CONTROL_PLANE=$(lookup_control-plane_ip)
+  echo "Simple PaaS: Control Plane is running on IP $CONTROL_PLANE, waiting for service to be available..."
+
+}
+
+
+## TODO, possibly install a daemon instead of this socat run?
+
+echo "Simple PaaS: Creating connection to local Docker daemon"
+
+#TODO, this is not encrypted/ authorised, use a secured version below
+#any docker container could connect to the docker API with this.
+SOCAT=$(socat TCP4-LISTEN:4321,fork,reuseaddr,range=172.17.0.0/8 UNIX:/var/run/docker.sock&)
+
+## TODO, generate an SSL cert.
+## TODO, generate a new container API image with that SSL cert
+## TODO, use the below command to start the local port forward over SSL
+#socat OPENSSL-LISTEN:4321,fork,reuseaddr,cert=cert.pem,cafile=cert.pem,key=key.pem UNIX:/var/run/docker.sock
+
+echo "Simple PaaS: Connection to local Docker Daemon Initialised"
+
+boot_control_plane
+boot_service service-discovery-registry
+boot_service router
+
+echo ""
+echo "Simple PaaS: Minimal Installation Completed, Simple PaaS is running."
