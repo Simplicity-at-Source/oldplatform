@@ -1,5 +1,5 @@
  
-FROM spi-java
+FROM sp-platform/spi-java
 
 MAINTAINER Simplicity Itself
 

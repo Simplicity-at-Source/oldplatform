@@ -1,6 +1,6 @@
 #!/bin/bash
 
-COMPONENTS="sp-java-ubuntu control-plane router service-discover-registry"
+COMPONENTS="sp-java-ubuntu control-plane image-market"
 
 HERE=$(pwd)
 
@@ -12,4 +12,4 @@ do
   cd $HERE
 done
 
-echo "Simple PaaS:  Core components built and locally installed.  For a local development install, run cli/sp devinit"
+echo "Simple PaaS:  Core components built and locally installed.  For a local development install, run cli/sp dev-init"

@@ -1,3 +1,3 @@
  #!/bin/bash
 
-docker build --tag=spi-java .
+docker build --tag=sp-platform/spi-java .

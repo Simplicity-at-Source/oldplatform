@@ -1,13 +1,13 @@
  
-FROM spi-java
+FROM sp-platform/spi-java
 
 MAINTAINER Simplicity Itself
 
-ENV PROVIDES sp-image-registry:8080
+ENV PROVIDES sp-image-market:8080
 ENV REQUIRES sp-control-plane
 
 ADD container/run.sh /
-ADD service/build/libs/sp-image-registry-0.1.jar /
+ADD service/build/libs/sp-image-market-0.1.jar /
 
 RUN chmod 755 /run.sh
 

@@ -6,4 +6,4 @@ cd service
 
 cd ..
 
-docker build --tag=sp-platform/spi-container-market .
+docker build --tag=sp-platform/spi-image-market .

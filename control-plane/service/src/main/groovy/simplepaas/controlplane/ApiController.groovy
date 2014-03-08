@@ -159,6 +159,9 @@ class CreateContainer {
             "Env": getEnvironmentVariables(json)
     ]).toString())
 
+     //TODO, start the container!
+    dockerApi.post("/containers/${dockerRet.Id}/start", new JsonBuilder([:]).toString())   
+    
     [message: "Container created",
      id:dockerRet.Id
     ]

@@ -16,7 +16,7 @@ sourceCompatibility = 1.7
 version = '1.0'
 
 jar {
-  baseName = 'sp-image-registry'
+  baseName = 'sp-image-market'
   version =  '0.1'
 }
 
