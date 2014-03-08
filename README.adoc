@@ -8,7 +8,7 @@ SimplePaaS adds PaaS capabilities on top of the core Docker infrastructure and c
 
 It does not seek to replace or abstract Docker.
 
-To start using SimplePaaS, install Docker.
+To start using SimplePaaS, install Docker and the unix utility, socat.
 
 Build the SimplePaaS images into your local image repo.
 
@@ -16,19 +16,11 @@ Build the SimplePaaS images into your local image repo.
 build.sh
 ```
 
-Once that is done, you can  then begin to add SimplePaaS functionality, incrementally.
-
-To get a basic SimplePaaS system, install :-
-
-* Switch
-* Container API
+The SimplePaaS command line tool, `sp` is available for interacting with a SimplePaaS installation.
+To install the platform, run `sp devinit`, this will install the minimal set of services to act as a PaaS on a single node.
 
 These components allow you to take existing Docker images, as normal, and securely deploy them to 
 the local Docker with declarative Service Injection, via the API.
-
-See ContainerAPI below for information on Service Injection.
-
-[use a restartable ambassador container to forward the traffic to the correct final point]
 
 ## Component Structure
 
@@ -40,19 +32,12 @@ implement some functionality running in the container.
 Each folder should contain a build.sh script that will execute whatever build steps are necessary.
 Build tools should be bootstrapped by this script and not assumed to be installed. (eg, using gradlew)
 
-The Artifact created must be TBD
-
 ### Container 
 
 Each Micro Service will be bundled into a container for deployment into SimplPaaS.  This process of bundling is 
 managed via a Dockerfile.
 
-Each container folder must contain a Dockerfile, and a unittest.sh
-
-The unittest.sh should run any and all infrastructure tests on this single container, for example using Vulcan Infrastructure
-Specifications.
-
-The unittest.sh should generate JUnit compatible result XMLs to output/ and pass through the exit result.
+Each container folder must contain a Dockerfile
 
 The Dockerfile should contain the normal information to build the container, plus some meta data to indicate
 the required/ provided service dependencies
@@ -64,78 +49,10 @@ MAINTAINER Simplicity Itself
 RUN         apt-get update
 RUN         apt-get -y install redis-server
 EXPOSE      6379
-ENV PROVIDES redis:1.4
+ENV PROVIDES redis:6379
 ENTRYPOINT  ["/usr/bin/redis-server"]
 ```
 
-This service indicates to the managing SimplePaaS components that it *provides* the redis:1.4 capability.  
-This information will be used by the Container API and the switch to correctly manage instantiation and binding
-services together at runtime.
+This service indicates to the managing SimplePaaS components that it *provides* the redis capability, running on port 6379.
+This information will be used by platform to permit declarative service wiring and checking of runtime links between containers
 
-###
-
-
-
-## Main Components
-
-### Switch
-
-Manages network routing via port mapping and tcp forwarding.
-All intra-service network traffic is routed via this component.
-
-As such, provides the guts of the service injection system.
-
-### Container API
-
-The wrapper around the docker API and main entry point into the PaaS.
-
-Get the images that are available to create services from
-
-GET /availableimages
-
-Get extended information about the image.
-GET /availableimages/${imageId}
-
-Get the services you have created or have access to
-
-GET /services
-GET /services/${imageId}
-
-Create a new service
-POST /services
-With JSON
-
-{
-  name:${name},
-  imageId:${imageId},
-// satisfy the dependencies of the new service by describing the other services to connect to.
-// the named ports will be passed in as ENV variables, see below.
-  dependencies: [ 
-    ${dependencyName}:{containerId},
-    ${dependencyName}:{containerId},
-    ${dependencyName}:{containerId}
-  ]
-}
-
-#### Service Environment
-
-TODO - add cloudfoundry and heroku compatibility in this system somehow...
-
-### Registry
-
-images to/ from the registry.
-
-```
-sudo docker tag a1fa52ec4042 localhost:5000/simplepaas/containerapi
-sudo docker push localhost:5000/simplepaas/containerapi
-```
-
-obtain docker image|container metadata 
-```
-sudo docker inspect simplepaas/containerapi:latest
-```
-
-listen to the docker event stream
-echo -e "GET /events HTTP/1.0\r\n" | sudo nc -U /var/run/docker.sock
-
-docker inspect containerapi
