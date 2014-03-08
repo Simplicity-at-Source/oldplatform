@@ -1,0 +1,41 @@
+
+buildscript {
+  repositories {
+    maven { url "http://repo.spring.io/milestone" }
+    mavenLocal()
+  }
+  dependencies {
+    classpath("org.springframework.boot:spring-boot-gradle-plugin:1.0.0.RC3")
+  }
+}
+
+
+apply plugin: 'groovy'
+apply plugin: 'spring-boot'
+sourceCompatibility = 1.7
+version = '1.0'
+
+jar {
+  baseName = 'sp-image-registry'
+  version =  '0.1'
+}
+
+repositories {
+  mavenCentral()
+  maven { url "http://repo.spring.io/milestone" }
+}
+
+dependencies {
+  compile 'org.codehaus.groovy:groovy-all:2.0.5'
+  compile("org.springframework.boot:spring-boot-starter-web:1.0.0.RC3")
+  compile("org.springframework.boot:spring-boot-starter-actuator:1.0.0.RC3")
+  compile "org.codehaus.groovy.modules.http-builder:http-builder:0.7.1"
+
+  testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
+  testCompile 'org.springframework:spring-test:4.0.2.RELEASE'
+  testCompile 'cglib:cglib-nodep:2.2.2'
+}
+
+task wrapper(type: Wrapper) {
+  gradleVersion = '1.10'
+}

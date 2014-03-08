@@ -6,7 +6,7 @@ LOCALDIR="$( cd "$( dirname "$0" )" && pwd )"
 
 
 boot_control_plane() {
-  local IMAGE="spi-control-plane"
+  local IMAGE="sp-platform/spi-control-plane"
   local CONTAINER="sp-control-plane"
 
   local current_id=$(docker ps -a|grep $CONTAINER|tr -s ' ' | cut -d ' ' -f 1)

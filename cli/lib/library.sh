@@ -16,7 +16,7 @@ boot_service() {
   CONTROL_PLANE_STATUS=$(wait_for_control_plane)
 
   if [ "$CONTROL_PLANE_STATUS" != "FAILED" ]; then
-    PAYLOAD="{\"name\":\"sp-$1\",\"imageId\":\"spi-$1\",\"dependencies\":[{\"dependency\":\"sp-control-plane\",\"host\":\"$CONTROL_PLANE\",\"port\":8080}]}"
+    PAYLOAD="{\"name\":\"sp-$1\",\"imageId\":\"sp-platform/spi-$1\",\"dependencies\":[{\"dependency\":\"sp-control-plane\",\"host\":\"$CONTROL_PLANE\",\"port\":8080}]}"
     RESPONSE=$(curl --silent -X POST -H "Content-Type: application/json" -d "$PAYLOAD" http://$CONTROL_PLANE:8080/container)
     echo "Control Plane says $RESPONSE"
   else

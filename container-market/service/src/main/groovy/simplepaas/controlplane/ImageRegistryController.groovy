@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseBody
 
 import static groovyx.net.http.ContentType.*
@@ -22,44 +21,26 @@ import static groovyx.net.http.Method.*
 @Controller
 @Configuration
 @EnableAutoConfiguration
-class ApiController {
+class ImageRegistryController {
 
-  @Autowired CreateContainer createContainerCommand
-  @Autowired DestroyContainer destroyContainerCommand
-  @Autowired ListContainers listContainersCommand
   @Autowired ListImages listImagesCommand
+  @Autowired RegisterImage registerImageCommand
+  @Autowired DeleteImage deleteImageCommand
 
-  @RequestMapping(value="/container", method = RequestMethod.POST)
+  @RequestMapping(value="/image", method = RequestMethod.POST)
   @ResponseBody
   def createContainer(@RequestBody String json) {
     try {
-      createContainerCommand(fromJson(json))
+      registerImageCommand(fromJson(json))
     } catch (Exception ex) {
       ex.printStackTrace()
       [failure:ex.message]
     }
   }
 
-  @RequestMapping(value="/container", method = RequestMethod.GET)
+  @RequestMapping(value="/image", method = RequestMethod.GET)
   @ResponseBody
   def listContainer() {
-    try {
-      listContainersCommand()
-    } catch (Exception ex) {
-      ex.printStackTrace()
-      [failure:ex.message]
-    }
-  }
-
-  @RequestMapping(value="/container/{containerId}", method = RequestMethod.DELETE)
-  @ResponseBody
-  def destroyContainer(@PathVariable(value = "containerId") String containerId) {
-    destroyContainerCommand(containerId)
-  }
-
-  @RequestMapping(value="/images", method = RequestMethod.GET)
-  @ResponseBody
-  def listImages(@RequestParam(value="repo", required = false) String repo) {
     try {
       listImagesCommand()
     } catch (Exception ex) {
@@ -68,52 +49,35 @@ class ApiController {
     }
   }
 
+  @RequestMapping(value="/image/{imageId}", method = RequestMethod.DELETE)
+  @ResponseBody
+  def destroyContainer(@PathVariable(value = "imageId") String imageId) {
+    deleteImageCommand(imageId)
+  }
+
   def fromJson(json) {
     new JsonSlurper().parseText(json)
   }
 
   @Bean JSONApi api() { new JSONApi() }
-  @Bean CreateContainer createContainerBean() { new CreateContainer() }
-  @Bean DestroyContainer destroyContainerBean() { new DestroyContainer() }
-  @Bean ListContainers listContainersBean() { new ListContainers() }
+  @Bean RegisterImage createImageBean() { new RegisterImage() }
+  @Bean DeleteImage destroyImageBean() { new DeleteImage() }
   @Bean ListImages listImagesBean() { new ListImages() }
 
   static void main(String[] args) throws Exception {
-    SpringApplication.run(ApiController, args);
-  }
-}
-
-class InspectImage {
-  @Autowired JSONApi dockerApi
-
-  def call() {
-
-    def dockerRet = dockerApi.get("/containers/json")
-
-    dockerRet
+    SpringApplication.run(ImageRegistryController, args);
   }
 }
 
 class ListImages {
-  @Autowired JSONApi dockerApi
+  @Autowired JSONApi controlPlane
 
   def call() {
 
-    def dockerRet = dockerApi.get("/containers/json")
-
-    dockerRet
-  }
-}
-
-class ListContainers {
-  @Autowired JSONApi dockerApi
-
-  def call() {
-
-    def dockerRet = dockerApi.get("/containers/json")
+    def dockerRet = controlPlane.get("/images?repo=sp-market")
 
     return dockerRet.collect {
-      it.inspection = dockerApi.get("/containers/${it.Id}/json")
+      it.inspection = controlPlane.get("/containers/${it.Id}/json")
       it.provides = generateProvides(it.inspection)
       it
     }
@@ -137,24 +101,24 @@ class ListContainers {
   }
 }
 
-class DestroyContainer {
-  @Autowired JSONApi dockerApi
+class DeleteImage {
+  @Autowired JSONApi controlPlane
 
   def call(id) {
 
-    def dockerRet = dockerApi.post("/containers/${id}/kill")
-    dockerRet = dockerApi.delete("/containers/${id}")
+    def dockerRet = controlPlane.post("/containers/${id}/kill")
+    dockerRet = controlPlane.delete("/containers/${id}")
 
     [message: "Container Destroyed"]
   }
 }
 
-class CreateContainer {
-  @Autowired JSONApi dockerApi
+class RegisterImage {
+  @Autowired JSONApi controlPlane
 
   def call(json) {
 
-    def dockerRet = dockerApi.post("/containers/create?name=${json.name}", new JsonBuilder([
+    def dockerRet = controlPlane.post("/containers/create?name=${json.name}", new JsonBuilder([
             "Image":json.imageId,
             "Env": getEnvironmentVariables(json)
     ]).toString())
@@ -172,9 +136,17 @@ class CreateContainer {
 }
 
 class JSONApi {
+  def controlPlaneApi
+
+  JSONApi() {
+    def host = System.getenv("sp-control-plane_HOST")
+    def port = System.getenv("sp-control-plane_PORT")
+    controlPlaneApi="http://${host}:${port}"
+
+  }
 
   def post(def url, def data = null) {
-    def http = new HTTPBuilder("http://172.17.42.1:4321/${url}")
+    def http = new HTTPBuilder("${controlPlaneApi}/${url}")
     def jsonResp
     http.request( POST, JSON ) { req ->
       if (data) {
@@ -189,7 +161,7 @@ class JSONApi {
   }
 
   def delete(def url) {
-    def http = new HTTPBuilder("http://172.17.42.1:4321/${url}")
+    def http = new HTTPBuilder("${controlPlaneApi}/${url}")
     def jsonResp
     http.request( DELETE ) { req ->
 
@@ -201,7 +173,7 @@ class JSONApi {
   }
 
   def get(def url) {
-    def jsonText = new URL("http://172.17.42.1:4321/${url}").text
+    def jsonText = new URL("${controlPlaneApi}/${url}").text
 
     new JsonSlurper().parseText(jsonText)
   }
