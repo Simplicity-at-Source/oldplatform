@@ -13,7 +13,6 @@ delete_service() {
       echo "Simple Paas: $CONTAINER halted"
      fi
      docker_boot=$(docker rm $CONTAINER)
-     docker_boot=$(docker rmi $IMAGE)
      echo "Simple Paas: $CONTAINER destroyed"
   else
     echo "Simple PaaS: $CONTAINER not running"
@@ -23,10 +22,7 @@ delete_service() {
 
 echo "Simple PaaS: Uninstalling core local components"
 
-#delete_service "Service Discovery Registry", sp-service-discovery-registry
-#delete_service "TCP Router", sp-router
-delete_service "SVC Reg", service-discovery-registry
-delete_service "ROuter", router
+delete_service "Container Market", image-market
 delete_service "Local Control Plane", control-plane
 
 echo ""

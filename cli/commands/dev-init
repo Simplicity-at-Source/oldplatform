@@ -43,8 +43,7 @@ SOCAT=$(socat TCP4-LISTEN:4321,fork,reuseaddr,range=172.17.0.0/8 UNIX:/var/run/d
 echo "Simple PaaS: Connection to local Docker Daemon Initialised"
 
 boot_control_plane
-boot_service service-discovery-registry
-boot_service router
+boot_service image-market
 
 echo ""
 echo "Simple PaaS: Minimal Installation Completed, Simple PaaS is running."
