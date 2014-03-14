@@ -17,7 +17,7 @@ build.sh
 ```
 
 The SimplePaaS command line tool, `sp` is available for interacting with a SimplePaaS installation.
-To install the platform, run `sp devinit`, this will install the minimal set of services to act as a PaaS on a single node.
+To install the platform, run `sp dev-init`, this will install the minimal set of services to act as a PaaS on a single node.
 
 These components allow you to take existing Docker images, as normal, and securely deploy them to 
 the local Docker with declarative Service Injection, via the API.
