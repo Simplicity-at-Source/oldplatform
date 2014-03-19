@@ -1,0 +1,5 @@
+
+this container will checkout any public nodejs git project and run it in a docker container
+
+
+project must have app.js in root folder to work
