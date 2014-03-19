@@ -18,10 +18,13 @@ echo EXISTING_IMAGE: $EXISTING_IMAGE
 
 if [ -z "$EXISTING_IMAGE" ]
 then
-  cat Dockerfile | envsubst 
-  echo "RUNNING: cat Dockerfile | envsubst | sudo docker build -t $SERVICE_NAME . "
-  sudo cat Dockerfile | envsubst | docker build -t $SERVICE_NAME . 
+  cat Dockerfile.template | envsubst > Dockerfile
+  cat Dockerfile
+  echo "RUNNING: sudo docker build -t $SERVICE_NAME . "
+  sudo docker build -t $SERVICE_NAME . 
+  rm -f Dockerfile
 fi
 
 
-sudo docker run -p 127.0.0.1:$EXPOSE_PORT:$SERVICE_PORT $SERVICE_NAME
+nohup sudo docker run -p 127.0.0.1:$EXPOSE_PORT:$SERVICE_PORT $SERVICE_NAME &
+
