@@ -1,0 +1,4 @@
+FROM nodejs-image
+RUN git clone $GIT_URL
+EXPOSE $SERVICE_PORT
+ENTRYPOINT node /$SERVICE_NAME/app.js
