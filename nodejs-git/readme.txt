@@ -1,0 +1,14 @@
+
+this container will checkout any public nodejs git project and run it in a docker container
+
+depends on nodejs-image existing
+
+project must have app.js in root folder to work
+
+try ./start.sh  simplenode https://github.com/fuzzy-logic/simplenode.git 8888 4444
+
+then test with curl -X GET http://localhost:4444
+
+
+
+
