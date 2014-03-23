@@ -1,0 +1,18 @@
+# Build Simple PaaS VM
+
+## vagrant
+
+Build a vagrant vm with simple paas setup and ready to run.
+
+```
+vagrant up
+```
+
+
+## Puppet
+
+Puppet scripts can be used to build via ssh to any server
+
+```
+not yet implemented
+```
