@@ -1,7 +1,7 @@
 FROM nodejs-image
 WORKDIR /spaas
-RUN git clone $GIT_URL
-WORKDIR /spaas/$SERVICE_NAME
+RUN git clone https://github.com/fuzzy-logic/sp_proxy.git
+WORKDIR /spaas/sp_proxy
 RUN /spaas/nodejs/bin/npm install
-EXPOSE $SERVICE_PORT
+EXPOSE 8080
 ENTRYPOINT /spaas/nodejs/bin/node app.js

@@ -22,9 +22,11 @@ then
   cat Dockerfile
   echo "RUNNING: sudo docker build -t $SERVICE_NAME . "
   sudo docker build -t $SERVICE_NAME . 
-  rm -f Dockerfile
+  mv Dockerfile Dockerfile.prev
 fi
 
 
+echo "sudo docker run -p 127.0.0.1:$EXPOSE_PORT:$SERVICE_PORT $SERVICE_NAME"
 nohup sudo docker run -p 127.0.0.1:$EXPOSE_PORT:$SERVICE_PORT $SERVICE_NAME &
+
 

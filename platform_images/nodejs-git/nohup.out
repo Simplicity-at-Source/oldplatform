@@ -1,1 +1,29 @@
-2014/03/19 18:59:35 Error: Cannot start container 06ee0b92fc7d647ed825eef1e76ec9b96eb2d1929f5f3bceb9129f609113c632: port has already been allocated
+Unable to find image 'sp_registry' locally
+Pulling repository sp_registry
+2014/04/07 21:50:18 HTTP code: 404
+Unable to find image 'sp_registry' locally
+Pulling repository sp_registry
+2014/04/07 21:52:07 HTTP code: 404
+Unable to find image 'simplenode' locally
+Pulling repository simplenode
+2014/04/07 21:53:29 HTTP code: 404
+Unable to find image 'sp_registry' locally
+Pulling repository sp_registry
+2014/04/07 22:15:35 HTTP code: 404
+Unable to find image 'sp_registry' locally
+Pulling repository sp_registry
+2014/04/08 07:07:44 HTTP code: 404
+Unable to find image 'sp_registry' locally
+Pulling repository sp_registry
+2014/04/08 07:24:55 HTTP code: 404
+Unable to find image 'sp_registry' locally
+Pulling repository sp_registry
+2014/04/08 07:35:08 HTTP code: 404
+Unable to find image 'sp_registry' locally
+Pulling repository sp_registry
+2014/04/08 07:39:16 HTTP code: 404
+Unable to find image 'sp_registry' locally
+Pulling repository sp_registry
+2014/04/08 07:42:21 HTTP code: 404
+restify listening at http://0.0.0.0:8888
+starting proxy service http server on port 8080
