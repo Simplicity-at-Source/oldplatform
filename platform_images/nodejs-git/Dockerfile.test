@@ -1,7 +1,0 @@
-FROM nodejs-image
-RUN git clone https://github.com/fuzzy-logic/sp_registry.git
-WORKDIR /sp_registry
-RUN npm install
-RUN npm -g install
-EXPOSE 8888
-ENTRYPOINT node /sp_registry/app.js

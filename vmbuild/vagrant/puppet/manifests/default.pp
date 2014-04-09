@@ -37,6 +37,11 @@ package {"lxc-docker": require => [Apt::Source['docker'], Exec['apt-get update']
 #}
 
 
+#
+# add dev.spaas.com to /etc/hosts file to point to localhost
+#
+
+
 # notify {'spadmin user created.':
 #      require => User['spadmin'],
 #    }

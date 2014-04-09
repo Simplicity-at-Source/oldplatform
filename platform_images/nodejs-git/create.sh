@@ -1,13 +1,12 @@
 export SERVICE_NAME=$1
 export GIT_URL=$2
 export SERVICE_PORT=$3
-export EXPOSE_PORT=$4
 
 
-if [ -z "$4" ]
+if [ -z "$3" ]
 then
- echo "USEAGE: $0 <SERVICENAME> <GIT_URL> <SERVICE_PORT> <EXPOSE_PORT>"
- echo "EXAMPLE: $0 simplenode https://github.com/fuzzy-logic/simplenode.git 8888 4444"
+ echo "USEAGE: $0 <SERVICENAME> <GIT_URL> <SERVICE_PORT> "
+ echo "EXAMPLE: $0 simplenode https://github.com/fuzzy-logic/simplenode.git 3001"
  exit 1
 fi
 
@@ -26,7 +25,5 @@ then
 fi
 
 
-echo "sudo docker run -p 127.0.0.1:$EXPOSE_PORT:$SERVICE_PORT $SERVICE_NAME"
-nohup sudo docker run -p 127.0.0.1:$EXPOSE_PORT:$SERVICE_PORT $SERVICE_NAME &
 
 
