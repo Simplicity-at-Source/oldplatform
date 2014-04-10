@@ -3,7 +3,7 @@ include "apt"
 
 Package { ensure => "installed" }
 
-package {[ "git-core", "curl", "openjdk-6-jre-headless"]: }
+package {[ "git-core", "socat", "curl", "openjdk-6-jre-headless"]: }
 
 
 exec { "apt-get update":
