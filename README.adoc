@@ -56,3 +56,11 @@ ENTRYPOINT  ["/usr/bin/redis-server"]
 This service indicates to the managing SimplePaaS components that it *provides* the redis capability, running on port 6379.
 This information will be used by platform to permit declarative service wiring and checking of runtime links between containers
 
+
+### Core Platform Services
+
+gene-store - users uploads their definitions here. this will be service defs, some runtime characteristics etc.  It's fairly freeform, the real restriction will be on what the expressor can process.
+
+phenotype-monitor - creates a rolling view of the state of the platform.
+
+gene-expressor - given the current requirements (the genes) and the current state, will boot or remove containers to bring the platform into line.
