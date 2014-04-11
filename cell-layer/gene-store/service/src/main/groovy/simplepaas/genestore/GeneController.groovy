@@ -20,22 +20,22 @@ class GeneController {
 
   @Autowired GeneStore store
 
-  @RequestMapping(value="/", method = RequestMethod.POST)
+  @RequestMapping(value="/{classifier}", method = RequestMethod.POST)
   @ResponseBody
-  def insertGene(@RequestBody String json) {
-    convertFailure {  store.create(fromJson(json)) }
+  def insertGene(@PathVariable String classifier, @RequestBody String json) {
+    convertFailure {  store.create(classifier, fromJson(json)) }
   }
 
-  @RequestMapping(value="/", method = RequestMethod.GET)
+  @RequestMapping(value="/{classifier}", method = RequestMethod.GET)
   @ResponseBody
-  def listGenes() {
-    convertFailure { store.list() }
+  def listGenes(@PathVariable String classifier) {
+    convertFailure { store.list(classifier) }
   }
 
-  @RequestMapping(value="/{geneId}", method = RequestMethod.DELETE)
+  @RequestMapping(value="/{classifier}/{geneId}", method = RequestMethod.DELETE)
   @ResponseBody
-  def destroyGene(@PathVariable(value = "geneId") String containerId) {
-    convertFailure { store.remove(containerId) }
+  def destroyGene(@PathVariable String classifier, @PathVariable(value = "geneId") String containerId) {
+    convertFailure { store.remove(classifier, containerId) }
   }
 
   @Bean GeneStore store() { new GeneStore() }

@@ -1,4 +1,4 @@
-FROM sp-platform/spi-nodejs
+FROM sp_platform/spi_nodejs
 WORKDIR /spaas
 RUN git clone https://github.com/fuzzy-logic/sp_registry.git
 WORKDIR /spaas/sp_registry

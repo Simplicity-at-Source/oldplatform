@@ -1,6 +1,6 @@
 #!/bin/bash
 
-COMPONENTS="platform_images cell-layer"
+COMPONENTS="platform_images cell-layer data-stores"
 
 HERE=$(pwd)
 

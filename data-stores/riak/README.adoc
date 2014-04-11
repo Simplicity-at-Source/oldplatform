@@ -1,0 +1,73 @@
+# Riak Integration
+
+*From the riak website*
+
+Riak is an open source, distributed database. Riak is architected for:
+
+* Availability: Riak replicates and retrieves data intelligently so it is available for read and write operations, even in failure conditions;
+* Fault-Tolerance: You can lose access to many nodes due to network partition or hardware failure without losing data;
+* Operational Simplicity: Add new machines to your Riak cluster easily without incurring a larger operational burden – the same ops tasks apply to small clusters as large clusters;
+* Scalability: Riak automatically distributes data around the cluster and yields a near-linear performance increase as you add capacity.
+
+## Simple PaaS Integration
+
+Riak can be run on Simple PaaS as a collection of services that interoperate.
+
+### Dev Quickstart
+
+Request the cell expressor to boot a riak expressor
+```
+curl -X POST -H "Content-Type: application/json" -d '{"id":"riak-expressor", "image":"sp_platform/spi_riak_expressor"}' http://172.17.0.3:8080/cell
+```
+
+After a few seconds, you will see a new container running `cell-riak-expressor`
+
+Then, request the riak expressor to create a riak cluster (currently just a single node one)
+```
+curl -X POST -H "Content-Type: application/json" -d '{"id":"riak-cluster-1"}' http://172.17.0.3:8080/riak
+curl -X POST -H "Content-Type: application/json" -d '{"id":"riak-cluster-2"}' http://172.17.0.3:8080/riak
+```
+
+You will then see new containers running that implement these clusters.
+
+Remove one of the riak clusters by removing the associated gene.
+
+```
+curl -X DELETE  http://172.17.0.3:8080/riak/riak-cluster-2
+```
+
+Remove the expressor itself to remove the ability to run Riak within the cell.  Any Riak nodes will continue to run,
+but will not be maintained or restarted.
+
+```
+curl -X DELETE  http://172.17.0.3:8080/cell/riak-expressor
+```
+
+### Riak Expressor
+
+The expressor is the controlling service allowing users to request Riak node(s) be run in particular 
+formats.
+
+In common with the other expressors, it is declarative in nature, and reacts to Riak specific 'genes' being
+uploaded into the gene store at the /riak url.
+
+*Riak Schema*
+```
+{
+  "id": "my ID" //the name of the cluster, must be unique across the platform
+}
+```
+
+Via Curl, inserting into to the local gene store, this would be
+```
+curl -X POST -H "Content-Type: application/json" -d "{'id':'my-riak-cluster'}" http://172.17.0.3:8080/riak
+```
+
+Riak container(s) will then be fired up and configured to satisfy this request.  
+Currently, only a single instance is supported. This will be fixed in future releases...
+
+### Riak Node Image
+
+A docker image that has Riak installed.  Used by the expressor to create riak containers.
+
+Currently the only supported Riak image, until it is understood how much integration between image and expressor is required to support declarative cluster creation across cells.

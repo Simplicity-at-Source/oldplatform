@@ -1,4 +1,4 @@
-FROM nodejs-image
+FROM nodejs_image
 WORKDIR /spaas
 RUN git clone $GIT_URL
 WORKDIR /spaas/$SERVICE_NAME

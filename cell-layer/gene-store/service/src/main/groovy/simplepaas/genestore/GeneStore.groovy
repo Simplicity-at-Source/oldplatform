@@ -2,23 +2,30 @@ package simplepaas.genestore
 
 class GeneStore {
 
-  def genes = [:]
+  def classifiers = [:]
 
-  def create(def json) {
+  def create(def classifier, def json) {
     if (!json.id) {
       return [error:"No id provided"]
     }
-    //TODO, enforce a schema...
-    genes[json.id] = new HashMap(json)
+
+    def classifierGenes = classifiers[classifier]
+    if (!classifierGenes) {
+      classifiers[classifier] = [:]
+      classifierGenes = classifiers[classifier]
+    }
+
+    classifierGenes[json.id] = new HashMap(json)
     ["Gene Created"]
   }
 
-  def list() {
-    genes.values()
+  def list(def classifier) {
+    classifiers[classifier]?.values() ?: []
   }
 
-  def remove(def id) {
-    genes.remove(id)
+  def remove(def classifier, def id) {
+    classifiers[classifier]?.remove(id)
+    ["Gene Removed"]
   }
 
 }
