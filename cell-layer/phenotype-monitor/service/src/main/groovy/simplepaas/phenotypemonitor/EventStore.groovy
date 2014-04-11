@@ -7,13 +7,17 @@ class EventStore {
   def events = []
 
   void leftShift(def status) {
-    status.each {
-      it["time"] = System.currentTimeMillis()
-      events << it
+    println "Processing ${status}"
+    status.collect {
+      new HashMap(it)
+    }.each {
+        it["time"] = System.currentTimeMillis()
+        events << it
     }
   }
 
   List getCurrentStatus() {
+
     expireEvents()
 
     def status = [:]

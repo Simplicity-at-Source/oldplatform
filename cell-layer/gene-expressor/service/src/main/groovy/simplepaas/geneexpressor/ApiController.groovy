@@ -1,4 +1,4 @@
-package simplepaas.controlplane
+package simplepaas.geneexpressor
 
 import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
@@ -8,8 +8,6 @@ import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.scheduling.annotation.EnableScheduling
-import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestBody
@@ -24,15 +22,12 @@ import static groovyx.net.http.Method.*
 @Controller
 @Configuration
 @EnableAutoConfiguration
-@EnableScheduling
 class ApiController {
 
   @Autowired CreateContainer createContainerCommand
   @Autowired DestroyContainer destroyContainerCommand
   @Autowired ListContainers listContainersCommand
   @Autowired ListImages listImagesCommand
-
-  @Autowired JSONApi api
 
   @RequestMapping(value="/container", method = RequestMethod.POST)
   @ResponseBody
@@ -71,21 +66,6 @@ class ApiController {
       ex.printStackTrace()
       [failure:ex.message]
     }
-  }
-
-  @Scheduled(fixedRate = 2000l)
-  public void reportCurrentTime() {
-    def status = listContainersCommand()
-    def http = new HTTPBuilder("http://172.17.0.4:8080/")
-    def jsonResp
-    http.request( POST, JSON ) { req ->
-      body = status
-
-      response.success = { resp, json ->
-        jsonResp=json
-      }
-    }
-    prinltn "Response was $jsonResp"
   }
 
   def fromJson(json) {
@@ -133,7 +113,6 @@ class ListContainers {
     def dockerRet = dockerApi.get("/containers/json")
 
     return dockerRet.collect {
-      it.id = it.Id
       it.inspection = dockerApi.get("/containers/${it.Id}/json")
       it.provides = generateProvides(it.inspection)
       it
