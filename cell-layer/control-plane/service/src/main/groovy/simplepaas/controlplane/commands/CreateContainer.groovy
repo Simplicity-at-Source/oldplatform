@@ -1,6 +1,7 @@
 package simplepaas.controlplane.commands
 
 import groovy.json.JsonBuilder
+import groovy.json.JsonSlurper
 import org.springframework.beans.factory.annotation.Autowired
 import simplepaas.controlplane.JSONApi
 
@@ -13,11 +14,68 @@ class CreateContainer {
 
   def call(json) {
 
-    def dockerRet = dockerApi.post("/containers/create?name=${json.name}", new JsonBuilder([
-        "Image": json.imageId,
-        "Env": getEnvironmentVariables(json)
-    ]).toString())
+    def dockerRet;
 
+      def proxyJson = """{
+                 "Image": "$json.imageId",
+                 "NetworkSettings": {
+                     "Ports": {
+                         "$json.port/tcp": [
+                                 {
+                                     "HostIp": "0.0.0.0",
+                                     "HostPort": "$json.port"
+                                 }
+                         ]
+                     }
+                 },
+                 "HostConfig": {
+                     "PortBindings": {
+                         "$json.port/tcp": [
+                                 {
+                                     "HostIp": "0.0.0.0",
+                                     "HostPort": "$json.port"
+                                 }
+                         ]
+                     }
+                 }
+         }"""
+
+      def proxyJson2 = [
+                 "Image": "$json.imageId",
+                 "NetworkSettings": [
+                     "Ports": [
+                         "$json.port/tcp": [
+                                 [
+                                     "HostIp": "0.0.0.0",
+                                     "HostPort": "$json.port"
+                                 ]
+                         ]
+                     ]
+                 ],
+                 "HostConfig": [
+                     "PortBindings": [
+                         "$json.port/tcp": [
+                                 [
+                                     "HostIp": "0.0.0.0",
+                                     "HostPort": "$json.port"
+                                 ]
+                         ]
+                     ]
+                 ]
+         ]
+
+      //println("proxyJson: " + proxyJson)
+      def result = new JsonSlurper().parseText(proxyJson)
+
+      if (json.port) {
+          dockerRet = dockerApi.post("/containers/create?name=${json.name}",  new JsonBuilder(proxyJson2).toString())
+      } else {
+          dockerRet = dockerApi.post("/containers/create?name=${json.name}", new JsonBuilder([
+                  "Image": json.imageId,
+                  "Env": getEnvironmentVariables(json)
+          ]).toString())
+      }
+    println("dockerRet=" + dockerRet)
     //TODO, start the container!
     dockerApi.post("/containers/${dockerRet.Id}/start", new JsonBuilder([:]).toString())
 
