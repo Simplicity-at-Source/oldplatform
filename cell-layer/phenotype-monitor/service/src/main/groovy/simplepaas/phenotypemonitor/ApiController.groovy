@@ -29,9 +29,9 @@ class ApiController {
   @Autowired ListContainers listContainersCommand
   @Autowired ListImages listImagesCommand
 
-  @RequestMapping(value="/container", method = RequestMethod.POST)
+  @RequestMapping(value="/", method = RequestMethod.POST)
   @ResponseBody
-  def createContainer(@RequestBody String json) {
+  def addStatusEvent(@RequestBody String json) {
     try {
       createContainerCommand(fromJson(json))
     } catch (Exception ex) {
@@ -40,28 +40,11 @@ class ApiController {
     }
   }
 
-  @RequestMapping(value="/container", method = RequestMethod.GET)
+  @RequestMapping(value="/", method = RequestMethod.GET)
   @ResponseBody
-  def listContainer() {
+  def getStatus() {
     try {
       listContainersCommand()
-    } catch (Exception ex) {
-      ex.printStackTrace()
-      [failure:ex.message]
-    }
-  }
-
-  @RequestMapping(value="/container/{containerId}", method = RequestMethod.DELETE)
-  @ResponseBody
-  def destroyContainer(@PathVariable(value = "containerId") String containerId) {
-    destroyContainerCommand(containerId)
-  }
-
-  @RequestMapping(value="/images", method = RequestMethod.GET)
-  @ResponseBody
-  def listImages(@RequestParam(value="repo", required = false) String repo) {
-    try {
-      listImagesCommand()
     } catch (Exception ex) {
       ex.printStackTrace()
       [failure:ex.message]
@@ -71,8 +54,6 @@ class ApiController {
   def fromJson(json) {
     new JsonSlurper().parseText(json)
   }
-
-  @Bean JSONApi api() { new JSONApi() }
   @Bean CreateContainer createContainerBean() { new CreateContainer() }
   @Bean DestroyContainer destroyContainerBean() { new DestroyContainer() }
   @Bean ListContainers listContainersBean() { new ListContainers() }
