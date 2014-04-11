@@ -1,0 +1,7 @@
+FROM sp-platform/spi-nodejs
+WORKDIR /spaas
+RUN git clone https://github.com/fuzzy-logic/sp_registry.git
+WORKDIR /spaas/sp_registry
+RUN /spaas/nodejs/bin/npm install
+EXPOSE 8888
+ENTRYPOINT /spaas/nodejs/bin/node app.js
