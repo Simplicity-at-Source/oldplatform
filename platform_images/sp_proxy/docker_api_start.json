@@ -1,0 +1,32 @@
+{
+
+ "NetworkSettings": {
+        "Bridge": "docker0",
+        "PortMapping": null,
+        "Ports": {
+            "8080/tcp": [
+                {
+                    "HostIp": "0.0.0.0",
+                    "HostPort": "8080"
+                }
+            ]
+        }
+    },
+
+ "HostConfig": {
+        "Binds": null,
+        "ContainerIDFile": "",
+        "LxcConf": [],
+        "Privileged": false,
+        "PortBindings": {
+            "8080/tcp": [
+                {
+                    "HostIp": "0.0.0.0",
+                    "HostPort": "8080"
+                }
+            ]
+        },
+        "Links": null,
+        "PublishAllPorts": false
+    }
+}
