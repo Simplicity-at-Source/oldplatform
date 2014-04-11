@@ -26,6 +26,8 @@ delete_service gene-expressor
 delete_service phenotype-monitor
 delete_service gene-store
 delete_service control-plane
+delete_service sp_proxy
+delete_service sp_registry
 
 echo ""
 echo "Simple PaaS: Installation Removed, Simple PaaS is not running."
