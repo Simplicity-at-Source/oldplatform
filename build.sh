@@ -1,6 +1,6 @@
 #!/bin/bash
 
-COMPONENTS="sp-java-ubuntu control-plane image-market"
+COMPONENTS="platform_images cell-layer"
 
 HERE=$(pwd)
 

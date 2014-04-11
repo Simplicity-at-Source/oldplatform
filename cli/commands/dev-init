@@ -9,6 +9,7 @@ boot_control_plane() {
   local IMAGE="sp-platform/spi-control-plane"
   local CONTAINER="sp-control-plane"
 
+  echo "Simple PaaS: Starting the Local Control Plane"
   local current_id=$(docker ps -a|grep $CONTAINER|tr -s ' ' | cut -d ' ' -f 1)
   if [[ -n $current_id ]]; then
      local running_id=$(docker ps |grep $CONTAINER|tr -s ' ' | cut -d ' ' -f 1)
@@ -33,7 +34,7 @@ echo "Simple PaaS: Creating connection to local Docker daemon"
 
 #TODO, this is not encrypted/ authorised, use a secured version below
 #any docker container could connect to the docker API with this.
-SOCAT=$(socat TCP4-LISTEN:4321,fork,reuseaddr,range=172.17.0.0/8 UNIX:/var/run/docker.sock&)
+socat TCP4-LISTEN:4321,fork,reuseaddr,range=172.17.0.0/8 UNIX:/var/run/docker.sock&
 
 ## TODO, generate an SSL cert.
 ## TODO, generate a new container API image with that SSL cert
@@ -43,7 +44,9 @@ SOCAT=$(socat TCP4-LISTEN:4321,fork,reuseaddr,range=172.17.0.0/8 UNIX:/var/run/d
 echo "Simple PaaS: Connection to local Docker Daemon Initialised"
 
 boot_control_plane
-boot_service image-market
+boot_service gene-store
+boot_service phenotype-monitor
+boot_service gene-expressor
 
 echo ""
-echo "Simple PaaS: Minimal Installation Completed, Simple PaaS is running."
+echo "Simple PaaS: Dev Installation Completed, Simple PaaS Cell is running."

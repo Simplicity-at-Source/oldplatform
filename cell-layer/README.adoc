@@ -1,6 +1,6 @@
 # Simple PaaS Cell Services
 
-The 'Cell' is the conceptual base system in the Platform as a Service layer of Simple PaaS.
+The 'Cell' is the conceptual base system in the Platform as a Service layer of Simple PaaS.  We use a cell analogy to encourage the biological nature of antifragile systems and so build with those implications in mind.
 
 All elements run as Microservice style Docker containers.  This implements sufficient services to run a PaaS based on requesting docker containers run in a particular configuration.
 
@@ -14,7 +14,7 @@ Every Docker instance in the cell will have a control plane running within it.  
 
 This is a low level service, and should not be expected to be accessed directly.  To start a container, input a definition into the definition store and see the 
 
-## Service Definition Store [genotype]
+## Gene Store
 
 Accepting and storing the definition information in the cell.
 This component is notified, by something outside, all the things the cell could be doing, these are the services the users want running on the platform.
@@ -26,7 +26,7 @@ This component receives events from the other cells, and from it's cell, on the 
 
 Again, this is just data, it performs no actions with that data.
 
-## Cell Effectors
+## Gene Expression
 
 With the above 2 sets of data, what is wanted (the pressures on the platform), and what has been done to meet those pressures, it's possible for the cell to make decisions on how it can meet those pressures.
 It should select a piece of the missing requirements (maybe at random?) and implement it by spinning up services via one of it's control planes.

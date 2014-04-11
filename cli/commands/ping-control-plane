@@ -11,6 +11,9 @@ CONTROL_PLANE_STATUS=$(wait_for_control_plane)
 
 if [ "$CONTROL_PLANE_STATUS" != "FAILED" ]; then
   echo "Simple PaaS: Control Plane is running and available"
+  
+  echo $(curl --silent http://$CONTROL_PLANE:8080/container)
+  
 else
   echo "Simple PaaS: Control Plane is NOT RUNNING"
 fi

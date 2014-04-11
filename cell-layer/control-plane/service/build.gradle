@@ -1,12 +1,11 @@
 
 buildscript {
   repositories {
-    maven { url "http://repo.spring.io/milestone" }
     mavenCentral()
     mavenLocal()
   }
   dependencies {
-    classpath("org.springframework.boot:spring-boot-gradle-plugin:1.0.0.RC3")
+    classpath("org.springframework.boot:spring-boot-gradle-plugin:1.0.1.RELEASE")
   }
 }
 
@@ -23,14 +22,13 @@ jar {
 
 repositories {
   mavenCentral()
-  maven { url "http://repo.spring.io/milestone" }
   mavenLocal()
 }
 
 dependencies {
   compile 'org.codehaus.groovy:groovy-all:2.0.5'
-  compile("org.springframework.boot:spring-boot-starter-web:1.0.0.RC3")
-  compile("org.springframework.boot:spring-boot-starter-actuator:1.0.0.RC3")
+  compile("org.springframework.boot:spring-boot-starter-web:1.0.1.RELEASE")
+  compile("org.springframework.boot:spring-boot-starter-actuator:1.0.1.RELEASE")
   compile "org.codehaus.groovy.modules.http-builder:http-builder:0.7.1"
 
   testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
