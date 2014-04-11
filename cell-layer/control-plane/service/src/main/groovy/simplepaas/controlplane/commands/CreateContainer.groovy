@@ -14,70 +14,25 @@ class CreateContainer {
 
   def call(json) {
 
-    def dockerRet;
-
-      def proxyJson = """{
-                 "Image": "$json.imageId",
-                 "NetworkSettings": {
-                     "Ports": {
-                         "$json.port/tcp": [
-                                 {
-                                     "HostIp": "0.0.0.0",
-                                     "HostPort": "$json.port"
-                                 }
-                         ]
-                     }
-                 },
-                 "HostConfig": {
-                     "PortBindings": {
-                         "$json.port/tcp": [
-                                 {
-                                     "HostIp": "0.0.0.0",
-                                     "HostPort": "$json.port"
-                                 }
-                         ]
-                     }
-                 }
-         }"""
-
-      def proxyJson2 = [
-                 "Image": "$json.imageId",
-                 "NetworkSettings": [
-                     "Ports": [
-                         "$json.port/tcp": [
-                                 [
-                                     "HostIp": "0.0.0.0",
-                                     "HostPort": "$json.port"
-                                 ]
-                         ]
-                     ]
-                 ],
-                 "HostConfig": [
-                     "PortBindings": [
-                         "$json.port/tcp": [
-                                 [
-                                     "HostIp": "0.0.0.0",
-                                     "HostPort": "$json.port"
-                                 ]
-                         ]
-                     ]
-                 ]
-         ]
-
-      //println("proxyJson: " + proxyJson)
-      def result = new JsonSlurper().parseText(proxyJson)
-
-      if (json.port) {
-          dockerRet = dockerApi.post("/containers/create?name=${json.name}",  new JsonBuilder(proxyJson2).toString())
-      } else {
-          dockerRet = dockerApi.post("/containers/create?name=${json.name}", new JsonBuilder([
+        def  dockerRet = dockerApi.post("/containers/create?name=${json.name}", new JsonBuilder([
                   "Image": json.imageId,
                   "Env": getEnvironmentVariables(json)
           ]).toString())
-      }
-    println("dockerRet=" + dockerRet)
-    //TODO, start the container!
-    dockerApi.post("/containers/${dockerRet.Id}/start", new JsonBuilder([:]).toString())
+
+    // If container is sp_proxy then bind port 8080 to host
+    if (json.imageId.contains("sp_proxy") || json.name.contains("sp_proxy") ) {
+           def proxyStartJson = """
+            {
+                "PortBindings": { "8080/tcp": [{ "HostPort": "8080" }] },
+                "Privileged": false,
+                "PublishAllPorts": false
+           }
+            """
+        dockerApi.post("/containers/${dockerRet.Id}/start", proxyStartJson)
+    } else {
+        dockerApi.post("/containers/${dockerRet.Id}/start", new JsonBuilder([:]).toString())
+    }
+
 
     [message: "Container created",
         id: dockerRet.Id
