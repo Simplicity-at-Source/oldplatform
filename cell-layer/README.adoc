@@ -1,0 +1,36 @@
+# Simple PaaS Cell Services
+
+The 'Cell' is the conceptual base system in the Platform as a Service layer of Simple PaaS.
+
+All elements run as Microservice style Docker containers.  This implements sufficient services to run a PaaS based on requesting docker containers run in a particular configuration.
+
+There is explicitly no clustering, little redundancy and overall a 'fragile' feel to the construction. This is by design.  If the cell becomes sick, corrupt or is damaged it will be killed as a unit.  No attempt will be made to repair or otherwise heal the cell.
+
+The cell is aware of it's environment, communicating with the other cells in it's platform via event chatter.
+
+## Control Plane
+
+Every Docker instance in the cell will have a control plane running within it.  This proxies and transforms the docker api into the docker network space and permits it to be accessed in a controlled way by the other cell services without exposing it externally.
+
+This is a low level service, and should not be expected to be accessed directly.  To start a container, input a definition into the definition store and see the 
+
+## Service Definition Store [genotype]
+
+Accepting and storing the definition information in the cell.
+This component is notified, by something outside, all the things the cell could be doing, these are the services the users want running on the platform.
+This is a simple data service, it has no active processes of it's own.  It should probably allow richer searching, slicing and dicing of the injected information, and so support discovery, but it does nothing in and of itself with the definitions.
+
+## Phenotype Monitor
+
+This component receives events from the other cells, and from it's cell, on the state of the platform.  It is an event sourced data store with rolling data expiry to allow every cell to keep a 'good enough' picture of the platform.
+
+Again, this is just data, it performs no actions with that data.
+
+## Cell Effectors
+
+With the above 2 sets of data, what is wanted (the pressures on the platform), and what has been done to meet those pressures, it's possible for the cell to make decisions on how it can meet those pressures.
+It should select a piece of the missing requirements (maybe at random?) and implement it by spinning up services via one of it's control planes.
+
+This responsibility will probably be spread across a few components, or just in 1, not sure yet.  We can start with 1, have it read the definitions, read the platform state, subtract one from the other and spin up containers to fill the gaps.
+For a simple platform dealing with single container services (ie, no clusters), that will work as is.  
+The process of Discovery exists in here.
