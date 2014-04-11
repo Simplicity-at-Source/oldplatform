@@ -1,0 +1,23 @@
+{
+                 "Image": "sp-platform/spi-sp_proxy",
+                 "NetworkSettings": {
+                     "Ports": {
+                         "8080/tcp": [
+                                 {
+                                     "HostIp": "0.0.0.0",
+                                     "HostPort": "8080"
+                                 }
+                         ]
+                     }
+                 },
+                 "HostConfig": {
+                     "PortBindings": {
+                         "8080/tcp": [
+                                 {
+                                     "HostIp": "0.0.0.0",
+                                     "HostPort": "8080"
+                                 }
+                         ]
+                     }
+                 }
+}

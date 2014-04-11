@@ -47,6 +47,8 @@ boot_control_plane
 boot_service gene-store
 boot_service phenotype-monitor
 boot_service gene-expressor
+boot_service sp_registry
+boot_service sp_proxy
 
 echo ""
 echo "Simple PaaS: Dev Installation Completed, Simple PaaS Cell is running."
