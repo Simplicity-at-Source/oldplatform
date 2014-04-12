@@ -1,7 +1,7 @@
 package simplepaas.controlplane
 
 import groovy.json.JsonBuilder
-import groovy.json.JsonSlurper
+import simplepaas.controlplane.commands.DestroyContainer
 import spock.lang.Specification
 
 class DestroyContainerSpec extends Specification {

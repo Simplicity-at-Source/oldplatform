@@ -1,6 +1,7 @@
 package simplepaas.controlplane
 
 import groovy.json.JsonBuilder
+import simplepaas.controlplane.commands.ListImages
 import spock.lang.Specification
 
 class ListImagesSpec extends Specification {

@@ -2,6 +2,7 @@ package simplepaas.controlplane
 
 import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
+import simplepaas.controlplane.commands.CreateContainer
 import spock.lang.Specification
 
 class CreateContainerSpec extends Specification {

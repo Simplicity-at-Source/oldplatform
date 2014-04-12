@@ -1,6 +1,5 @@
 package simplepaas.controlplane
 
-import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
 import groovyx.net.http.HTTPBuilder
 import org.springframework.beans.factory.annotation.Autowired
@@ -17,9 +16,23 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseBody
+import simplepaas.controlplane.commands.CreateContainer
+import simplepaas.controlplane.commands.DestroyContainer
+import simplepaas.controlplane.commands.ListContainers
+import simplepaas.controlplane.commands.ListImages
 
 import static groovyx.net.http.ContentType.*
 import static groovyx.net.http.Method.*
+
+
+/*
+add lop streaming.
+  stderr
+  stdout
+
+add ability to download files
+*/
+
 
 @Controller
 @Configuration
@@ -37,44 +50,29 @@ class ApiController {
   @RequestMapping(value="/container", method = RequestMethod.POST)
   @ResponseBody
   def createContainer(@RequestBody String json) {
-    try {
-      createContainerCommand(fromJson(json))
-    } catch (Exception ex) {
-      ex.printStackTrace()
-      [failure:ex.message]
-    }
+    convertFailure { createContainerCommand(fromJson(json)) }
   }
 
   @RequestMapping(value="/container", method = RequestMethod.GET)
   @ResponseBody
   def listContainer() {
-    try {
-      listContainersCommand()
-    } catch (Exception ex) {
-      ex.printStackTrace()
-      [failure:ex.message]
-    }
+    convertFailure { listContainersCommand() }
   }
 
   @RequestMapping(value="/container/{containerId}", method = RequestMethod.DELETE)
   @ResponseBody
   def destroyContainer(@PathVariable(value = "containerId") String containerId) {
-    destroyContainerCommand(containerId)
+    convertFailure { destroyContainerCommand(containerId) }
   }
 
   @RequestMapping(value="/images", method = RequestMethod.GET)
   @ResponseBody
   def listImages(@RequestParam(value="repo", required = false) String repo) {
-    try {
-      listImagesCommand()
-    } catch (Exception ex) {
-      ex.printStackTrace()
-      [failure:ex.message]
-    }
+    convertFailure { listImagesCommand() }
   }
 
   @Scheduled(fixedRate = 2000l)
-  public void reportCurrentTime() {
+  public void sendStatusToPhenotype() {
     def status = listContainersCommand()
     def http = new HTTPBuilder("http://172.17.0.4:8080/")
     def jsonResp
@@ -85,7 +83,6 @@ class ApiController {
         jsonResp=json
       }
     }
-    prinltn "Response was $jsonResp"
   }
 
   def fromJson(json) {
@@ -98,136 +95,21 @@ class ApiController {
   @Bean ListContainers listContainersBean() { new ListContainers() }
   @Bean ListImages listImagesBean() { new ListImages() }
 
+  static convertFailure(Closure cl) {
+    try {
+      return cl()
+    } catch (Exception ex) {
+      ex.printStackTrace()
+      return [failure:ex.message]
+    }
+  }
+
   static void main(String[] args) throws Exception {
     SpringApplication.run(ApiController, args);
   }
 }
 
-class InspectImage {
-  @Autowired JSONApi dockerApi
 
-  def call() {
 
-    def dockerRet = dockerApi.get("/containers/json")
 
-    dockerRet
-  }
-}
 
-class ListImages {
-  @Autowired JSONApi dockerApi
-
-  def call() {
-
-    def dockerRet = dockerApi.get("/containers/json")
-
-    dockerRet
-  }
-}
-
-class ListContainers {
-  @Autowired JSONApi dockerApi
-
-  def call() {
-
-    def dockerRet = dockerApi.get("/containers/json")
-
-    return dockerRet.collect {
-      it.id = it.Id
-      it.inspection = dockerApi.get("/containers/${it.Id}/json")
-      it.provides = generateProvides(it.inspection)
-      it
-    }
-  }
-
-  def generateProvides(containerInspection) {
-    def provides = containerInspection.Config?.Env?.find {
-      it.startsWith("PROVIDES")
-    }
-
-    if (!provides) {
-      return []
-    }
-
-    def provisions = provides.substring(9)?.split(",")
-
-    return provisions.collect {
-      def (name, port) = it.split(":")
-      [name:name, port:port]
-    }
-  }
-}
-
-class DestroyContainer {
-  @Autowired JSONApi dockerApi
-
-  def call(id) {
-
-    def dockerRet = dockerApi.post("/containers/${id}/kill")
-    dockerRet = dockerApi.delete("/containers/${id}")
-
-    [message: "Container Destroyed"]
-  }
-}
-
-class CreateContainer {
-  @Autowired JSONApi dockerApi
-
-  def call(json) {
-
-    def dockerRet = dockerApi.post("/containers/create?name=${json.name}", new JsonBuilder([
-            "Image":json.imageId,
-            "Env": getEnvironmentVariables(json)
-    ]).toString())
-
-     //TODO, start the container!
-    dockerApi.post("/containers/${dockerRet.Id}/start", new JsonBuilder([:]).toString())   
-    
-    [message: "Container created",
-     id:dockerRet.Id
-    ]
-  }
-
-  List getEnvironmentVariables(json) {
-    json?.dependencies?.collect {
-      ["${it.dependency}_PORT=${it.port}", "${it.dependency}_HOST=${it.host}"]
-    }?.flatten()
-  }
-}
-
-class JSONApi {
-
-  def post(def url, def data = null) {
-    def http = new HTTPBuilder("http://172.17.42.1:4321/${url}")
-    def jsonResp
-    http.request( POST, JSON ) { req ->
-      if (data) {
-        body = data
-      }
-
-      response.success = { resp, json ->
-	      jsonResp=json
-      }
-    }
-    jsonResp
-  }
-
-  def delete(def url) {
-    def http = new HTTPBuilder("http://172.17.42.1:4321/${url}")
-    def jsonResp
-    http.request( DELETE ) { req ->
-
-      response.success = { resp, json ->
-        jsonResp=json
-      }
-    }
-    jsonResp
-  }
-
-  def get(def url) {
-    def jsonText = new URL("http://172.17.42.1:4321/${url}").text
-
-    new JsonSlurper().parseText(jsonText)
-  }
-
-}

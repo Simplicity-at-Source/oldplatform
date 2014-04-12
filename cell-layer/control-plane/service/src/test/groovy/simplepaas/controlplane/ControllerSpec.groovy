@@ -5,6 +5,8 @@ import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
+import simplepaas.controlplane.commands.CreateContainer
+import simplepaas.controlplane.commands.DestroyContainer
 import spock.lang.Unroll
 
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.*
