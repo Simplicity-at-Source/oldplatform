@@ -50,30 +50,30 @@ class ApiController {
   @RequestMapping(value="/container", method = RequestMethod.POST)
   @ResponseBody
   def createContainer(@RequestBody String json) {
-    convertFailure { createContainerCommand(fromJson(json)) }
+    convertFailure { createContainerCommand.call(fromJson(json)) }
   }
 
   @RequestMapping(value="/container", method = RequestMethod.GET)
   @ResponseBody
   def listContainer() {
-    convertFailure { listContainersCommand() }
+    convertFailure { listContainersCommand.call() }
   }
 
   @RequestMapping(value="/container/{containerId}", method = RequestMethod.DELETE)
   @ResponseBody
   def destroyContainer(@PathVariable(value = "containerId") String containerId) {
-    convertFailure { destroyContainerCommand(containerId) }
+    convertFailure { destroyContainerCommand.call(containerId) }
   }
 
   @RequestMapping(value="/images", method = RequestMethod.GET)
   @ResponseBody
   def listImages(@RequestParam(value="repo", required = false) String repo) {
-    convertFailure { listImagesCommand() }
+    convertFailure { listImagesCommand.call() }
   }
 
   @Scheduled(fixedRate = 2000l)
   public void sendStatusToPhenotype() {
-    def status = listContainersCommand()
+    def status = listContainersCommand.call()
     def http = new HTTPBuilder("http://172.17.0.4:8080/")
     def jsonResp
     http.request( POST, JSON ) { req ->

@@ -5,9 +5,6 @@ import groovyx.net.http.ContentType
 import groovyx.net.http.HTTPBuilder
 import groovyx.net.http.Method
 
-/**
- * Created by david on 12/04/14.
- */
 class JSONApi {
 
   def post(def url, def data = null) {

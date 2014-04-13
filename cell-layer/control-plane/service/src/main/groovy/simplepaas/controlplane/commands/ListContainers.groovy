@@ -21,9 +21,9 @@ class ListContainers {
       it.processes = dockerApi.get("/containers/${it.Id}/top")
       it.files = dockerApi.get("/containers/${it.Id}/changes")
       it.links = [
-          [rel:"self", href:"http://172.17.0.2:8080/container/${it.Id}"],
-          [rel:"stdout", href:"http://172.17.0.2:8080/container/${it.Id}/stdout"],
-          [rel:"stderr", href:"http://172.17.0.2:8080/container/${it.Id}/stderr"]
+          [rel:"self", href:"http://172.17.0.2:8080/container/${it.Id}".toString()],
+          [rel:"stdout", href:"http://172.17.0.2:8080/container/${it.Id}/stdout".toString()],
+          [rel:"stderr", href:"http://172.17.0.2:8080/container/${it.Id}/stderr".toString()]
       ]
       it
     }
