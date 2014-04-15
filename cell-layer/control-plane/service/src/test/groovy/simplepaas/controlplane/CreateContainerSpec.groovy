@@ -14,6 +14,7 @@ class CreateContainerSpec extends Specification {
     def command = new CreateContainer(dockerApi: api)
     def jsonRequest = [
             imageId: "123456",
+            name:"awesome",
             dependencies:  [
                     [
                             dependency:"postgres",
@@ -32,7 +33,7 @@ class CreateContainerSpec extends Specification {
     command(jsonRequest)
 
     then:
-    1 * api.post("/containers/create", {
+    1 * api.post("/containers/create?name=awesome", {
       def json = new JsonSlurper().parseText(it)
       json.Image == "123456" &&
       json.Env.find { it.contains("postgres") } != null

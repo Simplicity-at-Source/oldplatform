@@ -12,7 +12,7 @@ class ListImages {
 
   def call() {
 
-    def dockerRet = dockerApi.get("/containers/json")
+    def dockerRet = dockerApi.get("/images/json")
 
     dockerRet
   }
