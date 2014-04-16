@@ -14,22 +14,21 @@ class CreateContainerSpec extends Specification {
         def command = new CreateContainer(dockerApi: api)
         def jsonRequest = [
                 imageId: "sp_proxy",
-                name:"awesome",
-                port:  "8080"
+                name:"sp_proxy",
         ]
 
         when:
         command(jsonRequest)
 
         then:
-        1 * api.post("/containers/create?name=awesome", {
-            //println("it: " + it)
+        1 * api.post("/containers/create?name=sp_proxy", {
             def json = new JsonSlurper().parseText(it)
-            //def json = it
-            println("json: " + json.toString())
-            json.Image == "sp_proxy" &&
-            //json.HostConfig.PortBindings."8080/tcp".find { it.contains("8080/tcp") } != null
-            json.toString().contains("PortBindings:[8080/tcp")
+            json.Image == "sp_proxy"
+        }) >> [Id:"abcdef123456"]
+
+        1 * api.post("/containers/abcdef123456/start", {
+            def json = new JsonSlurper().parseText(it)
+            json.PortBindings."8080/tcp"[0].HostPort == "8080"
         }) >> [Id:"abcdef123456"]
     }
 
@@ -59,7 +58,6 @@ class CreateContainerSpec extends Specification {
     then:
     1 * api.post("/containers/create?name=awesome", {
       def json = new JsonSlurper().parseText(it)
-      println("json: " + json.toString())
       json.Image == "123456" &&
       json.Env.find { it.contains("postgres") } != null
     }) >> [Id:"THEIDOFDOOM"]
