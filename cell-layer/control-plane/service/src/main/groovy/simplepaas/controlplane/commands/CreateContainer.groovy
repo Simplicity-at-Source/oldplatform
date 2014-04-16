@@ -16,7 +16,7 @@ class CreateContainer {
 
     def dockerRet;
 
-      def proxyJson = """[{
+      def proxyJson = """{
                  "Image": "$json.imageId",
                  "NetworkSettings": {
                      "Ports": {
@@ -38,7 +38,7 @@ class CreateContainer {
                          ]
                      }
                  }
-         }]"""
+         }"""
 
       def proxyJson2 = [
                  "Image": "$json.imageId",
