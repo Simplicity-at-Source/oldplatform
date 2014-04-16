@@ -9,6 +9,30 @@ class CreateContainerSpec extends Specification {
 
   JSONApi api = Mock(JSONApi)
 
+    def "Correctly passes host and networking settings for sp_proxy"() {
+        given:
+        def command = new CreateContainer(dockerApi: api)
+        def jsonRequest = [
+                imageId: "sp_proxy",
+                name:"awesome",
+                port:  "8080"
+        ]
+
+        when:
+        command(jsonRequest)
+
+        then:
+        1 * api.post("/containers/create?name=awesome", {
+            //println("it: " + it)
+            def json = new JsonSlurper().parseText(it)
+            //def json = it
+            println("json: " + json.toString())
+            json.Image == "sp_proxy" &&
+            //json.HostConfig.PortBindings."8080/tcp".find { it.contains("8080/tcp") } != null
+            json.toString().contains("PortBindings:[8080/tcp")
+        }) >> [Id:"abcdef123456"]
+    }
+
   def "Correctly calls the docker API"() {
     given:
     def command = new CreateContainer(dockerApi: api)
@@ -35,6 +59,7 @@ class CreateContainerSpec extends Specification {
     then:
     1 * api.post("/containers/create?name=awesome", {
       def json = new JsonSlurper().parseText(it)
+      println("json: " + json.toString())
       json.Image == "123456" &&
       json.Env.find { it.contains("postgres") } != null
     }) >> [Id:"THEIDOFDOOM"]
