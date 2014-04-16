@@ -68,6 +68,7 @@ class CreateContainer {
       def result = new JsonSlurper().parseText(proxyJson)
 
       if (json.port) {
+          println("sending post to docker api for sp_proxy. json=" + proxyJson2);
           dockerRet = dockerApi.post("/containers/create?name=${json.name}",  new JsonBuilder(proxyJson2).toString())
       } else {
           dockerRet = dockerApi.post("/containers/create?name=${json.name}", new JsonBuilder([
