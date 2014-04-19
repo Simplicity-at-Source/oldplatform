@@ -1,9 +1,9 @@
 
-LIBDIR="$( cd "$( dirname "$0" )" && pwd )/../lib" 
+LIBDIR="$( cd "$( dirname "$0" )" && pwd )/lib" 
 
 lookup_control-plane_ip() {
 
-  local CONTROL_ID=$(docker ps |grep sp-control-plane| tr -s ' ' |cut -d ' ' -f 1)
+  local CONTROL_ID=$(docker ps |grep sp_control_plane| tr -s ' ' |cut -d ' ' -f 1)
   local CONTROL_IP=$(docker inspect $CONTROL_ID | $LIBDIR/json -l | egrep '\[0,"NetworkSettings","IPAddress"]' | cut -d '"' -f 6)
   echo $CONTROL_IP
 }
@@ -18,7 +18,7 @@ boot_service() {
   echo "Control plane [$CONTROL_PLANE] says $CONTROL_PLANE_STATUS"
   
   if [ "$CONTROL_PLANE_STATUS" != "FAILED" ]; then
-    PAYLOAD="{\"name\":\"sp-$1\",\"imageId\":\"sp-platform/spi-$1\",\"dependencies\":[{\"dependency\":\"sp-control-plane\",\"host\":\"$CONTROL_PLANE\",\"port\":8080}]}"
+    PAYLOAD="{\"name\":\"sp-$1\",\"imageId\":\"sp_platform/spi_$1\",\"dependencies\":[{\"dependency\":\"sp-control-plane\",\"host\":\"$CONTROL_PLANE\",\"port\":8080}]}"
     echo "Sending $PAYLOAD"
     RESPONSE=$(curl --silent -X POST -H "Content-Type: application/json" -d "$PAYLOAD" http://$CONTROL_PLANE:8080/container)
     echo "Control Plane says $RESPONSE"

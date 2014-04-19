@@ -6,4 +6,4 @@ cd service
 
 cd ..
 
-docker build --tag=sp-platform/spi-phenotype-monitor .
+docker build --tag=sp_platform/spi_phenotype_monitor .

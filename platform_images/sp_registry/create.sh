@@ -19,8 +19,8 @@ if [ -z "$EXISTING_IMAGE" ]
 then
   cat Dockerfile.template | envsubst > Dockerfile
   cat Dockerfile
-  echo "RUNNING: sudo docker build --tag sp-platform/spi-$SERVICE_NAME . "
-  sudo docker build --tag sp-platform/spi-$SERVICE_NAME . 
+  echo "RUNNING: sudo docker build --tag sp_platform/spi_$SERVICE_NAME . "
+  sudo docker build --tag sp_platform/spi_$SERVICE_NAME . 
   mv Dockerfile Dockerfile.prev
 fi
 

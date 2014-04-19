@@ -1,4 +1,4 @@
  #!/bin/bash
 
 
-docker build --tag=sp-platform/spi-sp_registry .
+docker build --tag=sp_platform/spi_sp_registry .

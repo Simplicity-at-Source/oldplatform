@@ -1,5 +1,5 @@
  
-FROM ubuntu:saucy
+FROM phusion/baseimage
 
 MAINTAINER Simplicity Itself
 

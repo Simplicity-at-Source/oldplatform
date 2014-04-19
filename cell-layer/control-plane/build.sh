@@ -6,4 +6,4 @@ cd service
 
 cd ..
 
-docker build --tag=sp-platform/spi-control-plane .
+docker build --tag=sp_platform/spi_control_plane .

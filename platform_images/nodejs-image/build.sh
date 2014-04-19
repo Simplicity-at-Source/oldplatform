@@ -1,3 +1,3 @@
  #!/bin/bash
 
-docker build --tag=sp-platform/spi-nodejs .
+docker build --tag=sp_platform/spi_nodejs .

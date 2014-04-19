@@ -1,9 +1,3 @@
  #!/bin/bash
 
-cd service
-
-./gradlew bootRepackage
-
-cd ..
-
-docker build --tag=sp-platform/spi-control-plane .
+docker build --tag=sp_platform/spi_riak_node .

@@ -1,3 +1,3 @@
 #!/bin/bash
 
-java -jar /sp-control-plane-0.1.jar
+java -jar /sp-riak-expressor-0.1.jar

@@ -2,12 +2,12 @@
 
 LOCALDIR="$( cd "$( dirname "$0" )" && pwd )" 
 
-. $LOCALDIR/../lib/library.sh
+. $LOCALDIR/lib/library.sh
 
 
 boot_control_plane() {
-  local IMAGE="sp-platform/spi-control-plane"
-  local CONTAINER="sp-control-plane"
+  local IMAGE="sp_platform/spi_control_plane"
+  local CONTAINER="sp_control_plane"
 
   echo "Simple PaaS: Starting the Local Control Plane"
   local current_id=$(docker ps -a|grep $CONTAINER|tr -s ' ' | cut -d ' ' -f 1)
@@ -44,9 +44,9 @@ socat TCP4-LISTEN:4321,fork,reuseaddr,range=172.17.0.0/8 UNIX:/var/run/docker.so
 echo "Simple PaaS: Connection to local Docker Daemon Initialised"
 
 boot_control_plane
-boot_service gene-store
-boot_service phenotype-monitor
-boot_service gene-expressor
+boot_service gene_store
+boot_service phenotype_monitor
+boot_service cell_expressor
 boot_service sp_registry
 boot_service sp_proxy
 

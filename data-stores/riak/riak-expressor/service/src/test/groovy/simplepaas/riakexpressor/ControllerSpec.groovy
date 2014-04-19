@@ -1,12 +1,10 @@
-package simplepaas.controlplane
+package simplepaas.riakexpressor
 
 import groovy.json.JsonBuilder
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
-import simplepaas.controlplane.commands.CreateContainer
-import simplepaas.controlplane.commands.DestroyContainer
 import spock.lang.Unroll
 
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.*
@@ -25,7 +23,7 @@ class ControllerSpec extends Specification {
             "imageId": "123456"
     ]
 
-    mockMVC = standaloneSetup(new ApiController("${commandName}": command)).build()
+    mockMVC = standaloneSetup(new RiakExpressor("${commandName}": command)).build()
 
     when:
     def response = mockMVC.perform(MockMvcRequestBuilders.post(url)
@@ -46,7 +44,7 @@ class ControllerSpec extends Specification {
     given:
     def command = Mock(commandClass)
 
-    mockMVC = standaloneSetup(new ApiController("${commandName}": command)).build()
+    mockMVC = standaloneSetup(new RiakExpressor("${commandName}": command)).build()
 
     when:
     def response = mockMVC.perform(MockMvcRequestBuilders.delete(url))

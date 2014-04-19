@@ -6,4 +6,4 @@ cd service
 
 cd ..
 
-docker build --tag=sp-platform/spi-gene-store .
+docker build --tag=sp_platform/spi_gene_store .
