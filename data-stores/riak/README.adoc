@@ -13,6 +13,19 @@ Riak is an open source, distributed database. Riak is architected for:
 
 Riak can be run on Simple PaaS as a collection of services that interoperate.
 
+### Dev Quickstart
+
+Request the cell expressor to boot a riak expressor
+```
+curl -X POST -H "Content-Type: application/json" -d '{"id":"riak-expressor", "image":"sp_platform/spi_riak_expressor"}' http://172.17.0.3:8080/cell
+```
+
+Then, request the riak expressor to create a riak cluster (currently just a single node one)
+```
+curl -X POST -H "Content-Type: application/json" -d '{"id":"riak-cluster-1"}' http://172.17.0.3:8080/riak
+curl -X POST -H "Content-Type: application/json" -d '{"id":"riak-cluster-2"}' http://172.17.0.3:8080/riak
+```
+
 ### Riak Expressor
 
 The expressor is the controlling service allowing users to request Riak node(s) be run in particular 
@@ -28,7 +41,7 @@ uploaded into the gene store at the /riak url.
 }
 ```
 
-Via Curl, to the local gene store, this would be
+Via Curl, inserting into to the local gene store, this would be
 ```
 curl -X POST -H "Content-Type: application/json" -d "{'id':'my-riak-cluster'}" http://172.17.0.3:8080/riak
 ```

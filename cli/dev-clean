@@ -3,10 +3,10 @@
 echo "Simple PaaS: Cleaning Simple PaaS artifacts from Docker"
 
 echo "Simple PaaS: Removing SP Containers"
-docker rm $(docker ps -a |grep spi-|tr -s ' ' |cut -d ' ' -f 1)
+docker rm -f $(docker ps -a |grep spi_|tr -s ' ' |cut -d ' ' -f 1)
 
 echo "Simple PaaS: Removing SP Platform Images"
-docker rmi $(docker images | grep "spi-" | tr -s ' ' | cut -d ' ' -f 1)
+docker rmi $(docker images | grep "spi_" | tr -s ' ' | cut -d ' ' -f 1)
 
 echo ""
 echo "Simple PaaS: Containers and images destroyed, Simple PaaS is purged."

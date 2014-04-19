@@ -3,7 +3,7 @@ LIBDIR="$( cd "$( dirname "$0" )" && pwd )/lib"
 
 lookup_control-plane_ip() {
 
-  local CONTROL_ID=$(docker ps |grep sp_control_plane| tr -s ' ' |cut -d ' ' -f 1)
+  local CONTROL_ID=$(docker ps |grep sp-control_plane| tr -s ' ' |cut -d ' ' -f 1)
   local CONTROL_IP=$(docker inspect $CONTROL_ID | $LIBDIR/json -l | egrep '\[0,"NetworkSettings","IPAddress"]' | cut -d '"' -f 6)
   echo $CONTROL_IP
 }

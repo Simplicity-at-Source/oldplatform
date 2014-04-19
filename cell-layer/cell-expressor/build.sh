@@ -6,4 +6,4 @@ cd service
 
 cd ..
 
-docker build --tag=sp_platform/spi_gene_expressor .
+docker build --tag=sp_platform/spi_cell_expressor .
