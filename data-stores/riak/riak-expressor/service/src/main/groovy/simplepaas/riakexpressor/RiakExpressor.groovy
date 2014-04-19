@@ -50,7 +50,7 @@ class RiakExpressor {
     def orphanServices = runningServices.findAll {
       def name = name(it.inspection)
       log.info "Checking ${name} against $geneIds , contains? ${geneIds.find { name.toString() }}"
-      !geneIds.find { name.toString() }
+      !geneIds.find { it == name.toString() }
     }
     log.info "Orphaned services ${orphanServices.inspection.Name}"
 

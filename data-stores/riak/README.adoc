@@ -20,10 +20,27 @@ Request the cell expressor to boot a riak expressor
 curl -X POST -H "Content-Type: application/json" -d '{"id":"riak-expressor", "image":"sp_platform/spi_riak_expressor"}' http://172.17.0.3:8080/cell
 ```
 
+After a few seconds, you will see a new container running `cell-riak-expressor`
+
 Then, request the riak expressor to create a riak cluster (currently just a single node one)
 ```
 curl -X POST -H "Content-Type: application/json" -d '{"id":"riak-cluster-1"}' http://172.17.0.3:8080/riak
 curl -X POST -H "Content-Type: application/json" -d '{"id":"riak-cluster-2"}' http://172.17.0.3:8080/riak
+```
+
+You will then see new containers running that implement these clusters.
+
+Remove one of the riak clusters by removing the associated gene.
+
+```
+curl -X DELETE  http://172.17.0.3:8080/riak/riak-cluster-2
+```
+
+Remove the expressor itself to remove the ability to run Riak within the cell.  Any Riak nodes will continue to run,
+but will not be maintained or restarted.
+
+```
+curl -X DELETE  http://172.17.0.3:8080/cell/riak-expressor
 ```
 
 ### Riak Expressor
