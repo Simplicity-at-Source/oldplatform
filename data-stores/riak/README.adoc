@@ -1,0 +1,43 @@
+# Riak Integration
+
+*From the riak website*
+
+Riak is an open source, distributed database. Riak is architected for:
+
+* Availability: Riak replicates and retrieves data intelligently so it is available for read and write operations, even in failure conditions;
+* Fault-Tolerance: You can lose access to many nodes due to network partition or hardware failure without losing data;
+* Operational Simplicity: Add new machines to your Riak cluster easily without incurring a larger operational burden – the same ops tasks apply to small clusters as large clusters;
+* Scalability: Riak automatically distributes data around the cluster and yields a near-linear performance increase as you add capacity.
+
+## Simple PaaS Integration
+
+Riak can be run on Simple PaaS as a collection of services that interoperate.
+
+### Riak Expressor
+
+The expressor is the controlling service allowing users to request Riak node(s) be run in particular 
+formats.
+
+In common with the other expressors, it is declarative in nature, and reacts to Riak specific 'genes' being
+uploaded into the gene store at the /riak url.
+
+*Riak Schema*
+```
+{
+  "id": "my ID" //the name of the cluster, must be unique across the platform
+}
+```
+
+Via Curl, to the local gene store, this would be
+```
+curl -X POST -H "Content-Type: application/json" -d "{'id':'my-riak-cluster'}" http://172.17.0.3:8080/riak
+```
+
+Riak container(s) will then be fired up and configured to satisfy this request.  
+Currently, only a single instance is supported. This will be fixed in future releases...
+
+### Riak Node Image
+
+A docker image that has Riak installed.  Used by the expressor to create riak containers.
+
+Currently the only supported Riak image, until it is understood how much integration between image and expressor is required to support declarative cluster creation across cells.

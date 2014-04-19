@@ -21,7 +21,7 @@ class RiakExpressor {
   static PHENOTYPE_MONITOR = "http://172.17.0.4:8080/"
   static MARKER = "sp-riak"
   //for now, use a hardcoded image. Allow overriding at some point when we understand the base behaviour required.
-  static RIAK_NODE_IMAGE = "sp-platform/spi-riak-node"
+  static RIAK_NODE_IMAGE = "sp_platform/spi_riak_node"
 
   @Autowired JSONApi api
 
