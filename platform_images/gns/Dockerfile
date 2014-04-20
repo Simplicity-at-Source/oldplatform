@@ -1,7 +1,7 @@
 FROM sp_platform/spi_nodejs
-WORKDIR /spaas
-RUN git clone https://github.com/fuzzy-logic/sp_registry.git
-WORKDIR /spaas/sp_registry
+RUN mkdir -p /proxy
+ADD service/ /proxy
+WORKDIR /proxy
 RUN /spaas/nodejs/bin/npm install
 EXPOSE 8888
 ENTRYPOINT /spaas/nodejs/bin/node app.js

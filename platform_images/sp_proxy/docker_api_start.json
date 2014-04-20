@@ -1,6 +1,0 @@
-
- {
-                "PortBindings":{ "8080/tcp": [{ "HostPort": "8080" }] },
-                "Privileged":false,
-                "PublishAllPorts":false
-  }

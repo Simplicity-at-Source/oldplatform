@@ -1,0 +1,21 @@
+{
+    "name": "sp_registry",
+    "description": "SP Registry",
+    "version": "0.0.1",
+    "private": true,
+    "scripts": {
+        "start": "node app",
+        "test": "./node_modules/mocha/bin/mocha -R spec"
+    },
+    "dependencies": {
+        "underscore": "*",
+        "superagent": "*",
+        "assert": "*",
+        "restify": "*",
+        "validator": "*"
+    },
+    "devDependencies": {
+        "mocha": "*"
+    }
+}
+

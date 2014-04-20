@@ -47,7 +47,7 @@ boot_control_plane
 boot_service gene_store
 boot_service phenotype_monitor
 boot_service cell_expressor
-boot_service sp_registry
+boot_service gns
 boot_service sp_proxy
 
 echo ""

@@ -1,7 +1,0 @@
-{
-     "Image":"sp_platform/spi_sp_proxy",
-     "DisableNetwork": false,
-     "ExposedPorts":{
-             "8080/tcp": {}
-     }
-}

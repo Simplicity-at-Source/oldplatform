@@ -1,0 +1,18 @@
+{
+    "name": "sp_proxy",
+    "description": "SP Reverse Proxy",
+    "version": "0.0.1",
+    "private": true,
+    "scripts": {
+        "start": "node app",
+        "test": "./node_modules/mocha/bin/mocha -R spec"
+    },
+    "dependencies": {
+        "underscore": "1.6.0"
+    },
+    "devDependencies": {
+        "mocha": "1.17.1",
+        "assert": "*",
+        "superagent": "*"
+    }
+}
