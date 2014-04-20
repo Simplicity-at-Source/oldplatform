@@ -1,0 +1,52 @@
+# Stateless Expressor
+
+This expressor manages 'stateless' services. These are services that hold no state of their own, and so multiple
+instances of the service can exist in parallel. 
+
+### Dev Quickstart
+
+If it is not already installed, request the cell expressor to boot a stateless expressor
+```
+curl -X POST -H "Content-Type: application/json" -d '{"id":"stateless-expressor", "image":"sp_platform/spi_stateless_expressor"}' http://172.17.0.3:8080/cell
+```
+
+After a few seconds, you will see a new container running `cell-stateless-expressor`
+
+Then, request the stateless expressor to create a service.
+```
+curl -X POST -H "Content-Type: application/json" -d '{"id":"my-service", "image":"tfduesing/apache", "count":2}' http://172.17.0.3:8080/stateless
+
+```
+
+You will then see 2 new containers running that implement these services.
+
+Update the gene to change the requested instances
+
+```
+curl -X POST -H "Content-Type: application/json" -d '{"id":"my-service", "image":"tfduesing/apache", "count":10}' http://172.17.0.3:8080/stateless
+```
+
+### Statess Expressor
+
+The expressor is the controlling service allowing users to request stateless services be run with particular runtime characteristics.
+
+In common with the other expressors, it is declarative in nature, and reacts to specific 'genes' being
+uploaded into the gene store at the /stateless url.
+
+*Stateless Schema*
+```
+{
+  "id": "my ID"         //the name of the cluster, must be unique across the platform
+  "image": "some image" //the docker image that will be run.
+  "count": 3            // the number of instances that SP should maintain.
+}
+```
+
+Via Curl, inserting into to the local gene store, this would be
+```
+curl -X POST -H "Content-Type: application/json" -d "{'id':'my-riak-cluster'}" http://172.17.0.3:8080/riak
+```
+
+Container(s) will then be fired up and configured to satisfy this request.  
+Currently, only count is a valid runtime param, more will be added in future releases..
+
