@@ -10,3 +10,4 @@ target/
 out/
 **/.gradle/
 **/node_modules/
+**/.DS_Store
