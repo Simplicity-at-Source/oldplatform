@@ -1,6 +1,6 @@
 FROM sp_platform/spi_nodejs
 RUN mkdir -p /proxy
-ADD service/ /proxy
+ADD sp_proxy/ /proxy
 WORKDIR /proxy
 RUN /spaas/nodejs/bin/npm install
 EXPOSE 8080
