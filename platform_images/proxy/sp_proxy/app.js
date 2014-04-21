@@ -29,11 +29,11 @@ http.createServer(coreHandler).listen(proxyPort, httpStartupComplete);
 function httpStartupComplete() {
     'use strict';
     console.log("To set Proxy Port/Docker REST Api/GNS Host:");
-    console.log("export SP_PROXY_PORT=8081");
-    console.log("export SP_DOCKER_HOST=172.14.0.2");
-    console.log("export SP_DOCKER_PORT=4321");
-    console.log("export SP_REGISTRY_HOST=192.168.0.6");
-    console.log("export SP_REGISTRY_PORT=8888");
+    console.log("export SP_PROXY_PORT=%s", proxyPort);
+    console.log("export SP_DOCKER_HOST=%s", dockerApiHost);
+    console.log("export SP_DOCKER_PORT=%s", dockerApiPort);
+    console.log("export SP_REGISTRY_HOST=%s", registryHost);
+    console.log("export SP_REGISTRY_PORT=%s", registryPort);
     console.log("starting sp proxy service http server on port " + proxyPort);
 }
 
