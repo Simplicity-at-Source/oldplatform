@@ -40,13 +40,12 @@ function httpStartupComplete() {
 function coreHandler(clientRequest, clientResponse) {
     'use strict';
     clientRequest.clientIp = clientRequest.headers['x-forwarded-for'] || clientRequest.connection.remoteAddress;
-    var servicename = clientRequest.headers.host;   
+    var requestUrl = url.parse(clientRequest.url, true, false);
+    //var servicename = clientRequest.headers.host;  
+    console.log('request url path: %s', requestUrl.path );
+    var servicename = requestUrl.path.split('/')[2];   
     console.log('coreHandler() client request for servicename=' + servicename);
     var proxyCallbackHandler = proxyRequest(clientRequest, clientResponse);
-    
-    
-     var requestUrl = url.parse(clientRequest.url, true, false);
-    console.log("coreHandler() requestUrl=" + requestUrl.path);
     if (requestUrl.path.lastIndexOf('/spapi', 0) === 0 ) {
         dockerLookup(servicename,  proxyCallbackHandler); 
     } else {

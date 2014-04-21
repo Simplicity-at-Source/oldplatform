@@ -1,4 +1,5 @@
 var http = require('http');
+var url = require('url');
 
 function mockEndPointHandler(req, res) {
    res.writeHead(200, {'Content-Type': 'text/plain'});
@@ -15,10 +16,21 @@ function mockRegistryHandler(req, res) {
 
 
 function mockDockerHandler(req, res) {
-   res.writeHead(200, {'Content-Type': 'application/json'});
-   //res.write(JSON.stringify({name: 'localhost', port: '3001', hosts: ['192.168.0.1:3000', '192.168.0.2:3001']}) );
-   res.write(JSON.stringify(dockerJson()));
-   res.end();
+    var requestUrl = url.parse(req.url, true, false);
+    var serviceName = requestUrl.path.split('/')[2];   
+    console.log('mockDockerHandler() url path: %s, service: %s', requestUrl.path, serviceName );
+    if (serviceName == 'sp-control_plane') {
+       res.writeHead(200, {'Content-Type': 'application/json'});
+       res.write(JSON.stringify(dockerJson()));
+       res.end(); 
+    } else {
+       res.writeHead(200, {'Content-Type': 'application/json'});
+       res.write(JSON.stringify({message: "error no matching service name in mockDockerHandler()"}));
+       res.end();
+        
+    }
+    
+  
 }
 
 
