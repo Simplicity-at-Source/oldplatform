@@ -11,6 +11,7 @@ import simplepaas.controlplane.JSONApi
 class CreateContainer {
   @Autowired
   JSONApi dockerApi
+  def proxyHostPort = 8888;
 
   def call(json) {
 
@@ -23,7 +24,7 @@ class CreateContainer {
     if (json.imageId.contains("sp_proxy") || json.name.contains("sp_proxy") ) {
            def proxyStartJson = """
             {
-                "PortBindings": { "8080/tcp": [{ "HostPort": "8080" }] },
+                "PortBindings": { "$proxyHostPort/tcp": [{ "HostPort": "$proxyHostPort" }] },
                 "Privileged": false,
                 "PublishAllPorts": false
            }
