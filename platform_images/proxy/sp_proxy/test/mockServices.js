@@ -1,6 +1,10 @@
 var http = require('http');
 var url = require('url');
 
+mockRegistryPort = 8080;
+mockEndpointPort = 3001;
+mockDockerApiPort = 4321;
+
 function mockEndPointHandler(req, res) {
    res.writeHead(200, {'Content-Type': 'text/plain'});
    res.write('mockEndPointHandler: Hello, World!');
@@ -24,8 +28,12 @@ function mockDockerHandler(req, res) {
        res.write(JSON.stringify(dockerJson()));
        res.end(); 
     } else if (serviceName == 'does-not-exist') {
-        res.writeHead(200, {'Content-Type': 'text/plain'});
+        res.writeHead(404, {'Content-Type': 'text/plain'});
        res.write("no service " + serviceName);
+       res.end(); 
+    } else if (serviceName == 'simplenode') {
+        res.writeHead(200, {'Content-Type': 'text/plain'});
+       res.write(JSON.stringify(dockerJson()));
        res.end(); 
     } else {
        res.writeHead(200, {'Content-Type': 'application/json'});
@@ -38,20 +46,20 @@ function mockDockerHandler(req, res) {
 }
 
 
-function httpStartupComplete(port) {
-    console.log("starting http server on port " + port);
+function httpStartupComplete(service, port) {
+    console.log("starting %s service on port %s", service, port);
 }
 
 
 
 //create mock endpoint service to test proxy with 
-http.createServer(mockEndPointHandler).listen(3001, httpStartupComplete(3001));
+http.createServer(mockEndPointHandler).listen(mockEndpointPort, httpStartupComplete("mock simplenode", mockEndpointPort));
 
 //create mock registry
-http.createServer(mockRegistryHandler).listen(4333, httpStartupComplete(4333));
+http.createServer(mockRegistryHandler).listen(mockRegistryPort, httpStartupComplete("mock registry", mockRegistryPort));
 
 //create mock docker registry
-http.createServer(mockDockerHandler).listen(4321, httpStartupComplete(4321));
+http.createServer(mockDockerHandler).listen(mockDockerApiPort, httpStartupComplete("mock docker api", mockDockerApiPort));
 
 
 function dockerJson() {

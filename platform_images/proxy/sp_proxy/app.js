@@ -41,14 +41,17 @@ function coreHandler(clientRequest, clientResponse) {
     'use strict';
     clientRequest.clientIp = clientRequest.headers['x-forwarded-for'] || clientRequest.connection.remoteAddress;
     var requestUrl = url.parse(clientRequest.url, true, false);
-    //var servicename = clientRequest.headers.host;  
-    console.log('request url path: %s', requestUrl.path );
-    var servicename = requestUrl.path.split('/')[2];   
-    console.log('coreHandler() client request for servicename=' + servicename);
+    //console.log('coreHandler() proxy request url path: %s', requestUrl.path );
     var proxyCallbackHandler = proxyRequest(clientRequest, clientResponse);
-    if (requestUrl.path.lastIndexOf('/spapi', 0) === 0 ) {
+    if (requestUrl.path.lastIndexOf('/spapi', 0) === 0 ) { // url path starts with /spapi
+        var servicename = requestUrl.path.split('/')[2]; 
+        if (! servicename) _sendBadGateway(servicename, clientResponse);
+         console.log('coreHandler() proxy via /spapi url path servicename=' + servicename);
         dockerLookup(servicename,  clientResponse, proxyCallbackHandler); 
     } else {
+        var servicename = clientRequest.headers.host;  
+         if (! servicename) _sendBadGateway(servicename, clientResponse);
+         console.log('coreHandler() proxy via host header servicename=' + servicename);
         registryLookup(servicename,  clientResponse, proxyCallbackHandler);    
     }
         
@@ -57,20 +60,19 @@ function coreHandler(clientRequest, clientResponse) {
 
 function dockerLookup(servicename, response, proxyCallbackHandler) {
     console.log('dockerLookup() servicename=' + servicename);
-    var dockerApiPort = '4321';
     var path = '/containers/' + servicename + '/json'; 
     var errCallback = function(err) {console.log("error contacting docker: " + err.message) };
     console.log("dockerApiHost=%s, dockerApiPort=%s",dockerApiHost, dockerApiPort);
     var dockerCallBack = function(body) {
         try {
-        var dockerResponse = JSON.parse(body);
+            var dockerResponse = JSON.parse(body);
         } catch (err) {
             _sendBadGateway(servicename, response);
             return;   
         }
             //console.log("dockerCallBack() dockerResponse=" +body);        
         if (! dockerResponse.NetworkSettings) {
-                _sendBadGateway(serviceName, response);
+                _sendBadGateway(servicename, response);
                 return;
             }
             var host = dockerResponse.NetworkSettings.IPAddress;
@@ -88,14 +90,17 @@ function dockerLookup(servicename, response, proxyCallbackHandler) {
 
 
 
-function registryLookup(servicename, proxyCallbackHandler) {
-    console.log('registryLookup() servicename=' + servicename);
+function registryLookup(servicename, clientResponse, proxyCallbackHandler) {
+    //console.log('registryLookup() servicename=' + servicename);
     var path = '/service/' + servicename + '/host/next'; 
     var errCallback = function(err) {console.log("error contacting registry: " + err.message) };
     var registryCallBack = function(body) {
         registryResponse = JSON.parse(body);
-        //console.log("registryCallBack() registryResponse=" +registryResponse);
-        proxyCallbackHandler(registryResponse.host, registryResponse.port);
+        //console.log("registryLookup()->registryCallBack() registryResponse=" +registryResponse);  
+        if (! registryResponse.host) {
+            _sendBadGateway(servicename, clientResponse);   
+        }
+        proxyCallbackHandler(registryResponse.host, registryResponse.port, false);
     }   
     httpio.getJson(registryHost, registryPort, path, registryCallBack, errCallback);
 }
@@ -128,7 +133,7 @@ function proxyRequest(clientRequest, clientResponse) {
                 "x-forwarded-for": clientRequest.clientIp
             });
 
-         console.log('proxyRequest() creating proxy request ' + options.method + ' http://' + host + ':' + options.port + options.path);
+         console.log('proxyRequest() creating proxy request to endpoint: ' + options.method + ' http://' + host + ':' + options.port + options.path);
             
         var endPointResponseFunction = endPointResponseHandler(clientRequest, clientResponse, options, host, requestUrl)
         var endPointRequest = http.request(options, endPointResponseFunction);
@@ -159,7 +164,7 @@ function proxyRequest(clientRequest, clientResponse) {
 
 function endPointResponseHandler(clientRequest, clientResponse, options, host, requestUrl) {
 
-   console.log("endPointResponseHandler() host=" + host);
+   //console.log("endPointResponseHandler() host=" + host);
 
     return function (endPointResponse) {
         clientResponse.statusCode = endPointResponse.statusCode;
@@ -169,7 +174,7 @@ function endPointResponseHandler(clientRequest, clientResponse, options, host, r
         });
 
         endPointResponse.on('error', function (error) {
-            console.log("endPointResponseHandler() endPointResponse.on('error')");
+            console.log("endPointResponseHandler() endPointResponse.on('error') error=" + error);
             clientResponse.connection.destroy();
 
         });
@@ -197,6 +202,7 @@ function endPointResponseHandler(clientRequest, clientResponse, options, host, r
 
 function _sendBadGateway(servicename, response) {
     'use strict';   
+    console.log("bad request for service %s sending 502", servicename);
     response.statusCode = BAD_GATEWAY_RESPONSE_CODE;
     response.write(JSON.stringify({message: "no service " + servicename}));
     response.end();
