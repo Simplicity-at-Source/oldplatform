@@ -47,25 +47,30 @@ function coreHandler(clientRequest, clientResponse) {
     console.log('coreHandler() client request for servicename=' + servicename);
     var proxyCallbackHandler = proxyRequest(clientRequest, clientResponse);
     if (requestUrl.path.lastIndexOf('/spapi', 0) === 0 ) {
-        dockerLookup(servicename,  proxyCallbackHandler); 
+        dockerLookup(servicename,  clientResponse, proxyCallbackHandler); 
     } else {
-        registryLookup(servicename,  proxyCallbackHandler);    
+        registryLookup(servicename,  clientResponse, proxyCallbackHandler);    
     }
         
 }
 
 
-function dockerLookup(servicename, proxyCallbackHandler) {
+function dockerLookup(servicename, response, proxyCallbackHandler) {
     console.log('dockerLookup() servicename=' + servicename);
     var dockerApiPort = '4321';
     var path = '/containers/' + servicename + '/json'; 
     var errCallback = function(err) {console.log("error contacting docker: " + err.message) };
     console.log("dockerApiHost=%s, dockerApiPort=%s",dockerApiHost, dockerApiPort);
     var dockerCallBack = function(body) {
+        try {
         var dockerResponse = JSON.parse(body);
-        //console.log("dockerCallBack() dockerResponse=" +body);        
+        } catch (err) {
+            _sendBadGateway(servicename, response);
+            return;   
+        }
+            //console.log("dockerCallBack() dockerResponse=" +body);        
         if (! dockerResponse.NetworkSettings) {
-                _sendBadGateway(serviceName, res);
+                _sendBadGateway(serviceName, response);
                 return;
             }
             var host = dockerResponse.NetworkSettings.IPAddress;
@@ -190,8 +195,9 @@ function endPointResponseHandler(clientRequest, clientResponse, options, host, r
 
 
 
-function _sendBadGateway(response) {
+function _sendBadGateway(servicename, response) {
     'use strict';   
     response.statusCode = BAD_GATEWAY_RESPONSE_CODE;
+    response.write(JSON.stringify({message: "no service " + servicename}));
     response.end();
 }

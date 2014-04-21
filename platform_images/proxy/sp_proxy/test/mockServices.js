@@ -23,6 +23,10 @@ function mockDockerHandler(req, res) {
        res.writeHead(200, {'Content-Type': 'application/json'});
        res.write(JSON.stringify(dockerJson()));
        res.end(); 
+    } else if (serviceName == 'does-not-exist') {
+        res.writeHead(200, {'Content-Type': 'text/plain'});
+       res.write("no service " + serviceName);
+       res.end(); 
     } else {
        res.writeHead(200, {'Content-Type': 'application/json'});
        res.write(JSON.stringify({message: "error no matching service name in mockDockerHandler()"}));
