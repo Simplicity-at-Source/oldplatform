@@ -24,7 +24,7 @@ class CreateContainer {
     if (json.imageId.contains("sp_proxy") || json.name.contains("sp_proxy") ) {
            def proxyStartJson = """
             {
-                "PortBindings": { "$proxyHostPort/tcp": [{ "HostPort": "$proxyHostPort" }] },
+                "PortBindings": { "8888/tcp": [{ "HostPort": "8888" }] },
                 "Privileged": false,
                 "PublishAllPorts": false
            }
