@@ -1,7 +1,7 @@
 var assert = require('assert');
 var proxyUtils = require('../proxyUtils.js');
 
-
+process.env.SP_DOCKER_HOST = 'locolhost';
 
 describe('Test Proxy Url Utils', function(){
     

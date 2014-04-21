@@ -26,12 +26,12 @@ exports.getJson = function(host, port, path, clientCallback, errCallback) {
         });
 
         response.on('end', function() {
-            console.log('asyncJsonApiHttpGet() end data=' + JSON.stringify(body).substring(0, 120));  
+            console.log('httpio: %s http://%s:%s%s ==> %s ',  opts.method, opts.host, opts.port, opts.path, JSON.stringify(body).substring(0, 120));  
             clientCallback(body);
         });
     };
     
-    console.log('asyncJsonApiHttpGet() creating request %s http://%s:%s%s', opts.method, opts.host, opts.port, opts.path);  
+    //console.log('asyncJsonApiHttpGet() creating request %s http://%s:%s%s', opts.method, opts.host, opts.port, opts.path);  
     var httpRequest = http.request(opts, callback);
     
     httpRequest.on('error', function(err){

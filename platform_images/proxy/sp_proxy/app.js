@@ -16,25 +16,24 @@ var proxyUtils = require('./proxyUtils.js');
  *
  */
 
-/*
-Docker Variables"
-  DB_PORT=tcp://172.17.0.8:6379
-  SP_REGISTRY_PORT_8888_TCP=tcp://172.17.0.8:8888
-  SP_REGISTRY_PORT_8888_TCP_PROTO=tcp
-  SP_REGISTRY_PORT_8888_TCP_ADDR=172.17.0.8
-  SP_REGISTRY_PORT_8888_TCP_PORT=8888
-*/
 
 var proxyPort = process.env.SP_PROXY_PORT || 8888;
-var registryPort = process.env.SP_REGISTRY_PORT || 4321;
-var registryHost = process.env.SP_REGISTRY_HOST || 'localhost';
-var dockerApiHost = process.env.SP_DOCKER_HOST || 'localhost'; // '172.17.42.1';
+var registryPort = process.env.SP_REGISTRY_PORT || 8888;
+var registryHost = process.env.SP_REGISTRY_HOST || '172.17.0.6';
+var dockerApiHost = process.env.SP_DOCKER_HOST || '172.17.42.1';
+var dockerApiPort = process.env.SP_DOCKER_PORT || '4321';
 var BAD_GATEWAY_RESPONSE_CODE = 502;
 
 http.createServer(coreHandler).listen(proxyPort, httpStartupComplete);
 
 function httpStartupComplete() {
     'use strict';
+    console.log("To set Proxy Port/Docker REST Api/GNS Host:");
+    console.log("export SP_PROXY_PORT=8081");
+    console.log("export SP_DOCKER_HOST=172.14.0.2");
+    console.log("export SP_DOCKER_PORT=4321");
+    console.log("export SP_REGISTRY_HOST=192.168.0.6");
+    console.log("export SP_REGISTRY_PORT=8888");
     console.log("starting sp proxy service http server on port " + proxyPort);
 }
 
@@ -59,17 +58,13 @@ function coreHandler(clientRequest, clientResponse) {
 
 function dockerLookup(servicename, proxyCallbackHandler) {
     console.log('dockerLookup() servicename=' + servicename);
-    
-    // curl -vvv -X GET http://172.17.42.1:4321/containers/sp-control_plane/json
-    //var dockerApiHost = '172.17.42.1';
     var dockerApiPort = '4321';
     var path = '/containers/' + servicename + '/json'; 
     var errCallback = function(err) {console.log("error contacting docker: " + err.message) };
-    
+    console.log("dockerApiHost=%s, dockerApiPort=%s",dockerApiHost, dockerApiPort);
     var dockerCallBack = function(body) {
         var dockerResponse = JSON.parse(body);
-        //console.log("dockerCallBack() dockerResponse=" +body);
-        
+        //console.log("dockerCallBack() dockerResponse=" +body);        
         if (! dockerResponse.NetworkSettings) {
                 _sendBadGateway(serviceName, res);
                 return;
@@ -91,9 +86,6 @@ function dockerLookup(servicename, proxyCallbackHandler) {
 
 function registryLookup(servicename, proxyCallbackHandler) {
     console.log('registryLookup() servicename=' + servicename);
-    
-    // curl -vvv -X GET http://172.17.42.1:4321/containers/sp-control_plane/json
-    
     var path = '/service/' + servicename + '/host/next'; 
     var errCallback = function(err) {console.log("error contacting registry: " + err.message) };
     var registryCallBack = function(body) {
