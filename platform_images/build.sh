@@ -4,6 +4,11 @@ COMPONENTS=$(ls -d */)
 
 HERE=$(pwd)
 
+
+cd  nodejs-image
+./build.sh
+cd $HERE
+
 for CP in $COMPONENTS 
 do
   echo "Building $CP"
