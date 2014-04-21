@@ -5,5 +5,6 @@ echo ******************************************************************
 echo Testing proxy to control-plane...
 echo ******************************************************************
 echo
+echo "curl -vvv -X GET http://localhost:8080/ -H 'Host: sp-gene-expressor'"
 #curl -X GET http://localhost:8080/ -H 'Host: sp-gene-expressor' | json_pp
-curl -X GET http://localhost:8888/spapi/sp-cell_expressor/container | json_pp
+curl -X GET http://localhost:8888/spapi/sp-gene-expressor/container | json_pp
