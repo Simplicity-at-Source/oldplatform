@@ -4,6 +4,8 @@ LOCALDIR="$( cd "$( dirname "$0" )" && pwd )"
 
 . $LOCALDIR/lib/library.sh
 
+SINGLE_SERVICE_NAME=$1
+
 
 boot_control_plane() {
   local IMAGE="sp_platform/spi_control_plane"
@@ -43,12 +45,21 @@ socat TCP4-LISTEN:4321,fork,reuseaddr,range=172.17.0.0/8 UNIX:/var/run/docker.so
 
 echo "Simple PaaS: Connection to local Docker Daemon Initialised"
 
-boot_control_plane
-boot_service gene_store
-boot_service phenotype_monitor
-boot_service cell_expressor
-boot_service gns
-boot_service sp_proxy
+if [ -z "$SINGLE_SERVICE_NAME" ]
+then
+
+  boot_control_plane
+  boot_service gene_store
+  boot_service phenotype_monitor
+  boot_service cell_expressor
+  boot_service gns
+  boot_service sp_proxy
+
+else 
+
+  boot_service $SINGLE_SERVICE_NAME
+
+fi
 
 echo ""
 echo "Simple PaaS: Dev Installation Completed, Simple PaaS Cell is running."
