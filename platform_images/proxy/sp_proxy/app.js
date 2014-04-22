@@ -20,11 +20,14 @@ var proxyUtils = require('./proxyUtils.js');
 
 
 var proxyPort = process.env.SP_PROXY_PORT || 8888;
-var registryPort = process.env.SP_REGISTRY_PORT || 8888;
-var registryHost = process.env.SP_REGISTRY_HOST || '172.17.0.6';
+//var registryPort = process.env.SP_REGISTRY_PORT || 8888;
+//var registryHost = process.env.SP_REGISTRY_HOST || '172.17.0.6';
+var registryPort = undefined;
+var registryHost = undefined;
 var dockerApiHost = process.env.SP_DOCKER_HOST || '172.17.42.1';
 var dockerApiPort = process.env.SP_DOCKER_PORT || '4321';
 var BAD_GATEWAY_RESPONSE_CODE = 502;
+var gnsContainerName = "sp-gns";
 
 
 var UrlMappings = {
@@ -41,8 +44,6 @@ function httpStartupComplete() {
     console.log("export SP_PROXY_PORT=%s", proxyPort);
     console.log("export SP_DOCKER_HOST=%s", dockerApiHost);
     console.log("export SP_DOCKER_PORT=%s", dockerApiPort);
-    console.log("export SP_REGISTRY_HOST=%s", registryHost);
-    console.log("export SP_REGISTRY_PORT=%s", registryPort);
     console.log("starting sp proxy service http server on port " + proxyPort);
 }
 
@@ -63,7 +64,18 @@ function coreHandler(clientRequest, clientResponse) {
         var servicename = clientRequest.headers.host;  
          if (! servicename) _sendBadGateway(servicename, clientResponse);
          console.log('coreHandler() proxy via host header servicename=%s, url path=%s', servicename, requestUrl.path);
-        registryLookup(servicename,  clientResponse, proxyCallbackHandler);    
+        if (registryHost == undefined) {
+          console.log('coreHandler() registryHost undefined, looking up gns ip...');
+          var callback = function(host, port) {
+             console.log('coreHandler()->callback() setting registryHost=%s registryPort=%s', host, port);
+             registryHost = host;
+             registryPort = port;
+             registryLookup(servicename,  clientResponse, proxyCallbackHandler); 
+          }
+          dockerLookup(gnsContainerName,  clientResponse, callback); 
+        } else {
+          registryLookup(servicename,  clientResponse, proxyCallbackHandler);
+        }
     }
         
 }
