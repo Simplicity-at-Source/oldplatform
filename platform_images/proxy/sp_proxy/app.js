@@ -16,6 +16,8 @@ var proxyUtils = require('./proxyUtils.js');
  *
  */
 
+//TODO cache docker api & gns registry lookups
+
 
 var proxyPort = process.env.SP_PROXY_PORT || 8888;
 var registryPort = process.env.SP_REGISTRY_PORT || 8888;
@@ -23,6 +25,13 @@ var registryHost = process.env.SP_REGISTRY_HOST || '172.17.0.6';
 var dockerApiHost = process.env.SP_DOCKER_HOST || '172.17.42.1';
 var dockerApiPort = process.env.SP_DOCKER_PORT || '4321';
 var BAD_GATEWAY_RESPONSE_CODE = 502;
+
+
+var UrlMappings = {
+    "/spapi/container": "sp-control_plane",
+    "/spapi/config": "sp-gene_store",
+    "/spapi/status": "sp-phenotype_monitor"
+}
 
 http.createServer(coreHandler).listen(proxyPort, httpStartupComplete);
 
@@ -44,14 +53,16 @@ function coreHandler(clientRequest, clientResponse) {
     //console.log('coreHandler() proxy request url path: %s', requestUrl.path );
     var proxyCallbackHandler = proxyRequest(clientRequest, clientResponse);
     if (requestUrl.path.lastIndexOf('/spapi', 0) === 0 ) { // url path starts with /spapi
-        var servicename = requestUrl.path.split('/')[2]; 
-        if (! servicename) _sendBadGateway(servicename, clientResponse);
-         console.log('coreHandler() proxy via /spapi url path servicename=' + servicename);
+        var pathMapping = "/" + requestUrl.path.split('/')[1] + "/" + requestUrl.path.split('/')[2];
+        var servicename = UrlMappings[pathMapping]; 
+        //console.log("coreHandler() servicename=%s, pathMapping=%s", servicename, pathMapping);
+        if (! servicename || servicename == undefined ) _sendBadGateway(servicename, clientResponse);
+         console.log('coreHandler() proxy via /spapi url path servicename=%s, url path=%s', servicename, requestUrl.path);
         dockerLookup(servicename,  clientResponse, proxyCallbackHandler); 
     } else {
         var servicename = clientRequest.headers.host;  
          if (! servicename) _sendBadGateway(servicename, clientResponse);
-         console.log('coreHandler() proxy via host header servicename=' + servicename);
+         console.log('coreHandler() proxy via host header servicename=%s, url path=%s', servicename, requestUrl.path);
         registryLookup(servicename,  clientResponse, proxyCallbackHandler);    
     }
         
@@ -62,7 +73,7 @@ function dockerLookup(servicename, response, proxyCallbackHandler) {
     console.log('dockerLookup() servicename=' + servicename);
     var path = '/containers/' + servicename + '/json'; 
     var errCallback = function(err) {console.log("error contacting docker: " + err.message) };
-    console.log("dockerApiHost=%s, dockerApiPort=%s",dockerApiHost, dockerApiPort);
+    //console.log("dockerApiHost=%s, dockerApiPort=%s",dockerApiHost, dockerApiPort);
     var dockerCallBack = function(body) {
         try {
             var dockerResponse = JSON.parse(body);
@@ -70,13 +81,13 @@ function dockerLookup(servicename, response, proxyCallbackHandler) {
             _sendBadGateway(servicename, response);
             return;   
         }
-            //console.log("dockerCallBack() dockerResponse=" +body);        
+           //console.log("dockerCallBack() dockerResponse=" +body);        
         if (! dockerResponse.NetworkSettings) {
                 _sendBadGateway(servicename, response);
                 return;
             }
             var host = dockerResponse.NetworkSettings.IPAddress;
-            var keys = dockerResponse.Config.ExposedPorts;
+            var keys = dockerResponse.Config.ExposedPorts; // is this right? or dockerResponse.NetworkSettingsPorts ?
             var port = '';
             for (var key in keys) {
               port = key.split('/')[0];
@@ -113,9 +124,9 @@ function proxyRequest(clientRequest, clientResponse) {
     return function(host, port, clipPath) {  
           //console.log('proxyRequest() for host=' + host);
           var requestUrl = url.parse(clientRequest.url, true, false);
-          var path = '';
+          var path = requestUrl.path;
             if (clipPath) {
-                path = proxyUtils.convertApiPath(requestUrl.path);
+                path = proxyUtils.convertUrlMappingApiPath(requestUrl.path);
             }
            //var host = clientRequest.headers.host;
 
