@@ -23,6 +23,10 @@ class GeneStore {
     classifiers[classifier]?.values() ?: []
   }
 
+   def listAll() {
+        classifiers
+   }
+
   def remove(def classifier, def id) {
     classifiers[classifier]?.remove(id)
     ["Gene Removed"]

@@ -20,6 +20,12 @@ class GeneController {
 
   @Autowired GeneStore store
 
+  @RequestMapping(value="/", method = RequestMethod.GET)
+  @ResponseBody
+  def listAllGenes() {
+      convertFailure {  store.listAll() }
+  }
+
   @RequestMapping(value="/{classifier}", method = RequestMethod.POST)
   @ResponseBody
   def insertGene(@PathVariable String classifier, @RequestBody String json) {
