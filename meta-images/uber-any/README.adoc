@@ -1,0 +1,13 @@
+# uber-any image
+
+Docker image with Java & nodejs pre-installed, and has ENTRY POINT script that will checkout any open git repo.
+Once git project is checked out it will execute a run.sh file in the project root.
+
+
+## NOTE: Requirements:
+
+* Project must be java or node based
+* Project MUST currently run on port 8080
+* Project MUST have run.sh script in root direct
+* Node projects must have package.json for npm install
+
