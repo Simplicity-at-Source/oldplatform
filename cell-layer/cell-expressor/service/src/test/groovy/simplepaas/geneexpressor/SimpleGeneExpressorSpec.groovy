@@ -7,6 +7,34 @@ class SimpleGeneExpressorSpec extends Specification {
 
   JSONApi api = Mock(JSONApi)
 
+  def "Propogates env variables"() {
+    given:
+    def command = new SimpleGeneExpressor(api: api)
+
+    when:
+    command.activateGenes(
+            [[
+                    id:"simple-image",
+                    image:"my-image",
+                    env: [
+                            "simple":"wibble",
+                            "simple2":"wibble2"
+                    ]
+              ]]
+    )
+
+    then:
+    1 * api.post(SimpleGeneExpressor.CONTROL_PLANE,
+            [
+                    name:"cell-simple-image",
+                    imageId:"my-image",
+                    env: [
+                            "simple":"wibble",
+                            "simple2":"wibble2"
+                    ]
+            ])
+  }
+
   def "Deletion correctly kills orphaned services"() {
     given:
     def command = new SimpleGeneExpressor(api: api)

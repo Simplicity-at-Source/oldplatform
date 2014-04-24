@@ -41,8 +41,16 @@ class CreateContainer {
   }
 
   List getEnvironmentVariables(json) {
-    json?.dependencies?.collect {
+    def env = json?.dependencies?.collect {
       ["${it.dependency}_PORT=${it.port}", "${it.dependency}_HOST=${it.host}"]
     }?.flatten()
+
+    if (json.env) {
+      json.env.each { key, value ->
+        env << "$key=$value"
+      }
+    }
+
+    return env
   }
 }
