@@ -45,6 +45,10 @@ class CreateContainer {
       ["${it.dependency}_PORT=${it.port}", "${it.dependency}_HOST=${it.host}"]
     }?.flatten()
 
+    if (!env) {
+      env = []
+    }
+
     if (json.env) {
       json.env.each { key, value ->
         env << "$key=$value"
