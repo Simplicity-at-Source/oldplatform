@@ -74,11 +74,14 @@ class SimpleGeneExpressor {
 
     genes.each {
       println "Activating $it"
-      //TODO, handling dependencies...?
-      def resp = api.post(CONTROL_PLANE, [
-          name:"$MARKER-${it.id}".toString(),
-          imageId:it.image.toString()
-      ])
+      def request = [
+              name:"$MARKER-${it.id}".toString(),
+              imageId:it.image.toString()
+      ]
+      if (it.env) {
+        request.env = it.env
+      }
+      def resp = api.post(CONTROL_PLANE, request)
       println "Control plane replies ${resp}"
     }
   }
