@@ -17,6 +17,7 @@ exports.new_service = function (req, res) {
         body = req.body;
     }
   var servicename = req.params.service_name;
+    
   //console.log('exports.new_service(): service=' + servicename);
   body['link'] = "/service/" + servicename 
   services[servicename] = body;     
@@ -34,7 +35,8 @@ function addNewService(servicename, host, port) {
 
 
 exports.services = function (req, res) {
-  //console.log('services()');
+  //console.log('services()')
+    console.log(blah)
   res.send(JSON.stringify(services));
 };
 

@@ -29,6 +29,7 @@ class GeneController {
   @RequestMapping(value="/{classifier}", method = RequestMethod.POST)
   @ResponseBody
   def insertGene(@PathVariable String classifier, @RequestBody String json) {
+    println("POST /$classifier data='$json'")
     convertFailure {  store.create(classifier, fromJson(json)) }
   }
 
