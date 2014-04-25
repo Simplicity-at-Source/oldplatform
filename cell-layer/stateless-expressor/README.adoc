@@ -39,14 +39,18 @@ uploaded into the gene store at the /stateless url.
   "id": "my ID"         //the name of the cluster, must be unique across the platform
   "image": "some image" //the docker image that will be run.
   "count": 3            // the number of instances that SP should maintain.
+  "env": {
+     "myenv":"envvalue",
+     "myotherenv":"envvalue"
+  }
 }
 ```
 
 Via Curl, inserting into to the local gene store, this would be
 ```
-curl -X POST -H "Content-Type: application/json" -d "{'id':'my-riak-cluster'}" http://172.17.0.3:8080/riak
+curl -X POST -H "Content-Type: application/json" -d '{"id":"my-service", "image":"tfduesing/apache", "count":10}' http://172.17.0.3:8080/stateless
 ```
 
 Container(s) will then be fired up and configured to satisfy this request.  
-Currently, only count is a valid runtime param, more will be added in future releases..
+Currently, only count and env are valid runtime params, more will be added in future releases..
 
