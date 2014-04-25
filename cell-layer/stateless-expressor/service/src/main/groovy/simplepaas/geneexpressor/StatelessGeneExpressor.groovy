@@ -45,20 +45,24 @@ class StatelessGeneExpressor {
         (currentInstances - gene.count).times {
 
           def id = selectRandomInstance(gene).id
-          println "Reaping $id"
+          log.info "Reaping $id"
           def ret = api.delete("${CONTROL_PLANE}/$id")
-          println "Control Plane says ${ret}"
+          log.info "Control Plane says ${ret}"
         }
 
       } else if (currentInstances < gene.count) {
         log.info "Will spin up new instances to meet requirements"
 
         (gene.count - currentInstances).times {
-          def ret = api.post(CONTROL_PLANE, [
+          def request = [
                   imageId: gene.image,
-                  name: "${MARKER}-${gene.id}-${UUID.randomUUID()}".toString(),
-          ])
-          println "Control Plane says [${ret}]"
+                  name: "${MARKER}-${gene.id}-${UUID.randomUUID()}".toString()
+          ]
+          if (gene.env) {
+            request.env = gene.env
+          }
+          def ret = api.post(CONTROL_PLANE, request)
+          log.info "Control Plane says [${ret}]"
         }
       }
     }
@@ -72,7 +76,9 @@ class StatelessGeneExpressor {
   }
 
   def countInstances(def gene) {
-    def runningServiceNames = api.get(PHENOTYPE_MONITOR).collect {
+    def runningServiceNames = api.get(PHENOTYPE_MONITOR).findAll {
+      it.inspection
+    }.collect {
       it.inspection.Name[1..-1].toString()
     }
     runningServiceNames.findAll {
@@ -88,7 +94,7 @@ class StatelessGeneExpressor {
     log.info "Valid genes for this effector are : ${geneIds}"
 
     def runningServices = api.get(PHENOTYPE_MONITOR).findAll {
-      name(it.inspection).startsWith("$MARKER-")
+      it.inspection && name(it.inspection).startsWith("$MARKER-")
     }
     log.info "Existing services ${runningServices}"
 
@@ -100,9 +106,9 @@ class StatelessGeneExpressor {
     log.info "Orphaned services ${orphanServices.inspection.Name}"
 
     orphanServices.each {
-      println "Service [${name(it.inspection)}] running without permission, nuking. ${CONTROL_PLANE}/${it.id}"
+      log.info "Service [${name(it.inspection)}] running without permission, nuking. ${CONTROL_PLANE}/${it.id}"
       def resp = api.delete("${CONTROL_PLANE}/${it.id}")
-      println "Control plane replies ${resp}"
+      log.info "Control plane replies ${resp}"
     }
   }
 

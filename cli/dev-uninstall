@@ -23,6 +23,7 @@ delete_service() {
 echo "Simple PaaS: Uninstalling core local components"
 
 delete_service cell_expressor
+delete_service stateless_expressor
 delete_service phenotype_monitor
 delete_service gene_store
 delete_service control_plane

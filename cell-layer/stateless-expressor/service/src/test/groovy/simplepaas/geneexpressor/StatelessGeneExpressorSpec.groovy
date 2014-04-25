@@ -7,7 +7,7 @@ class StatelessGeneExpressorSpec extends Specification {
 
   JSONApi api = Mock(JSONApi)
 
-  def "Correctly reps surplus instances when required"() {
+  def "Correctly reaps surplus instances when required"() {
     given:
     def command = new StatelessGeneExpressor(api: api)
 
@@ -52,6 +52,34 @@ class StatelessGeneExpressorSpec extends Specification {
             ]
     2 * api.post("${StatelessGeneExpressor.CONTROL_PLANE}", {
       it.name.startsWith("stateless-my-service-")
+    })
+  }
+
+  def "Passes env information to control plane"() {
+    given:
+    def command = new StatelessGeneExpressor(api: api)
+
+    when:
+    command.manageInstanceCounts(
+            [[
+                    id:"my-service",
+                    image:"my-image",
+                    count:1,
+                    env: [
+                            "simple":"wibble",
+                            "simple2":"wibble2"
+                    ]
+            ]]
+    )
+
+    then:
+    api.get(StatelessGeneExpressor.PHENOTYPE_MONITOR) >> []
+
+    1 * api.post("${StatelessGeneExpressor.CONTROL_PLANE}", {
+              it.env == [
+                "simple":"wibble",
+                "simple2":"wibble2"
+              ]
     })
   }
 
