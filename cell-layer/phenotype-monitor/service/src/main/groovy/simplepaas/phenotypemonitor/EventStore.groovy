@@ -18,7 +18,7 @@ class EventStore {
 
   List getCurrentStatus() {
 
-    def expiringEvents = new HashMap(events)
+    def expiringEvents = new ArrayList(events)
 
     expiringEvents = expireEvents(expiringEvents)
 
