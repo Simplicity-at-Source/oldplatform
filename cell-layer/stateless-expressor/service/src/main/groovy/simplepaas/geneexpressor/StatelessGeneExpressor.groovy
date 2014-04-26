@@ -42,12 +42,13 @@ class StatelessGeneExpressor {
 
       if (currentInstances > gene.count) {
         log.info "Will destroy excess instances"
+        def mylog = log
         (currentInstances - gene.count).times {
 
           def id = selectRandomInstance(gene).id
-          log.info "Reaping $id"
+          mylog.info "Reaping $id"
           def ret = api.delete("${CONTROL_PLANE}/$id")
-          log.info "Control Plane says ${ret}"
+          mylog.info "Control Plane says ${ret}"
         }
 
       } else if (currentInstances < gene.count) {
@@ -62,7 +63,7 @@ class StatelessGeneExpressor {
             request.env = gene.env
           }
           def ret = api.post(CONTROL_PLANE, request)
-          log.info "Control Plane says [${ret}]"
+
         }
       }
     }
