@@ -2,7 +2,7 @@ package simplepaas.phenotypemonitor
 
 class EventStore {
 
-  def HEARTBEAT = 15000
+  def HEARTBEAT = 120000
 
   def events = []
 
@@ -18,19 +18,24 @@ class EventStore {
 
   List getCurrentStatus() {
 
-    expireEvents()
+    def expiringEvents = new HashMap(events)
+
+    expiringEvents = expireEvents(expiringEvents)
 
     def status = [:]
-    events.each {
+    expiringEvents.each {
       status[it.id] = it
     }
+
+    events = expiringEvents
+
     status.values().sort {
       it.id
     }
   }
 
-  def expireEvents() {
-    events = events.findAll {
+  def expireEvents(def events) {
+    events.findAll {
       it.time + HEARTBEAT > System.currentTimeMillis()
     }
   }

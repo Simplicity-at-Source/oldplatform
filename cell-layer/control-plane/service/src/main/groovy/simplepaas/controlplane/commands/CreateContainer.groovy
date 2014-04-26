@@ -1,13 +1,11 @@
 package simplepaas.controlplane.commands
 
 import groovy.json.JsonBuilder
-import groovy.json.JsonSlurper
+import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import simplepaas.controlplane.JSONApi
 
-/**
- * Created by david on 12/04/14.
- */
+@Slf4j
 class CreateContainer {
   @Autowired
   JSONApi dockerApi
@@ -15,28 +13,38 @@ class CreateContainer {
 
   def call(json) {
 
-        def  dockerRet = dockerApi.post("/containers/create?name=${json.name}", new JsonBuilder([
-                  "Image": json.imageId,
-                  "Env": getEnvironmentVariables(json)
-          ]).toString())
+    def request = [
+            "Image": json.imageId,
+            "Env": getEnvironmentVariables(json)
+    ]
+
+    //ensure the image is downloaded
+    def imageUrl = "/images/create?fromImage=${json.imageId}"
+    log.info "Ensuring the image is downloaded : $imageUrl"
+    dockerApi.post(imageUrl)
+
+    def url = "/containers/create?name=${json.name}"
+    log.info "Requested to create a new container \"/containers/create?fromImage=${json.imageId}&name=${json.name}\" $request"
+
+    def dockerRet = dockerApi.post(url, new JsonBuilder(request).toString())
 
     // If container is sp_proxy then bind port 8080 to host
-    if (json.imageId.contains("sp_proxy") || json.name.contains("sp_proxy") ) {
-           def proxyStartJson = """
+    if (json.imageId.contains("sp_proxy") || json.name.contains("sp_proxy")) {
+      def proxyStartJson = """
             {
                 "PortBindings": { "8888/tcp": [{ "HostPort": "8888" }] },
                 "Privileged": false,
                 "PublishAllPorts": false
            }
             """
-        dockerApi.post("/containers/${dockerRet.Id}/start", proxyStartJson)
+      dockerApi.post("/containers/${dockerRet.Id}/start", proxyStartJson)
     } else {
-        dockerApi.post("/containers/${dockerRet.Id}/start", new JsonBuilder([:]).toString())
+      dockerApi.post("/containers/${dockerRet.Id}/start", new JsonBuilder([:]).toString())
     }
 
 
     [message: "Container created",
-        id: dockerRet.Id
+            id: dockerRet.Id
     ]
   }
 

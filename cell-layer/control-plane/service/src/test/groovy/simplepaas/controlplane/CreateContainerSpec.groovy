@@ -9,45 +9,44 @@ class CreateContainerSpec extends Specification {
 
   JSONApi api = Mock(JSONApi)
 
-    def "Correctly passes host and networking settings for sp_proxy"() {
-        given:
-        def command = new CreateContainer(dockerApi: api)
-        def jsonRequest = [
-                imageId: "sp_proxy",
-                name:"sp_proxy",
-        ]
+  def "Correctly passes host and networking settings for sp_proxy"() {
+    given:
+    def command = new CreateContainer(dockerApi: api)
+    def jsonRequest = [
+            imageId: "sp_proxy",
+            name: "sp_proxy",
+    ]
 
-        when:
-        command(jsonRequest)
+    when:
+    command(jsonRequest)
 
-        then:
-        1 * api.post("/containers/create?name=sp_proxy", {
-            def json = new JsonSlurper().parseText(it)
-            json.Image == "sp_proxy"
-        }) >> [Id:"abcdef123456"]
+    then:
+    1 * api.post("/containers/create?fromImage=sp_proxy&name=sp_proxy", {
+      def json = new JsonSlurper().parseText(it)
+    }) >> [Id: "abcdef123456"]
 
-        1 * api.post("/containers/abcdef123456/start", {
-            def json = new JsonSlurper().parseText(it)
-            json.PortBindings."8080/tcp"[0].HostPort == "8080"
-        }) >> [Id:"abcdef123456"]
-    }
+    1 * api.post("/containers/abcdef123456/start", {
+      def json = new JsonSlurper().parseText(it)
+      json.PortBindings."8888/tcp"[0].HostPort == "8888"
+    }) >> [Id: "abcdef123456"]
+  }
 
   def "Correctly calls the docker API"() {
     given:
     def command = new CreateContainer(dockerApi: api)
     def jsonRequest = [
             imageId: "123456",
-            name:"awesome",
-            dependencies:  [
+            name: "awesome",
+            dependencies: [
                     [
-                            dependency:"postgres",
-                            host:"172.40.1.3",
-                            port:746578
+                            dependency: "postgres",
+                            host: "172.40.1.3",
+                            port: 746578
                     ],
                     [
-                            dependency:"wibbleApi",
-                            host:"172.40.1.7",
-                            port:66666
+                            dependency: "wibbleApi",
+                            host: "172.40.1.7",
+                            port: 66666
                     ]
             ]
     ]
@@ -56,11 +55,10 @@ class CreateContainerSpec extends Specification {
     command(jsonRequest)
 
     then:
-    1 * api.post("/containers/create?name=awesome", {
+    1 * api.post("/containers/create?fromImage=123456&name=awesome", {
       def json = new JsonSlurper().parseText(it)
-      json.Image == "123456" &&
       json.Env.find { it.contains("postgres") } != null
-    }) >> [Id:"THEIDOFDOOM"]
+    }) >> [Id: "THEIDOFDOOM"]
   }
 
   def "Correctly interprets the dependency info to build ENV"() {
@@ -71,14 +69,14 @@ class CreateContainerSpec extends Specification {
             containerId: "789456",
             dependencies: [
                     [
-                            dependency:"postgres",
-                            host:"172.40.1.3",
-                            port:746578
+                            dependency: "postgres",
+                            host: "172.40.1.3",
+                            port: 746578
                     ],
                     [
-                            dependency:"wibbleApi",
-                            host:"172.40.1.7",
-                            port:66666
+                            dependency: "wibbleApi",
+                            host: "172.40.1.7",
+                            port: 66666
                     ]
             ]
     ]

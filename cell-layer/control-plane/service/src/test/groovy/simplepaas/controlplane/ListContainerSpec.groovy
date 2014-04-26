@@ -2,6 +2,7 @@ package simplepaas.controlplane
 
 import groovy.json.JsonBuilder
 import simplepaas.controlplane.commands.ListContainers
+import spock.lang.Ignore
 import spock.lang.Specification
 
 class ListContainerSpec extends Specification {
@@ -71,6 +72,7 @@ class ListContainerSpec extends Specification {
     ret[0].processes.data == "inserted"
   }
 
+  @Ignore
   def "Blends the file changes table into data"() {
     given:
     def command = new ListContainers(dockerApi: api)

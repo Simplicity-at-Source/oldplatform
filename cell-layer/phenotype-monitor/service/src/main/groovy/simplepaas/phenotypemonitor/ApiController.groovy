@@ -41,8 +41,12 @@ class ApiController {
     try {
       return cl()
     } catch (Exception ex) {
+      def out = new ByteArrayOutputStream();
+
+      ex.printStackTrace(new PrintStream(out))
+
       ex.printStackTrace()
-      return [failure:ex.message]
+      return [failure:ex.message, stack: out.toString()]
     }
   }
 

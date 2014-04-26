@@ -20,6 +20,7 @@ import simplepaas.controlplane.commands.CreateContainer
 import simplepaas.controlplane.commands.DestroyContainer
 import simplepaas.controlplane.commands.ListContainers
 import simplepaas.controlplane.commands.ListImages
+import simplepaas.controlplane.commands.SendContainerInformation
 
 import static groovyx.net.http.ContentType.*
 import static groovyx.net.http.Method.*
@@ -44,6 +45,7 @@ class ApiController {
   @Autowired DestroyContainer destroyContainerCommand
   @Autowired ListContainers listContainersCommand
   @Autowired ListImages listImagesCommand
+  @Autowired SendContainerInformation containerInformation
 
   @Autowired JSONApi api
 
@@ -71,18 +73,9 @@ class ApiController {
     convertFailure { listImagesCommand.call() }
   }
 
-  @Scheduled(fixedRate = 2000l)
+  @Scheduled(fixedRate = 1000l)
   public void sendStatusToPhenotype() {
-    def status = listContainersCommand.call()
-    def http = new HTTPBuilder("http://172.17.0.4:8080/")
-    def jsonResp
-    http.request( POST, JSON ) { req ->
-      body = status
-
-      response.success = { resp, json ->
-        jsonResp=json
-      }
-    }
+    containerInformation.call()
   }
 
   def fromJson(json) {
@@ -94,6 +87,7 @@ class ApiController {
   @Bean DestroyContainer destroyContainerBean() { new DestroyContainer() }
   @Bean ListContainers listContainersBean() { new ListContainers() }
   @Bean ListImages listImagesBean() { new ListImages() }
+  @Bean SendContainerInformation containerInformation() { new SendContainerInformation() }
 
   static convertFailure(Closure cl) {
     try {
