@@ -73,7 +73,7 @@ class ApiController {
     convertFailure { listImagesCommand.call() }
   }
 
-  @Scheduled(fixedRate = 1000l)
+  @Scheduled(fixedRate = 2000l)
   public void sendStatusToPhenotype() {
     containerInformation.call()
   }
