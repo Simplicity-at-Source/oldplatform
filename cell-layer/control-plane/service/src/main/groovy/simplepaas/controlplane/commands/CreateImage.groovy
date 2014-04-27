@@ -36,7 +36,7 @@ class CreateImage {
       new ByteArrayEntity(tar, ContentType.create("application/tar"))
     }
 
-    def jsonResp  = [:]
+    def jsonResp  = [name:json.name]
     http.request(Method.POST) { req ->
       uri = "http://172.17.42.1:4321/build?t=${json.name}"
       send "application/tar", data
