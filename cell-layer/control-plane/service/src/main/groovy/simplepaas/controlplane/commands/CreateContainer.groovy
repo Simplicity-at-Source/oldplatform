@@ -63,6 +63,10 @@ class CreateContainer {
       }
     }
 
+    env << "sp_proxy_PORT=8888"
+    env << "sp_proxy_HOST=172.17.0.8"
+    env << "sp_proxy_URL=172.17.0.8:8888"
+
     return env
   }
 }

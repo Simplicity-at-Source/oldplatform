@@ -9,7 +9,6 @@ import simplepaas.controlplane.JSONApi
 class CreateImage {
   @Autowired
   JSONApi dockerApi
-  def proxyHostPort = 8888;
 
   def call(json) {
 

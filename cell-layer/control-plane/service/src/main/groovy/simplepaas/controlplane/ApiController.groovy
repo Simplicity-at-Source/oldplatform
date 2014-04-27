@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseBody
 import simplepaas.controlplane.commands.CreateContainer
+import simplepaas.controlplane.commands.CreateImage
 import simplepaas.controlplane.commands.DestroyContainer
 import simplepaas.controlplane.commands.ListContainers
 import simplepaas.controlplane.commands.ListImages
@@ -41,6 +42,7 @@ add ability to download files
 @EnableScheduling
 class ApiController {
 
+  @Autowired CreateImage createImageCommand
   @Autowired CreateContainer createContainerCommand
   @Autowired DestroyContainer destroyContainerCommand
   @Autowired ListContainers listContainersCommand
@@ -73,6 +75,12 @@ class ApiController {
     convertFailure { listImagesCommand.call() }
   }
 
+  @RequestMapping(value="/images", method = RequestMethod.POST)
+  @ResponseBody
+  def createImage(@RequestBody String json) {
+    convertFailure { createImageCommand.call(json) }
+  }
+
   @Scheduled(fixedRate = 2000l)
   public void sendStatusToPhenotype() {
     containerInformation.call()
@@ -88,6 +96,7 @@ class ApiController {
   @Bean ListContainers listContainersBean() { new ListContainers() }
   @Bean ListImages listImagesBean() { new ListImages() }
   @Bean SendContainerInformation containerInformation() { new SendContainerInformation() }
+  @Bean CreateImage createImage() { new CreateImage() }
 
   static convertFailure(Closure cl) {
     try {

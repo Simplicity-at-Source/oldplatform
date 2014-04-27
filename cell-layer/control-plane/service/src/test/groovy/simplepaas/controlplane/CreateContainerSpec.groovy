@@ -21,7 +21,7 @@ class CreateContainerSpec extends Specification {
     command(jsonRequest)
 
     then:
-    1 * api.post("/containers/create?fromImage=sp_proxy&name=sp_proxy", {
+    1 * api.post("/containers/create?name=sp_proxy", {
       def json = new JsonSlurper().parseText(it)
     }) >> [Id: "abcdef123456"]
 
@@ -55,7 +55,7 @@ class CreateContainerSpec extends Specification {
     command(jsonRequest)
 
     then:
-    1 * api.post("/containers/create?fromImage=123456&name=awesome", {
+    1 * api.post("/containers/create?name=awesome", {
       def json = new JsonSlurper().parseText(it)
       json.Env.find { it.contains("postgres") } != null
     }) >> [Id: "THEIDOFDOOM"]
@@ -85,11 +85,33 @@ class CreateContainerSpec extends Specification {
     def env = command.getEnvironmentVariables(jsonResponse)
 
     then:
-    env.size() == 4
     env[0] == "postgres_PORT=746578"
     env[1] == "postgres_HOST=172.40.1.3"
     env[2] == "wibbleApi_PORT=66666"
     env[3] == "wibbleApi_HOST=172.40.1.7"
+  }
+
+  def "Inserts proxy sp_proxy information into every container"() {
+    given:
+    def command = new CreateContainer(dockerApi: api)
+
+    def jsonResponse = [
+            containerId: "789456"
+    ]
+
+    when:
+    def env = command.getEnvironmentVariables(jsonResponse)
+
+    then:
+    env.find {
+      it == "sp_proxy_HOST=172.17.0.8"
+    }
+    env.find {
+      it == "sp_proxy_PORT=8888"
+    }
+    env.find {
+      it == "sp_proxy_URL=172.17.0.8:8888"
+    }
   }
 
   def json(map) {
