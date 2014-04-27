@@ -96,7 +96,7 @@ class ApiController {
   @Bean ListContainers listContainersBean() { new ListContainers() }
   @Bean ListImages listImagesBean() { new ListImages() }
   @Bean SendContainerInformation containerInformation() { new SendContainerInformation() }
-  @Bean CreateImage createImage() { new CreateImage() }
+  @Bean CreateImage createImageBean() { new CreateImage() }
 
   static convertFailure(Closure cl) {
     try {
