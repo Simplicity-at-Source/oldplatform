@@ -1,7 +1,6 @@
-# Stateless Expressor
+# Control Plane
 
-This expressor manages 'stateless' services. These are services that hold no state of their own, and so multiple
-instances of the service can exist in parallel. 
+This component is the lowest level layer in the platform, and provides the bridge to the Docker remote API.
 
 ### Dev Quickstart
 
