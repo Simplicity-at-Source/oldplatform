@@ -1,5 +1,9 @@
 #!/bin/bash
 
+LOCALDIR="$( cd "$( dirname "$0" )" && pwd )" 
+. $LOCALDIR/lib/library.sh
+
+
 delete_service() {
   local IMAGE="spi-$1"
   local CONTAINER="sp-$1"
@@ -22,13 +26,12 @@ delete_service() {
 
 echo "Simple PaaS: Uninstalling core local components"
 
-delete_service cell_expressor
-delete_service stateless_expressor
-delete_service phenotype_monitor
-delete_service gene_store
+for SERVICE in `tac $LOCALDIR/lib/services`
+do
+  delete_service $SERVICE
+done
+
 delete_service control_plane
-delete_service sp_proxy
-delete_service gns
 
 echo ""
 echo "Simple PaaS: Installation Removed, Simple PaaS is not running."

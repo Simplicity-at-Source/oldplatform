@@ -6,9 +6,8 @@ MAINTAINER Simplicity Itself
 RUN apt-get update -y
 #RUN apt-get upgrade -y
 RUN apt-get install -y git-core
-RUN apt-get install wget
 
-RUN apt-get install -y curl unzip openjdk-6-jdk
+RUN apt-get install -y curl unzip openjdk-6-jdk maven wget
 
 RUN mkdir /spaas
 WORKDIR /spaas

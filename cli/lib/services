@@ -1,0 +1,8 @@
+gene_store
+phenotype_monitor
+cell_expressor
+stateless_expressor
+gns
+sp_proxy
+riak_expressor
+riak_node

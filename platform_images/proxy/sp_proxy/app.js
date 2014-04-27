@@ -62,6 +62,7 @@ function coreHandler(clientRequest, clientResponse) {
         dockerLookup(servicename,  clientResponse, proxyCallbackHandler); 
     } else {
         var servicename = clientRequest.headers.host;  
+        if (servicename.split(':').length > 1) servicename = servicename.split(':')[0];
          if (! servicename) _sendBadGateway(servicename, clientResponse);
          console.log('coreHandler() proxy via host header servicename=%s, url path=%s', servicename, requestUrl.path);
         if (registryHost == undefined) {

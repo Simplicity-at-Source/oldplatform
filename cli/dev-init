@@ -47,19 +47,13 @@ echo "Simple PaaS: Connection to local Docker Daemon Initialised"
 
 if [ -z "$SINGLE_SERVICE_NAME" ]
 then
-
   boot_control_plane
-  boot_service gene_store
-  boot_service phenotype_monitor
-  boot_service cell_expressor
-  boot_service stateless_expressor
-  boot_service gns
-  boot_service sp_proxy
-
+  for SERVICE in `cat $LOCALDIR/lib/services`
+  do
+    boot_service $SERVICE
+  done
 else 
-
   boot_service $SINGLE_SERVICE_NAME
-
 fi
 
 echo ""
