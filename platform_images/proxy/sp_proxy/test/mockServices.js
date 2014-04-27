@@ -1,10 +1,10 @@
 var http = require('http');
 var url = require('url');
 
-mockRegistryPort = 8080;
-mockEndpointPort = 3001;
-mockCorePlatformEndpointPort = 8081;
-mockDockerApiPort = 4321;
+mockRegistryPort = 18080;
+mockEndpointPort = 13001;
+mockCorePlatformEndpointPort = 18081;
+mockDockerApiPort = 14321;
 
 function mockSimpleServiceHandler(req, res) {
     var requestUrl = url.parse(req.url, true, false);
@@ -110,7 +110,7 @@ function dockerApiControlPlaneJson() {
   
    "NetworkSettings" : {
       "Ports" : {
-         "8081/tcp" : null
+         "18081/tcp" : null
       },
       "IPPrefixLen" : 16,
       "PortMapping" : null,
@@ -137,7 +137,7 @@ function dockerApiControlPlaneJson() {
       ],
       "User" : "",
       "ExposedPorts" : {
-         "8081/tcp" : {}
+         "18081/tcp" : {}
       },
       "VolumesFrom" : "",
       "Cmd" : [
@@ -182,7 +182,7 @@ function dockerApiControlPlaneJson() {
    "HostConfig" : {
       "Links" : null,
       "PortBindings" : {
-         "8081/tcp" : null
+         "18081/tcp" : null
       },
       "LxcConf" : [],
       "Binds" : null,
@@ -225,7 +225,7 @@ function dockerApiUserServiceJson() {
    "Name" : "/simpleservice",
    "NetworkSettings" : {
       "Ports" : {
-         "3001/tcp" : null
+         "13001/tcp" : null
       },
       "IPPrefixLen" : 16,
       "PortMapping" : null,
@@ -297,7 +297,7 @@ function dockerApiUserServiceJson() {
    "HostConfig" : {
       "Links" : null,
       "PortBindings" : {
-         "3001/tcp" : null
+         "13001/tcp" : null
       },
       "LxcConf" : [],
       "Binds" : null,
@@ -339,7 +339,7 @@ function dockerApiGnsServiceJson() {
    "Name" : "/sp-gns",
    "NetworkSettings" : {
       "Ports" : {
-         "8080/tcp" : null
+         "18080/tcp" : null
       },
       "IPPrefixLen" : 16,
       "PortMapping" : null,
@@ -366,7 +366,7 @@ function dockerApiGnsServiceJson() {
       ],
       "User" : "",
       "ExposedPorts" : {
-         "8080/tcp" : {}
+         "18080/tcp" : {}
       },
       "VolumesFrom" : "",
       "Cmd" : [

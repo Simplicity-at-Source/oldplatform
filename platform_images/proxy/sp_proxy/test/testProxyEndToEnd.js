@@ -2,7 +2,7 @@ var assert = require('assert');
 var request = require("superagent");
 require('../app.js'); //Boot up the server for tests
 require('./mockServices.js');
-var proxyurl = 'http://localhost:8888';
+var proxyurl = 'http://localhost:18888';
 
 
 
@@ -11,7 +11,7 @@ describe('test proxy', function(){
   it('proxy calls docker registry and routes to correct ip', function(done){
 	var req = request.get(proxyurl + '/spapi/container');
 	  req.end(function(res){
-          console.log("proxy docker api res: "  + res.text);
+          //console.log("proxy docker api res: "  + res.text);
           assert.ok(contains(res.text, 'mock control-plane response')); 
           done();
       });
