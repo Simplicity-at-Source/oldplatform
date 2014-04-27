@@ -2,94 +2,68 @@ package simplepaas.controlplane
 
 import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
+import groovyx.net.http.HTTPBuilder
 import simplepaas.controlplane.commands.CreateContainer
+import simplepaas.controlplane.commands.CreateImage
 import spock.lang.Specification
 
 class CreateImageSpec extends Specification {
 
-  JSONApi api = Mock(JSONApi)
+//  def "Correctly calls the docker API"() {
+//    given:
+//    def http = Mock(HTTPBuilder)
+//    def command = new CreateImage(http: http)
+//    def jsonRequest = [
+//            name: "123456",
+//            dockerfile: [
+//                    [from: "ubuntu"],
+//                    [run:"cd /"],
+//                    [run:"cd /"],
+//                    [env:[name:"something", value:"value"]],
+//                    [add:[remote:"http://somelocation.com/wibble", local:"/home/wibble"]],
+//                    [expose:4545],
+//                    [entrypoint:"/something.sh"]
+//            ]
+//    ]
+//
+//    when:
+//    command(jsonRequest)
+//
+//    then:
+//    1 * api.postWithHeaders("/build?t=123456", ["Content-Type":"application/tar"], {
+//      it.trim() == """
+//FROM ubuntu
+//RUN cd /spaas
+//RUN cd /spaas
+//ENV something value
+//ADD http://somelocation.com/wibble /home/wibble
+//EXPOSE 4545
+//ENTRYPOINT /something.sh
+//"""
+//    }) >> [imageId: "THEIDOFDOOM"]
+//  }
 
-  def "Correctly passes host and networking settings for sp_proxy"() {
+  def "so something awesome"() {
     given:
-    def command = new CreateContainer(dockerApi: api)
+    def command = new CreateImage()
     def jsonRequest = [
-            imageId: "sp_proxy",
-            name: "sp_proxy",
-    ]
-
-    when:
-    command(jsonRequest)
-
-    then:
-    1 * api.post("/containers/create?fromImage=sp_proxy&name=sp_proxy", {
-      def json = new JsonSlurper().parseText(it)
-    }) >> [Id: "abcdef123456"]
-
-    1 * api.post("/containers/abcdef123456/start", {
-      def json = new JsonSlurper().parseText(it)
-      json.PortBindings."8888/tcp"[0].HostPort == "8888"
-    }) >> [Id: "abcdef123456"]
-  }
-
-  def "Correctly calls the docker API"() {
-    given:
-    def command = new CreateContainer(dockerApi: api)
-    def jsonRequest = [
-            imageId: "123456",
-            name: "awesome",
-            dependencies: [
-                    [
-                            dependency: "postgres",
-                            host: "172.40.1.3",
-                            port: 746578
-                    ],
-                    [
-                            dependency: "wibbleApi",
-                            host: "172.40.1.7",
-                            port: 66666
-                    ]
+            name: "123456",
+            build: [
+                    [from: "ubuntu"],
+                    [run:"cd /"],
+                    [run:"cd /"],
+                    [env:[name:"something", value:"value"]],
+                    [add:[remote:"http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js", local:"/"]],
+                    [expose:4545],
+                    [entrypoint:"/something.sh"]
             ]
     ]
 
     when:
-    command(jsonRequest)
+    def ret = command(jsonRequest)
 
     then:
-    1 * api.post("/containers/create?fromImage=123456&name=awesome", {
-      def json = new JsonSlurper().parseText(it)
-      json.Env.find { it.contains("postgres") } != null
-    }) >> [Id: "THEIDOFDOOM"]
-  }
-
-  def "Correctly interprets the dependency info to build ENV"() {
-    given:
-    def command = new CreateContainer(dockerApi: api)
-
-    def jsonResponse = [
-            containerId: "789456",
-            dependencies: [
-                    [
-                            dependency: "postgres",
-                            host: "172.40.1.3",
-                            port: 746578
-                    ],
-                    [
-                            dependency: "wibbleApi",
-                            host: "172.40.1.7",
-                            port: 66666
-                    ]
-            ]
-    ]
-
-    when:
-    def env = command.getEnvironmentVariables(jsonResponse)
-
-    then:
-    env.size() == 4
-    env[0] == "postgres_PORT=746578"
-    env[1] == "postgres_HOST=172.40.1.3"
-    env[2] == "wibbleApi_PORT=66666"
-    env[3] == "wibbleApi_HOST=172.40.1.7"
+    ret.imageId != null
   }
 
   def json(map) {

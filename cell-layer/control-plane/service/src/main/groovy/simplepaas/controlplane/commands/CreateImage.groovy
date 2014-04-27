@@ -1,67 +1,108 @@
 package simplepaas.controlplane.commands
 
-import groovy.json.JsonBuilder
+import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
-import org.springframework.beans.factory.annotation.Autowired
-import simplepaas.controlplane.JSONApi
+import groovyx.net.http.HTTPBuilder
+import groovyx.net.http.Method
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry
+import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream
+import org.apache.http.HttpResponse
+import org.apache.http.entity.ByteArrayEntity
+import org.apache.http.entity.ContentType
 
 @Slf4j
 class CreateImage {
-  @Autowired
-  JSONApi dockerApi
 
-  def call(json) {
+  def http = new HTTPBuilder("http://172.17.42.1:4321/")
 
-    def request = [
-            "Image": json.imageId,
-            "Env": getEnvironmentVariables(json)
-    ]
+  def call(Map json) {
+    def bos = new ByteArrayOutputStream()
 
-    //ensure the image is downloaded
-    def imageUrl = "/images/create?fromImage=${json.imageId}"
-    log.info "Ensuring the image is downloaded : $imageUrl"
-    dockerApi.post(imageUrl)
+    def tos = new TarArchiveOutputStream(bos)
 
-    def url = "/containers/create?name=${json.name}"
-    log.info "Requested to create a new container \"/containers/create?fromImage=${json.imageId}&name=${json.name}\" $request"
+    byte[] dockerfile = createDockerFile(json)
 
-    def dockerRet = dockerApi.post(url, new JsonBuilder(request).toString())
+    TarArchiveEntry entry = new TarArchiveEntry("Dockerfile")
+    entry.setSize(dockerfile.length)
+    tos.putArchiveEntry(entry)
+    tos.write(dockerfile)
+    tos.closeArchiveEntry();
+    tos.flush()
+    tos.close()
 
-    // If container is sp_proxy then bind port 8080 to host
-    if (json.imageId.contains("sp_proxy") || json.name.contains("sp_proxy")) {
-      def proxyStartJson = """
-            {
-                "PortBindings": { "8888/tcp": [{ "HostPort": "8888" }] },
-                "Privileged": false,
-                "PublishAllPorts": false
-           }
-            """
-      dockerApi.post("/containers/${dockerRet.Id}/start", proxyStartJson)
-    } else {
-      dockerApi.post("/containers/${dockerRet.Id}/start", new JsonBuilder([:]).toString())
+    def data = bos.toByteArray()
+
+    http.encoder["application/tar"] = { byte[] tar ->
+      new ByteArrayEntity(tar, ContentType.create("application/tar"))
     }
 
+    def jsonResp  = [:]
+    http.request(Method.POST) { req ->
+      uri = "http://172.17.42.1:4321/build?t=${json.name}"
+      send "application/tar", data
 
-    [message: "Container created",
-            id: dockerRet.Id
-    ]
+      response.success = {  HttpResponse resp ->
+
+        def content = resp.entity.content.text
+
+        def lines = content.split("\n")
+
+        def end = lines.last()
+
+        def last = new JsonSlurper().parseText(end)
+
+        if (last.errorDetail) {
+          jsonResp.errorDetail = last.errorDetail
+          return
+        }
+
+        def id = last.stream[18..-2].trim()
+
+        jsonResp.imageId = id
+      }
+    }
+    jsonResp
   }
 
-  List getEnvironmentVariables(json) {
-    def env = json?.dependencies?.collect {
-      ["${it.dependency}_PORT=${it.port}", "${it.dependency}_HOST=${it.host}"]
-    }?.flatten()
+  byte[] createDockerFile(json) {
+    def bos = new ByteArrayOutputStream()
+    def writer = new OutputStreamWriter(bos)
 
-    if (!env) {
-      env = []
-    }
+    //todo schema enforcement?
 
-    if (json.env) {
-      json.env.each { key, value ->
-        env << "$key=$value"
+    json.build.each {
+
+      def command = (it.keySet() as List).first()
+      def params = it[command]
+      command = command.toUpperCase()
+
+      switch(command) {
+        case "FROM":
+          writer.println "FROM ${params}"
+          break
+        case "RUN":
+          writer.println "RUN ${params}"
+          break
+        case "ENV":
+          writer.println "ENV ${params.name} ${params.value}"
+          break
+        case "ADD":
+          writer.println "ADD ${params.remote} ${params.local}"
+          break
+        case "EXPOSE":
+          writer.println "EXPOSE ${params}"
+          break
+        case "ENTRYPOINT":
+          writer.println "ENTRYPOINT ${params}"
+          break
+        default:
+          log.warn "Unknown docker instruction provided ${command}"
       }
     }
 
-    return env
+    writer.flush()
+    writer.close()
+
+    bos.toByteArray()
   }
 }

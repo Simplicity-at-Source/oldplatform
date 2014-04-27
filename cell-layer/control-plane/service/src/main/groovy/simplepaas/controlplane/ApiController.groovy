@@ -78,7 +78,7 @@ class ApiController {
   @RequestMapping(value="/images", method = RequestMethod.POST)
   @ResponseBody
   def createImage(@RequestBody String json) {
-    convertFailure { createImageCommand.call(json) }
+    convertFailure { createImageCommand.call(fromJson(json)) }
   }
 
   @Scheduled(fixedRate = 2000l)
