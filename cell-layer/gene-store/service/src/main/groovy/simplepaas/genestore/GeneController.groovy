@@ -26,11 +26,11 @@ class GeneController {
       convertFailure {  store.listAll() }
   }
 
-  @RequestMapping(value="/{classifier}", method = RequestMethod.POST)
+  @RequestMapping(value="/{classifier}/{geneId}", method = RequestMethod.PUT)
   @ResponseBody
-  def insertGene(@PathVariable String classifier, @RequestBody String json) {
+  def insertGene(@PathVariable String classifier, @PathVariable String geneId, @RequestBody String json) {
     println("POST /$classifier data='$json'")
-    convertFailure {  store.create(classifier, fromJson(json)) }
+    convertFailure {  store.create(classifier, geneId, fromJson(json)) }
   }
 
   @RequestMapping(value="/{classifier}", method = RequestMethod.GET)
