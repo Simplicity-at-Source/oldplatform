@@ -1,0 +1,6 @@
+
+ {
+         "Hostname":"ubersentiment",
+         "Env":["GIT_REPO_URL=https://github.com/fuzzy-logic/sentanal.git"],
+         "Image":"sp_platform/uber-any"
+    }
