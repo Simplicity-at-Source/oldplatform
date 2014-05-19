@@ -60,6 +60,36 @@ class ControllerSpec extends Specification {
     DestroyContainer || "destroyContainerCommand" || "/container/12345"
   }
 
+
+    @Unroll
+    def "starts task #commandClass"() {
+        given:
+            def command = Mock(commandClass)
+
+            def jsonRequest = [
+                    "name": "serviceX1",
+                    "imageId": "123456"
+            ]
+
+            mockMVC = standaloneSetup(new ApiController("${commandName}": command)).build()
+
+        when:
+            def response = mockMVC.perform(MockMvcRequestBuilders.post(url)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(json(jsonRequest)))
+            //Thread.sleep(1000)
+            //def getResponse = mockMVC.perform(MockMvcRequestBuilders.get("/container/checkbuild/${jsonRequest.name}")
+
+        then:
+            //getResponse.andExpect(MockMvcResultMatchers.status().isOk())
+            response.andExpect(MockMvcResultMatchers.status().isOk())
+            1 * command.call( { it.imageId == "123456" })
+
+        where:
+            commandClass    || commandName              || url
+            CreateContainer || "createContainerCommand" || "/container"
+    }
+
   def json(map) {
     new JsonBuilder(map).toString()
   }

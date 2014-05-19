@@ -25,7 +25,7 @@ class CreateContainer {
 
     def url = "/containers/create?name=${json.name}"
     log.info "Requested to create a new container \"/containers/create?fromImage=${json.imageId}&name=${json.name}\" $request"
-
+    log.info(new JsonBuilder(request).toString())
     def dockerRet = dockerApi.post(url, new JsonBuilder(request).toString())
 
     // If container is sp_proxy then bind port 8080 to host

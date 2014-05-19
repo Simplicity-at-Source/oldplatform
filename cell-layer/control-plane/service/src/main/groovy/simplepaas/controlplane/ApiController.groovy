@@ -23,6 +23,11 @@ import simplepaas.controlplane.commands.ListContainers
 import simplepaas.controlplane.commands.ListImages
 import simplepaas.controlplane.commands.SendContainerInformation
 
+import java.util.concurrent.Callable
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+import java.util.concurrent.Future
+
 import static groovyx.net.http.ContentType.*
 import static groovyx.net.http.Method.*
 
@@ -42,6 +47,9 @@ add ability to download files
 @EnableScheduling
 class ApiController {
 
+    private final ExecutorService execService = Executors.newFixedThreadPool(4);
+    private Map containerBuilds = new HashMap()
+
   @Autowired CreateImage createImageCommand
   @Autowired CreateContainer createContainerCommand
   @Autowired DestroyContainer destroyContainerCommand
@@ -51,17 +59,44 @@ class ApiController {
 
   @Autowired JSONApi api
 
+
+
   @RequestMapping(value="/container", method = RequestMethod.POST)
   @ResponseBody
   def createContainer(@RequestBody String json) {
-    convertFailure { createContainerCommand.call(fromJson(json)) }
+
+      def postJson = fromJson(json)
+      Callable<Map> task = new Callable() {
+          @Override
+          Object call() throws Exception {
+              createContainerCommand.call(postJson)
+
+          }
+      }
+      Future<Map> taskFuture = execService.submit(task)
+      containerBuilds.put(postJson.name, taskFuture)
+    convertFailure { [message: "creating service ${postJson.name}", status: "/container/checkbuild/${postJson.name}"] }
   }
 
   @RequestMapping(value="/container", method = RequestMethod.GET)
   @ResponseBody
   def listContainer() {
-    convertFailure { listContainersCommand.call() }
+      convertFailure { listContainersCommand.call() }
   }
+
+    @RequestMapping(value="/container/checkbuild/{containerId}", method = RequestMethod.GET)
+    @ResponseBody
+    def listContainer(@PathVariable(value = "containerId") String containerId) {
+
+        def returnMessage = [status: "Still Building..."]
+        Future future = containerBuilds.get(containerId)
+        if (future.isDone()) {
+             returnMessage = [status: future.get()]
+        }
+
+        convertFailure {  }
+
+    }
 
   @RequestMapping(value="/container/{containerId}", method = RequestMethod.DELETE)
   @ResponseBody
