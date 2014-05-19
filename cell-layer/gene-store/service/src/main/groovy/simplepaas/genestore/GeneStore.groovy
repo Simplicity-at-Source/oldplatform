@@ -4,8 +4,8 @@ class GeneStore {
 
   def classifiers = [:]
 
-  def create(def classifier, def json) {
-    if (!json.id) {
+  def create(def classifier, def id, def json) {
+    if (!id) {
       return [error:"No id provided"]
     }
 
@@ -15,7 +15,7 @@ class GeneStore {
       classifierGenes = classifiers[classifier]
     }
 
-    classifierGenes[json.id] = new HashMap(json)
+    classifierGenes[id] = new HashMap(json)
     ["Gene Created"]
   }
 

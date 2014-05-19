@@ -1,7 +1,6 @@
 http = require('http');
 var restify = require('restify');
 
-
 var port = process.env.PORT || 8080;
 var debug = process.env.NODE_DEBUG || false;
 
@@ -12,8 +11,6 @@ server.use(restify.bodyParser());
 server.listen(port, function() {
     console.log('gene-store listening at %s', server.url);
 });
-
-
 
 var geneStore = {};
 
@@ -48,13 +45,6 @@ server.del('/:type', function(req, res) {
     data = {message: "gene-store, del ok"};
     res.send(data);
 });
-
-
-
-
-
-
-
 
 if (debug == "true") {
     console.log("debug=" + debug);
