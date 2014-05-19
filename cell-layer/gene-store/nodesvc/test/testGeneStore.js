@@ -36,9 +36,18 @@ describe('test gene-store: ', function(){
             assert.equal(200, res.status);
             //assert.ok(contains( jsonRes.status, "ok"));
 
-            var req = request.get(host + '/cell');
+            var req = request.get(host + '/cell/sentanal');
             req.end(function(res){
                 console.log("it(post, get gene-store) res: " + res.text);
+                var jsonRes = JSON.parse(res.text);
+                console.dir(jsonRes.sentanal);
+                assert.equal(200, res.status);
+                assert.equal('sentanal', jsonRes.id)
+            });
+
+            var req = request.get(host + '/cell');
+            req.end(function(res){
+                console.log("it(post, get /cell gene-store) res: " + res.text);
                 var jsonRes = JSON.parse(res.text);
                 console.dir(jsonRes.sentanal);
                 assert.equal(200, res.status);
@@ -49,5 +58,24 @@ describe('test gene-store: ', function(){
         });
     });
 
+    it('gene-store del new service', function(done){
+        var req = request.del(host + '/cell/sentanal');
+        req.end(function(res){
+            console.log("it(del gene-store) response: ");
+            console.dir(res.body);
+            //var jsonRes = JSON.parse(res.body);
+            assert.equal(200, res.status);
+            //assert.ok(contains( jsonRes.status, "ok"));
 
+            var req = request.get(host + '/cell/sentanal');
+            req.end(function(res){
+                console.log("it(del, get gene-store) res: " + res.text);
+                var jsonRes = JSON.parse(res.text);
+                console.dir(jsonRes.sentanal);
+                assert.equal(404, res.status);
+                done();
+            });
+
+        });
+    });
 });

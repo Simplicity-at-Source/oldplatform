@@ -26,6 +26,28 @@ server.get('/:type', function(req, res) {
     res.send(geneStore[type]);
 });
 
+server.get('/:type/:service', function(req, res) {
+    var type = req.params.type;
+    var service = req.params.service;
+    console.log("gene-store GET Service /" + type + "/" + service );
+
+    var data;
+    if (service) {
+        var typeData = geneStore[type];
+        if (typeData) data = typeData[service];
+    } else {
+        data = geneStore[type];
+    }
+
+    console.log("resturning service data: " + data);
+    if (data) {
+        res.send(data);
+    } else {
+        res.send(404, {status: 404});
+    }
+
+});
+
 server.post('/:type', function(req, res) {
     var type = req.params.type;
     console.log("gene-store POST /" + type);
@@ -38,10 +60,12 @@ server.post('/:type', function(req, res) {
     res.send(data);
 });
 
-server.del('/:type', function(req, res) {
+server.del('/:type/:service', function(req, res) {
     var type = req.params.type;
+    var service = req.params.service;
     console.log("gene-store DEL /" + type);
-    geneStore[type][payload.id] = {};
+    var typeData =  geneStore[type];
+    typeData[service] = undefined;
     data = {message: "gene-store, del ok"};
     res.send(data);
 });
