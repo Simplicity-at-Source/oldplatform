@@ -23,7 +23,10 @@ server.get('/', function(req, res) {
 server.get('/:type', function(req, res) {
     var type = req.params.type;
     console.log("gene-store GET /" + type);
-    res.send(geneStore[type]);
+    var serviceName = geneStore[type].id;
+    var typeData = {};
+    typeData[type] = geneStore[type];
+    res.send(typeData);
 });
 
 server.get('/:type/:service', function(req, res) {
