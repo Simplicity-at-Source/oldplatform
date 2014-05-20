@@ -68,14 +68,20 @@ class ApiController {
   def createContainer(@RequestBody String json) {
         log.info("/container creating: " + json)
       def postJson = fromJson(json)
+
       Callable<Map> task = new Callable() {
           @Override
           Object call() throws Exception {
+              log.info("Running async create container command with postJson: " + postJson);
               createContainerCommand.call(postJson)
 
           }
       }
       Future<Map> taskFuture = execService.submit(task)
+      while(! taskFuture.done) {
+          log.info("waiting for create container command to complete")
+          Thread.sleep(500)
+      }
       containerBuilds.put(postJson.name, taskFuture)
     convertFailure { [message: "creating service ${postJson.name}", status: "/container/checkbuild/${postJson.name}"] }
   }
