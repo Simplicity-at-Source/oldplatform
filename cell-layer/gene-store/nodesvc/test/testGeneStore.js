@@ -27,6 +27,16 @@ describe('test gene-store: ', function(){
         });
     });
 
+    it('/cell works ok', function(done){
+        var req = request.get(host + '/cell');
+        req.end(function(res){
+            console.log("/ res: " + res.text);
+            var json = JSON.parse(res.text);
+            assert.equal(404, res.status);
+            done();
+        });
+    });
+
     it('gene-store create and get new service', function(done){
         var req = request.post(host + '/cell');
         //req.set('Content-Type', 'application/json');
