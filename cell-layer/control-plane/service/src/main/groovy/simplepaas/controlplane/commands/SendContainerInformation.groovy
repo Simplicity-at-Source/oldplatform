@@ -29,12 +29,17 @@ class SendContainerInformation {
 
       def http = new HTTPBuilder("http://172.17.0.4:8080/")
       def jsonResp
-      http.request( POST, JSON ) { req ->
-        body = [it]
 
-        response.success = { resp, json ->
-          jsonResp=json
-        }
+      try {
+          http.request( POST, JSON ) { req ->
+            body = [it]
+
+            response.success = { resp, json ->
+              jsonResp=json
+            }
+          }
+      } catch (Exception e) {
+        log.error("exception while posting docker container info to phenoype monitor " + e.message);
       }
     }
   }

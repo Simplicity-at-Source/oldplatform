@@ -1,6 +1,7 @@
 package simplepaas.controlplane
 
 import groovy.json.JsonSlurper
+import groovy.util.logging.Slf4j
 import groovyx.net.http.HTTPBuilder
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.SpringApplication
@@ -45,6 +46,7 @@ add ability to download files
 @Configuration
 @EnableAutoConfiguration
 @EnableScheduling
+@Slf4j
 class ApiController {
 
     private final ExecutorService execService = Executors.newFixedThreadPool(4);
@@ -64,7 +66,7 @@ class ApiController {
   @RequestMapping(value="/container", method = RequestMethod.POST)
   @ResponseBody
   def createContainer(@RequestBody String json) {
-
+        log.info("/container creating: " + json)
       def postJson = fromJson(json)
       Callable<Map> task = new Callable() {
           @Override
