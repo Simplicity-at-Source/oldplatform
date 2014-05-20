@@ -1,5 +1,6 @@
 package simplepaas.controlplane.commands
 
+import groovy.util.logging.Slf4j
 import groovyx.net.http.HTTPBuilder
 import org.springframework.beans.factory.annotation.Autowired
 import simplepaas.controlplane.JSONApi
@@ -7,6 +8,7 @@ import simplepaas.controlplane.JSONApi
 import static groovyx.net.http.ContentType.JSON
 import static groovyx.net.http.Method.POST
 
+@Slf4j
 class SendContainerInformation {
   @Autowired
   JSONApi dockerApi
