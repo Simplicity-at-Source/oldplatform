@@ -24,10 +24,15 @@ server.get('/:type', function(req, res) {
     var type = req.params.type;
     console.log("gene-store GET /" + type);
     if (geneStore[type]) {
-        var serviceName = geneStore[type].id;
-        var typeData = {};
-        typeData[type] = geneStore[type];
-        res.send(typeData);
+        console.dir(geneStore[type]);
+        var results = [];
+        for (var key in geneStore[type]) {
+            results.push(geneStore[type][key]);
+        }
+        //var serviceName = geneStore[type].id;
+        //var typeData = {};
+        //typeData[type] = geneStore[type];
+        res.send(results);
     } else {
         res.send(404, {status: 404});
     }

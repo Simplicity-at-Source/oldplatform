@@ -63,7 +63,7 @@ describe('test gene-store: ', function(){
                 var jsonRes = JSON.parse(res.text);
                 console.dir(jsonRes.sentanal);
                 assert.equal(200, res.status);
-                assert.equal('sentanal', jsonRes.cell.sentanal.id)
+                assert.equal('sentanal', jsonRes[0].id)
                 done();
             });
 

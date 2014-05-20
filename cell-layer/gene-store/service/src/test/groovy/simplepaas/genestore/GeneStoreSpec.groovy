@@ -6,7 +6,7 @@ import spock.lang.Specification
 class GeneStoreSpec extends Specification {
 
 
-    def "test store"() {
+    def "test store listall()"() {
         given:
             GeneStore geneStore = new GeneStore()
             def service1json = new JsonSlurper().parseText("""{"id": "riak-genesis", "image": "sp-platform/spi-riak"}""");
