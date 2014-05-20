@@ -73,7 +73,7 @@ class SimpleGeneExpressor {
   def activateGenes(def genes) {
 
     genes.each {
-      println "Activating $it"
+      log.info("Activating $it")
       def request = [
               name:"$MARKER-${it.id}".toString(),
               imageId:it.image.toString()
@@ -97,7 +97,8 @@ class SimpleGeneExpressor {
 
   def findApplicableGenes() {
     api.get(GENE_STORE).findAll {
-      it.id
+        log.info("Finding Genes, gene: $it")
+        it.id
     }
   }
 
