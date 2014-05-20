@@ -49,7 +49,7 @@ add ability to download files
 @Slf4j
 class ApiController {
 
-    private final ExecutorService execService = Executors.newFixedThreadPool(4);
+    private final static ExecutorService execService = Executors.newFixedThreadPool(4);
     private Map containerBuilds = new HashMap()
 
   @Autowired CreateImage createImageCommand
@@ -73,7 +73,7 @@ class ApiController {
           @Override
           Object call() throws Exception {
               log.info("Running async create container command with postJson: " + postJson);
-              createContainerCommand.call(postJson)
+              return createContainerCommand.call(postJson)
 
           }
       }
@@ -83,7 +83,7 @@ class ApiController {
           Thread.sleep(500)
       }
       containerBuilds.put(postJson.name, taskFuture)
-    convertFailure { [message: "creating service ${postJson.name}", status: "/container/checkbuild/${postJson.name}"] }
+    convertFailure { taskFuture.get() }
   }
 
   @RequestMapping(value="/container", method = RequestMethod.GET)
