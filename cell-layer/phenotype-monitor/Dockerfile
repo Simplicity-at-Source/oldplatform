@@ -1,15 +1,17 @@
- 
-FROM sp_platform/spi_java
+
+ENTRYPOINT /run.sh
+
+FROM sp_platform/spi_base
 
 MAINTAINER Simplicity Itself
 
 ENV PROVIDES sp-phenotype-monitor:8080
 
-ADD container/run.sh /
-ADD service/build/libs/sp-phenotype-monitor-0.1.jar /
+ADD nodesvc /spaas/project
 
-RUN chmod 755 /run.sh
+RUN chmod 755 /spaas/project/run.sh
 
 EXPOSE 8080
 
-ENTRYPOINT /run.sh
+WORKDIR /spaas/project
+ENTRYPOINT /bin/sh /spaas/project/run.sh
