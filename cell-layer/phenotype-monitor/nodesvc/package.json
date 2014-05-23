@@ -1,0 +1,24 @@
+{
+    "name": "gene-store",
+    "description": "SP Gene-Store",
+    "version": "0.0.1",
+    "private": true,
+    "scripts": {
+        "start": "node app",
+        "test": "./node_modules/mocha/bin/mocha -R spec"
+    },
+    "dependencies": {
+        "underscore": "*",
+        "restify": "*"
+
+    },
+    "devDependencies": {
+        "mocha": "*",
+        "superagent": "*",
+        "assert": "*",
+        "validator": "*"
+    }
+}
+
+
+
