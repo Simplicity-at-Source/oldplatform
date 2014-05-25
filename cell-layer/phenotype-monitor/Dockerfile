@@ -1,6 +1,4 @@
 
-ENTRYPOINT /run.sh
-
 FROM sp_platform/spi_base
 
 MAINTAINER Simplicity Itself
