@@ -1,66 +1,22 @@
-# simplepaas
+# Muon Core
 
-Simple PaaS for Micro-Services Implementation 
+PaaS for Micro-Services
 
 ## Local Installation
 
-SimplePaaS adds PaaS capabilities on top of the core Docker infrastructure and container management functionality.
+Muon Core adds PaaS capabilities on top of the core Docker infrastructure and container management functionality.
 
 It does not seek to replace or abstract Docker.
 
-To start using SimplePaaS, install Docker and the unix utility, socat.
+To start using Muon, install Docker and the unix utility, socat.
 
-Build the SimplePaaS images into your local image repo.
+Build the Muon images into your local image repo.
 
 ```
 build.sh
 ```
 
-The SimplePaaS command line tool, `sp` is available for interacting with a SimplePaaS installation.
-To install the platform, run `sp dev-init`, this will install the minimal set of services to act as a PaaS on a single node.
+To install the platform, run `cli/dev-init`, this will install the minimal set of services to act as a PaaS on a single node.
 
 These components allow you to take existing Docker images, as normal, and securely deploy them to 
 the local Docker with declarative Service Injection, via the API.
-
-## Component Structure
-
-### Service
-
-Each component consists of a Service implementation.  This will be some runnable artifact that will 
-implement some functionality running in the container.
-
-Each folder should contain a build.sh script that will execute whatever build steps are necessary.
-Build tools should be bootstrapped by this script and not assumed to be installed. (eg, using gradlew)
-
-### Container 
-
-Each Micro Service will be bundled into a container for deployment into SimplPaaS.  This process of bundling is 
-managed via a Dockerfile.
-
-Each container folder must contain a Dockerfile
-
-The Dockerfile should contain the normal information to build the container, plus some meta data to indicate
-the required/ provided service dependencies
-
-A simple Redis service
-```
-FROM        ubuntu:12.10
-MAINTAINER Simplicity Itself
-RUN         apt-get update
-RUN         apt-get -y install redis-server
-EXPOSE      6379
-ENV PROVIDES redis:6379
-ENTRYPOINT  ["/usr/bin/redis-server"]
-```
-
-This service indicates to the managing SimplePaaS components that it *provides* the redis capability, running on port 6379.
-This information will be used by platform to permit declarative service wiring and checking of runtime links between containers
-
-
-### Core Platform Services
-
-gene-store - users uploads their definitions here. this will be service defs, some runtime characteristics etc.  It's fairly freeform, the real restriction will be on what the expressor can process.
-
-phenotype-monitor - creates a rolling view of the state of the platform.
-
-gene-expressor - given the current requirements (the genes) and the current state, will boot or remove containers to bring the platform into line.
