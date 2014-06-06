@@ -7,13 +7,13 @@ var host = 'http://localhost:8080';
 /*
 
 Gene Store Data:
-{"cell":{"sentanal":{"id":"sentanal","image":"sp_platform/uber-any","env":{"GIT_REPO_URL":"https://github.com/fuzzy-logic/sentanal.git"}}}}
+{"cell":{"sentiment":{"id":"sentiment","image":"sp_platform/uber-any","env":{"GIT_REPO_URL":"https://github.com/fuzzy-logic/sentiment.git"}}}}
 
-{"cell":{"sentanal":{"id":"sentanal","image":"sp_platform/uber-any","env":{"GIT_REPO_URL":"https://github.com/fuzzy-logic/sentanal.git"}}}}
+{"cell":{"sentiment":{"id":"sentiment","image":"sp_platform/uber-any","env":{"GIT_REPO_URL":"https://github.com/fuzzy-logic/sentiment.git"}}}}
 
 */
 
-var postData = {"id":"sentanal","image":"sp_platform/uber-any","env":{"GIT_REPO_URL":"https://github.com/fuzzy-logic/sentanal.git"}};
+var postData = {"id":"sentiment","image":"sp_platform/uber-any","env":{"GIT_REPO_URL":"https://github.com/fuzzy-logic/sentiment.git"}};
 
 describe('test gene-store: ', function(){
 
@@ -48,22 +48,22 @@ describe('test gene-store: ', function(){
             assert.equal(200, res.status);
             //assert.ok(contains( jsonRes.status, "ok"));
 
-            var req = request.get(host + '/gene-store/cell/sentanal');
+            var req = request.get(host + '/gene-store/cell/sentiment');
             req.end(function(res){
-                console.log("it(post,get /gene-store/cell/sentanal) res: " + res.text);
+                console.log("it(post,get /gene-store/cell/sentiment) res: " + res.text);
                 var jsonRes = JSON.parse(res.text);
-                //console.dir(jsonRes.sentanal);
+                //console.dir(jsonRes.sentiment);
                 assert.equal(200, res.status);
-                assert.equal('sentanal', jsonRes.id)
+                assert.equal('sentiment', jsonRes.id)
             });
 
             var req = request.get(host + '/gene-store/cell');
             req.end(function(res){
                 console.log("it(post,get,get /gene-store/cell) res: " + res.text);
                 var jsonRes = JSON.parse(res.text);
-                console.dir(jsonRes.sentanal);
+                console.dir(jsonRes.sentiment);
                 assert.equal(200, res.status);
-                assert.equal('sentanal', jsonRes.sentanal.id)
+                assert.equal('sentiment', jsonRes.sentiment.id)
                 done();
             });
 
@@ -71,7 +71,7 @@ describe('test gene-store: ', function(){
     });
 
     it('gene-store del new service', function(done){
-        var req = request.del(host + '/gene-store/cell/sentanal');
+        var req = request.del(host + '/gene-store/cell/sentiment');
         req.end(function(res){
             console.log("it(del gene-store) response: ");
             console.dir(res.body);
@@ -79,13 +79,53 @@ describe('test gene-store: ', function(){
             assert.equal(200, res.status);
             //assert.ok(contains( jsonRes.status, "ok"));
 
-            var req = request.get(host + '/gene-store/cell/sentanal');
+            var req = request.get(host + '/gene-store/cell/sentiment');
             req.end(function(res){
                 console.log("it(del, get gene-store) res: " + res.text);
                 var jsonRes = JSON.parse(res.text);
-                console.dir(jsonRes.sentanal);
+                console.dir(jsonRes.sentiment);
                 assert.equal(404, res.status);
                 done();
+            });
+
+        });
+    });
+
+
+    it('gene-store callsback to test service', function(done){
+
+
+        function httpStartupComplete(service, port) {
+            console.log("starting %s service on port %s", service, port);
+        }
+
+
+        var requestHandler = function(req, res) {
+            console.log("MockCallbackee called ");
+            res.writeHead(200, {'Content-Type': 'application/json'});
+            res.write(JSON.stringify({}));
+            res.end();
+            done();
+        };
+        http.createServer(requestHandler).listen(18081, httpStartupComplete("mockCallbackService", 18081));
+
+        var callbackPayload = {path: "/", method: "GET", url: "http://localhost:18081/blah", payload: {} };
+
+        var req = request.post(host + '/callback');
+        req.send(callbackPayload);
+        req.end(function(res){
+            console.log("it(post /callback) response: ");
+            //console.dir(res.body);
+            //var jsonRes = JSON.parse(res.body);
+            assert.equal(204, res.status);
+            //assert.ok(contains( jsonRes.status, "ok"));
+
+            var req = request.get(host + '/');
+            req.end(function(res){
+                console.log("it(post /callback, get /) res: " + res.text);
+                var jsonRes = JSON.parse(res.text);
+                console.dir(jsonRes.sentiment);
+                assert.equal(200, res.status);
             });
 
         });

@@ -1,5 +1,8 @@
 http = require('http');
 var restify = require('restify');
+var _ = require('underscore');
+var url = require('url');
+var agent = require('superagent');
 
 var port = process.env.PORT || 8080;
 var debug = process.env.NODE_DEBUG || false;
@@ -14,13 +17,18 @@ server.listen(port, function() {
 
 var nucleusStore = {};
 
+var callbackMappings = {"/foobar": [{method: "GET", url: "http://localhost:18080", payload: {message: "hi"}}] };
+
+
 server.get('/', function(req, res) {
+    doCallbacks(req);
     console.log("nucleus GET /");
     //data = nucleusStore;
     res.send(nucleusStore);
 });
 
 server.get('/:storeName', function(req, res) {
+    doCallbacks(req);
     var storeName = req.params.storeName;
     console.log("nucleus GET /" + storeName);
     if (nucleusStore[storeName]) {
@@ -37,6 +45,7 @@ server.get('/:storeName', function(req, res) {
 });
 
 server.get('/:storeName/:subStoreName', function(req, res) {
+    doCallbacks(req);
     var storeName = req.params.storeName;
     var subStoreName = req.params.subStoreName;
     console.log("nucleus GET  /" + storeName + "/" + subStoreName );
@@ -54,6 +63,7 @@ server.get('/:storeName/:subStoreName', function(req, res) {
 
 
 server.get('/:storeName/:subStoreName/:id', function(req, res) {
+    doCallbacks(req);
     var storeName = req.params.storeName;
     var subStoreName = req.params.subStoreName;
     var id = req.params.id;
@@ -70,8 +80,20 @@ server.get('/:storeName/:subStoreName/:id', function(req, res) {
 
 });
 
+server.post('/callback', function(req, res) {
+    var body = req.body;
+    console.log("POST /callback body=" + JSON.stringify(body));
+    var callbackOpts = {method: body.method, url: body.url, payload: body.payload};
+    if (! callbackMappings[body.path]) {
+        callbackMappings[body.path] = [callbackOpts];
+    } else {
+        callbackMappings[body.path].push(callbackOpts);
+    }
+    res.send(204);
+});
 
 server.post('/:storeName/:subStoreName', function(req, res) {
+    doCallbacks(req);
     var storeName = req.params.storeName;
     var subStoreName = req.params.subStoreName;
 
@@ -90,6 +112,7 @@ server.post('/:storeName/:subStoreName', function(req, res) {
 
 
 server.put('/:storeName/:subStoreName/:id', function(req, res) {
+    doCallbacks(req);
     var storeName = req.params.storeName;
     var subStoreName = req.params.subStoreName;
     var id = req.params.id;
@@ -108,11 +131,14 @@ server.put('/:storeName/:subStoreName/:id', function(req, res) {
 });
 
 server.del('/:storeName/:subStoreName/:id', function(req, res) {
+    doCallbacks(req);
+    console.log("nucleus DEL store=" + JSON.stringify(nucleusStore));
     var storeName = req.params.storeName;
     var subStoreName = req.params.subStoreName;
     var id = req.params.id;
     console.log("nucleus DEL  /" + storeName + "/" + subStoreName + "/" + id);
-    nucleusStore.storeName.subStoreName.id = {};
+    nucleusStore[storeName][subStoreName][id] = undefined;
+    console.log("nucleus DEL store=" + JSON.stringify(nucleusStore));
     data = {message: "nucleus, del ok"};
     res.send(data);
 });
@@ -126,4 +152,21 @@ if (debug == "true") {
             res.send(err);
         }
     );
+}
+
+function doCallbacks(req) {
+    var path = url.parse(req.url, true, false).path;
+    console.log("nucleus doCallbacks() path=" + path);
+    var callbacks = callbackMappings[path];
+
+    var iterator = function(element, index, list) {
+        var callback = function(res) {
+            console.log("callback response from " + element.url + ": " + res.status);
+        };
+        console.log("nucleus performing callback to " + element.url);
+        agent.get(element.url).end(callback);
+    };
+
+    _.each(callbacks, iterator );
+
 }
