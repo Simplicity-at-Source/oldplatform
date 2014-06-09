@@ -13,10 +13,15 @@ To start using Muon, install Docker and the unix utility, socat.
 Build the Muon images into your local image repo.
 
 ```
-build.sh
+git clone https://github.com/Simplicity-at-Source/muoncore
+cd muoncore
+./build.sh
+./cli/dev-init
 ```
 
-To install the platform, run `cli/dev-init`, this will install the minimal set of services to act as a PaaS on a single node.
+Running `build.sh` will download and install all the muon core docker images.
+
+Runing `cli/dev-init` will install the minimal set of services to act as a PaaS on a single node.
 
 These components allow you to take existing Docker images, as normal, and securely deploy them to 
 the local Docker with declarative Service Injection, via the API.
