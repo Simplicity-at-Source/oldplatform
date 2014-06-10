@@ -9,8 +9,13 @@
     },
     "dependencies": {
         "underscore": "*",
+        "express": "3.x",
+        "swagger-node-express": "~2.0",
+        "url": "*",
+        "cors": "*",
+        "body-parser": "*",
         "restify": "*"
-
+        
     },
     "devDependencies": {
         "mocha": "*",

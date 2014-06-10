@@ -1,172 +1,112 @@
-http = require('http');
-var restify = require('restify');
-var _ = require('underscore');
-var url = require('url');
-var agent = require('superagent');
+// Load module dependencies.
+var bodyParser = require('body-parser');
+var express = require("express");
+var url = require("url");
+var swagger = require("swagger-node-express");
+var resources = require('./resources.js');
 
-var port = process.env.PORT || 8080;
-var debug = process.env.NODE_DEBUG || false;
+// Create the application.
+var app = express();
+app.use(express.json());
+app.use(express.urlencoded());
 
-var server = restify.createServer();
-server.use(restify.queryParser());
-server.use(restify.bodyParser());
+// Couple the application to the Swagger module.
+swagger.setAppHandler(app);
 
-server.listen(port, function() {
-    console.log('nucleus listening at %s', server.url);
+var models = {"Record:": {}};
+
+swagger.addModels(models);
+swagger.addGet(resources.root);
+swagger.addGet(resources.findById);
+swagger.addGet(resources.getStore);
+swagger.addGet(resources.getService);
+swagger.addPost(resources.addRecord);
+swagger.addDelete(resources.deleteRecord);
+
+swagger.configureDeclaration("Nucleus", {
+  description : "Nuclues Service Data Store Operations",
+  //authorizations : ["oauth2"],
+  produces: ["application/json"]
 });
 
-var nucleusStore = {};
-
-var callbackMappings = {"/foobar": [{method: "GET", url: "http://localhost:18080", payload: {message: "hi"}}] };
-
-
-server.get('/', function(req, res) {
-    doCallbacks(req);
-    console.log("nucleus GET /");
-    //data = nucleusStore;
-    res.send(nucleusStore);
+swagger.setApiInfo({
+  title: "Swagger Sample App",
+  description: "Nucleus API",
+  termsOfServiceUrl: "http://muoncore.io/terms/",
+  contact: "team@muoncore.io",
+  license: "Apache 2.0",
+  licenseUrl: "http://www.apache.org/licenses/LICENSE-2.0.html"
 });
 
-server.get('/:storeName', function(req, res) {
-    doCallbacks(req);
-    var storeName = req.params.storeName;
-    console.log("nucleus GET /" + storeName);
-    if (nucleusStore[storeName]) {
-        console.dir(nucleusStore[storeName]);
-        var results = [];
-        for (var key in nucleusStore[storeName]) {
-            results.push(nucleusStore[storeName][key]);
-        }
-        res.send(results);
-    } else {
-        res.send(404, {status: 404});
-    }
+swagger.configureSwaggerPaths("", "/api-docs", "");
 
+swagger.configure("http://localhost:8080", "0.1");
+
+
+/*
+var docs_handler = express.static(__dirname + '/swagger-ui/');
+
+app.get('/docs', function(req, res, next) {
+  console.log('GET /docs');
+  if (req.url === '/docs') { // express static barfs on root url w/o trailing slash
+    console.log('GET /docs redirect');
+    res.writeHead(302, { 'Location' : req.url + '/' });
+    res.end();
+    return;
+  }
+  console.log('GET /docs/');
+  // take off leading /docs so that connect locates file correctly
+  req.url = req.url.substr('/docs'.length);
+  return docs_handler(req, res, next);
 });
-
-server.get('/:storeName/:subStoreName', function(req, res) {
-    doCallbacks(req);
-    var storeName = req.params.storeName;
-    var subStoreName = req.params.subStoreName;
-    console.log("nucleus GET  /" + storeName + "/" + subStoreName );
-
-    var data  = nucleusStore[storeName][subStoreName];
-
-    console.log("returning service data: " + data);
-    if (data) {
-        res.send(data);
-    } else {
-        res.send(404, {status: 404});
-    }
-
-});
+*/
 
 
-server.get('/:storeName/:subStoreName/:id', function(req, res) {
-    doCallbacks(req);
-    var storeName = req.params.storeName;
-    var subStoreName = req.params.subStoreName;
-    var id = req.params.id;
-    console.log("nucleus GET  /" + storeName + "/" + subStoreName + "/" + id );
 
-    var data  = nucleusStore[storeName][subStoreName][id];
-
-    console.log("returning subStore data: " + JSON.stringify(data));
-    if (data) {
-        res.send(data);
-    } else {
-        res.send(404, {status: 404});
-    }
-
-});
-
-server.post('/callback', function(req, res) {
-    var body = req.body;
-    console.log("POST /callback body=" + JSON.stringify(body));
-    var callbackOpts = {method: body.method, url: body.url, payload: body.payload};
-    if (! callbackMappings[body.path]) {
-        callbackMappings[body.path] = [callbackOpts];
-    } else {
-        callbackMappings[body.path].push(callbackOpts);
-    }
-    res.send(204);
-});
-
-server.post('/:storeName/:subStoreName', function(req, res) {
-    doCallbacks(req);
-    var storeName = req.params.storeName;
-    var subStoreName = req.params.subStoreName;
-
-    console.log("nucleus POST /" + storeName + "/" + subStoreName );
-    var payload = req.body;
-    if ( nucleusStore.storeName == undefined) {
-        nucleusStore.storeName = {};
-    }
-    if ( nucleusStore.storeName.subStoreName == undefined) {
-        nucleusStore.storeName.subStoreName = {};
-    }
-    nucleusStore.storeName.subStoreName[payload.id] = payload;
-    data = {message: "nucleus post ok: stored payload with id=" + id};
-    res.send(data);
-});
-
-
-server.put('/:storeName/:subStoreName/:id', function(req, res) {
-    doCallbacks(req);
-    var storeName = req.params.storeName;
-    var subStoreName = req.params.subStoreName;
-    var id = req.params.id;
-    console.log("nucleus PUT /" + storeName + "/" + subStoreName + "/" + id);
-    var payload = req.body;
-    if ( nucleusStore[storeName] == undefined) {
-        nucleusStore[storeName] = {};
-    }
-    if ( nucleusStore[storeName][subStoreName] == undefined) {
-        nucleusStore[storeName][subStoreName] = {};
-    }
-    nucleusStore[storeName][subStoreName][id] = payload;
-    data = {message: "nucleus PUT ok: stored payload with id=" + id};
-    console.log("nucleusStore: " + JSON.stringify(nucleusStore));
-    res.send(data);
-});
-
-server.del('/:storeName/:subStoreName/:id', function(req, res) {
-    doCallbacks(req);
-    console.log("nucleus DEL store=" + JSON.stringify(nucleusStore));
-    var storeName = req.params.storeName;
-    var subStoreName = req.params.subStoreName;
-    var id = req.params.id;
-    console.log("nucleus DEL  /" + storeName + "/" + subStoreName + "/" + id);
-    nucleusStore[storeName][subStoreName][id] = undefined;
-    console.log("nucleus DEL store=" + JSON.stringify(nucleusStore));
-    data = {message: "nucleus, del ok"};
-    res.send(data);
-});
-
-if (debug == "true") {
-    console.log("debug=" + debug);
-    server.on('uncaughtException', function(req, res, route, err) {
-            console.log("uncaughtException err: " + err.message);
-            //console.dir(dir);
-            console.log(err.stack);
-            res.send(err);
-        }
-    );
+function logErrors(err, req, res, next) {
+  console.error(err.stack);
+  next(err);
 }
 
-function doCallbacks(req) {
-    var path = url.parse(req.url, true, false).path;
-    console.log("nucleus doCallbacks() path=" + path);
-    var callbacks = callbackMappings[path];
 
-    var iterator = function(element, index, list) {
-        var callback = function(res) {
-            console.log("callback response from " + element.url + ": " + res.status);
-        };
-        console.log("nucleus performing callback to " + element.url);
-        agent.get(element.url).end(callback);
-    };
-
-    _.each(callbacks, iterator );
-
+function clientErrorHandler(err, req, res, next) {
+  console.log('clientErrorHandler');
+  if (req.xhr) {
+    res.send(500, { error: 'Something blew up!' });
+  } else {
+    next(err);
+  }
 }
+
+
+function errorHandler(err, req, res, next) {
+  console.log('errorHandler');
+  res.status(500);
+  res.render('error', { error: err });
+}
+
+app.use(logErrors);
+app.use(clientErrorHandler);
+app.use(errorHandler);
+
+/*
+app.on('uncaughtException', function(req, res, route, err) {
+        console.log("uncaughtException err: " + err.message);
+        //console.dir(dir);
+        console.log(err.stack);
+        res.send(err);
+    }
+);
+*/
+
+//app.configure('development', function() {
+  //app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
+//});
+
+process.on('uncaughtException', function(err) {
+    console.log('Threw Exception: ', err);
+});
+
+app.listen(8080, function() {
+           console.log("listen on port 8080");           
+});

@@ -3,15 +3,9 @@ var request = require("superagent");
 require('../app.js'); //Boot up the server for tests
 //var host = config.host + ':' + config.port;
 var host = 'http://localhost:8080';
+var http = require('http');
 
-/*
 
-Gene Store Data:
-{"cell":{"sentiment":{"id":"sentiment","image":"sp_platform/uber-any","env":{"GIT_REPO_URL":"https://github.com/fuzzy-logic/sentiment.git"}}}}
-
-{"cell":{"sentiment":{"id":"sentiment","image":"sp_platform/uber-any","env":{"GIT_REPO_URL":"https://github.com/fuzzy-logic/sentiment.git"}}}}
-
-*/
 
 var postData = {"id":"sentiment","image":"sp_platform/uber-any","env":{"GIT_REPO_URL":"https://github.com/fuzzy-logic/sentiment.git"}};
 
@@ -21,14 +15,14 @@ describe('test gene-store: ', function(){
         var req = request.get(host + '/');
         req.end(function(res){
             console.log("/ res: " + res.text);
-            var json = JSON.parse(res.text);
+            var json = res.text;
             assert.equal(200, res.status);
             done();
         });
     });
 
     it('/gene-store works ok', function(done){
-        var req = request.get(host + '/gene-store');
+        var req = request.get(host + '/service/gene-store');
         req.end(function(res){
             console.log("/ res: " + res.text);
             var json = JSON.parse(res.text);
@@ -38,28 +32,30 @@ describe('test gene-store: ', function(){
     });
 
     it('gene-store create and get new service', function(done){
-        var req = request.put(host + '/gene-store/cell/' + postData.id);
+        var url = host + '/service/gene-store/substore/cell/record/' + postData.id;
+        console.log("it(gene-store create and get new service) url=" + url);
+        var req = request.post(url);
         //req.set('Content-Type', 'application/json');
         req.send( postData );
         req.end(function(res){
-            console.log("it(put gene-store) response: ");
+            console.log("it(put /service/gene-store/substore/cell) response: ");
             console.dir(res.body);
             //var jsonRes = JSON.parse(res.body);
-            assert.equal(200, res.status);
+            assert.equal(res.status, 201);
             //assert.ok(contains( jsonRes.status, "ok"));
 
-            var req = request.get(host + '/gene-store/cell/sentiment');
+            var req = request.get(host + '/service/gene-store/substore/cell/record/sentiment');
             req.end(function(res){
-                console.log("it(post,get /gene-store/cell/sentiment) res: " + res.text);
+                console.log("it(post,get /service/gene-store/substore/cell/sentiment) res: " + res.text);
                 var jsonRes = JSON.parse(res.text);
                 //console.dir(jsonRes.sentiment);
                 assert.equal(200, res.status);
                 assert.equal('sentiment', jsonRes.id)
             });
 
-            var req = request.get(host + '/gene-store/cell');
+            var req = request.get(host + '/service/gene-store/substore/cell');
             req.end(function(res){
-                console.log("it(post,get,get /gene-store/cell) res: " + res.text);
+                console.log("it(post,get,get /service/gene-store/substore/cell) res: " + res.text);
                 var jsonRes = JSON.parse(res.text);
                 console.dir(jsonRes.sentiment);
                 assert.equal(200, res.status);
@@ -71,17 +67,17 @@ describe('test gene-store: ', function(){
     });
 
     it('gene-store del new service', function(done){
-        var req = request.del(host + '/gene-store/cell/sentiment');
+        var req = request.del(host + '/service/gene-store/substore/cell/record/sentiment');
         req.end(function(res){
-            console.log("it(del gene-store) response: ");
+            console.log("it(del /service/gene-store/substore/cell/record/sentiment) response: ");
             console.dir(res.body);
             //var jsonRes = JSON.parse(res.body);
-            assert.equal(200, res.status);
+            assert.equal(204, res.status);
             //assert.ok(contains( jsonRes.status, "ok"));
 
-            var req = request.get(host + '/gene-store/cell/sentiment');
+            var req = request.get(host + '/service/gene-store/substore/cell/record/sentiment');
             req.end(function(res){
-                console.log("it(del, get gene-store) res: " + res.text);
+                console.log("it(del, get /service/gene-store/substore/cell/record/sentiment) res: " + res.text);
                 var jsonRes = JSON.parse(res.text);
                 console.dir(jsonRes.sentiment);
                 assert.equal(404, res.status);
@@ -91,9 +87,8 @@ describe('test gene-store: ', function(){
         });
     });
 
-
+/*
     it('gene-store callsback to test service', function(done){
-
 
         function httpStartupComplete(service, port) {
             console.log("starting %s service on port %s", service, port);
@@ -130,4 +125,7 @@ describe('test gene-store: ', function(){
 
         });
     });
+    
+    */
+    
 });
