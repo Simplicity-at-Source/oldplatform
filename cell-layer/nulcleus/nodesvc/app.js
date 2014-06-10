@@ -42,26 +42,26 @@ swagger.configureSwaggerPaths("", "/api-docs", "");
 
 swagger.configure("http://localhost:8080", "0.1");
 
-
 /*
+
 var docs_handler = express.static(__dirname + '/swagger-ui/');
 
-app.get('/docs', function(req, res, next) {
-  console.log('GET /docs');
-  if (req.url === '/docs') { // express static barfs on root url w/o trailing slash
-    console.log('GET /docs redirect');
+app.get('/swagger', function(req, res, next) {
+  console.log('GET /swagger');
+  if (req.url === '/swagger') { // express static barfs on root url w/o trailing slash
+    console.log('GET /swagger redirect');
     res.writeHead(302, { 'Location' : req.url + '/' });
     res.end();
     return;
   }
-  console.log('GET /docs/');
+  console.log('GET /swagger/');
   // take off leading /docs so that connect locates file correctly
-  req.url = req.url.substr('/docs'.length);
+  req.url = req.url.substr('/swagger'.length);
   return docs_handler(req, res, next);
 });
 */
 
-
+app.use('/swagger', express.static(__dirname + '/swagger-ui/'));
 
 function logErrors(err, req, res, next) {
   console.error(err.stack);
@@ -104,7 +104,7 @@ app.on('uncaughtException', function(req, res, route, err) {
 //});
 
 process.on('uncaughtException', function(err) {
-    console.log('Threw Exception: ', err);
+    console.log('Threw Exception: ', err.message);
 });
 
 app.listen(8080, function() {

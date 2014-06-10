@@ -3,23 +3,23 @@
 <head>
   <title>Swagger UI</title>
   <link href='//fonts.googleapis.com/css?family=Droid+Sans:400,700' rel='stylesheet' type='text/css'/>
-  <link href='css/highlight.default.css' media='screen' rel='stylesheet' type='text/css'/>
-  <link href='css/screen.css' media='screen' rel='stylesheet' type='text/css'/>
-  <script type="text/javascript" src="docs/lib/shred.bundle.js"></script>
-  <script src='docs/lib/jquery-1.8.0.min.js' type='text/javascript'></script>
-  <script src='docs/lib/jquery.slideto.min.js' type='text/javascript'></script>
-  <script src='docs/lib/jquery.wiggle.min.js' type='text/javascript'></script>
-  <script src='docs/lib/jquery.ba-bbq.min.js' type='text/javascript'></script>
-  <script src='docs/lib/handlebars-1.0.0.js' type='text/javascript'></script>
-  <script src='docs/lib/underscore-min.js' type='text/javascript'></script>
-  <script src='docs/lib/backbone-min.js' type='text/javascript'></script>
-  <script src='docs/lib/swagger.js' type='text/javascript'></script>
-  <script src='swagger-ui.js' type='text/javascript'></script>
-  <script src='docs/lib/highlight.7.3.pack.js' type='text/javascript'></script>
+  <link href='/swagger/css/highlight.default.css' media='screen' rel='stylesheet' type='text/css'/>
+  <link href='/swagger/css/screen.css' media='screen' rel='stylesheet' type='text/css'/>
+  <script type="text/javascript" src="/swagger/lib/shred.bundle.js"></script>
+  <script src='/swagger/lib/jquery-1.8.0.min.js' type='text/javascript'></script>
+  <script src='/swagger/lib/jquery.slideto.min.js' type='text/javascript'></script>
+  <script src='/swagger/lib/jquery.wiggle.min.js' type='text/javascript'></script>
+  <script src='/swagger/lib/jquery.ba-bbq.min.js' type='text/javascript'></script>
+  <script src='/swagger/lib/handlebars-1.0.0.js' type='text/javascript'></script>
+  <script src='/swagger/lib/underscore-min.js' type='text/javascript'></script>
+  <script src='/swagger/lib/backbone-min.js' type='text/javascript'></script>
+  <script src='/swagger/lib/swagger.js' type='text/javascript'></script>
+  <script src='/swagger/swagger-ui.js' type='text/javascript'></script>
+  <script src='/swagger/lib/highlight.7.3.pack.js' type='text/javascript'></script>
   <script type="text/javascript">
     $(function () {
       window.swaggerUi = new SwaggerUi({
-      url: "http://localhost:8002/api-docs",
+      url: "http://localhost:8080/api-docs",
       dom_id: "swagger-ui-container",
       supportedSubmitMethods: ['get', 'post', 'put', 'delete'],
       onComplete: function(swaggerApi, swaggerUi){
@@ -58,12 +58,12 @@
 
     <form id='api_selector'>
       <div class='input icon-btn'>
-        <img id="show-pet-store-icon" src="images/pet_store_api.png" title="Show Swagger Petstore Example Apis">
+        <img id="show-pet-store-icon" src="/swagger/images/pet_store_api.png" title="Show Swagger Petstore Example Apis">
       </div>
       <div class='input icon-btn'>
-        <img id="show-wordnik-dev-icon" src="images/wordnik_api.png" title="Show Wordnik Developer Apis">
+        <img id="show-wordnik-dev-icon" src="/swagger/images/wordnik_api.png" title="Show Wordnik Developer Apis">
       </div>
-      <div class='input'><input placeholder="http://example.com/api" id="input_baseUrl" name="baseUrl" type="text"/></div>
+      <div class='input'><input placeholder="http://locahost:8080/api-docs" id="input_baseUrl" name="baseUrl" type="text"/></div>
       <div class='input'><input placeholder="api_key" id="input_apiKey" name="apiKey" type="text"/></div>
       <div class='input'><a id="explore" href="#">Explore</a></div>
     </form>
