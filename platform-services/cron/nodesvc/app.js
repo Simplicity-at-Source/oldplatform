@@ -21,7 +21,21 @@ server.get('/', function(req, res) {
     res.send(cronStore);
 });
 
-server.put('/:storeName/:id', function(req, res) {
+server.get('/:storeName/', function(req, res) {
+    var storeName = req.params.storeName;
+    //if()
+    console.log("cron GET /:storeName", cronStore[storeName]);
+    res.send(cronStore[storeName] || 404);
+});
+
+server.get('/:storeName/:id/', function(req, res) {
+    var storeName = req.params.storeName;
+    var id = req.params.id;
+    console.log("cron GET /:storeName/:id/");
+    res.send(cronStore[storeName][id] || 404);
+});
+
+server.put('/:storeName/:id/', function(req, res) {
     var storeName = req.params.storeName;
     //console.log("json=" + req.body.cronTime);
     
@@ -37,5 +51,29 @@ server.put('/:storeName/:id', function(req, res) {
     }, null, true);
     data = {message: "cron PUT ok: stored payload with id=" + id};
     console.log("cronStore: " + JSON.stringify(cronStore));
+    res.send(data);
+});
+/*
+server.del('/:storeName/', function(req, res) {
+    //doCallbacks(req);
+    console.log("cron DEL store=" + JSON.stringify(cronStore));
+    var storeName = req.params.storeName;
+    var id = req.params.id;
+    console.log("cron DEL  /" + storeName);
+    cronStore[storeName] = undefined;
+    console.log("cron DEL store=" + JSON.stringify(cronStore));
+    data = {message: "cron, del ok"};
+    res.send(data);
+});
+*/
+server.del('/:storeName/:id/', function(req, res) {
+    //doCallbacks(req);
+    console.log("cron DEL store=" + JSON.stringify(cronStore));
+    var storeName = req.params.storeName;
+    var id = req.params.id;
+    console.log("cron DEL  /" + storeName + "/" + id);
+    cronStore[storeName][id] = undefined;
+    console.log("cron DEL store=" + JSON.stringify(cronStore));
+    data = {message: "cron, del ok"};
     res.send(data);
 });
