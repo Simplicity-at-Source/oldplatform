@@ -20,7 +20,7 @@ swagger.addGet(resources.root);
 swagger.addGet(resources.findById);
 swagger.addGet(resources.getStore);
 swagger.addGet(resources.getService);
-swagger.addPost(resources.addRecord);
+swagger.addPut(resources.addRecord);
 swagger.addDelete(resources.deleteRecord);
 
 swagger.configureDeclaration("Nucleus", {

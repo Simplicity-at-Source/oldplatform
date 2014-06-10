@@ -34,7 +34,7 @@ describe('test gene-store: ', function(){
     it('gene-store create and get new service', function(done){
         var url = host + '/service/gene-store/substore/cell/record/' + postData.id;
         console.log("it(gene-store create and get new service) url=" + url);
-        var req = request.post(url);
+        var req = request.put(url);
         //req.set('Content-Type', 'application/json');
         req.send( postData );
         req.end(function(res){

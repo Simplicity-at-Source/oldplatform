@@ -135,7 +135,7 @@ exports.addRecord = {
     path : "/service/{serviceName}/substore/{subStore}/record/{recordId}",
     notes : "add a record",
     summary : "Add a new record to the service store",
-    method: "POST",  
+    method: "PUT",  
     nickname: "addRecord",
     parameters : [sw.pathParam("serviceName", "Name of of cleint service that will store the record", "string"), 
                   sw.pathParam("subStore", "Name of service sub-store that needs to be fetched e.g: 'cel'' for gene store", "string"), 
