@@ -2,6 +2,7 @@ gene_store
 phenotype_monitor
 cell_expressor
 stateless_expressor
+nucleus
 gns
 sp_proxy
 riak_expressor

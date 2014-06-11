@@ -4,4 +4,4 @@
 #./gradlew bootRepackage
 #cd ..
 
-docker build --tag=sp_platform/spi-nucleus .
+docker build --tag=sp_platform/spi_nucleus .
