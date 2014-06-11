@@ -59,29 +59,32 @@ exports.findById = {
     var serviceName = req.params.serviceName;
     var subStore = req.params.subStore;
     
+    console.log('resources.js findById() serviceName=%s, subStore=%s, recordId=%s', serviceName, subStore, recordId);
     var record = nucleusStore.getRecord(serviceName, subStore, recordId);
-
+    console.log('resources.js findById() returning record: %s', JSON.stringify(record));
     if(record) res.send(JSON.stringify(record));
     else throw swe.notFound('record',res);
   }
 };
 
-exports.getStore = {
+exports.queryStore = {
   'spec': {
-    description : "Return all records in substore",  
+    description : "Return and filter records in substore",  
     path : "/service/{serviceName}/substore/{subStore}",
     method: "GET",
-    summary : "Return all records in a service's sub-store",
+    summary : "Filter records in a service's sub-store",
     notes : "Returns array of records",
-    type : "SubStore",
+    type : "array",
     nickname : "getStoreData",
     produces : ["application/json"],
     parameters : [sw.pathParam("serviceName", "Name of of cleint service that will store the record", "string"), 
-                  sw.pathParam("subStore", "Name of service sub-store that needs to be fetched e.g: 'cel'' for gene store", "string")],
+                  sw.pathParam("subStore", "Name of service sub-store that needs to be fetched e.g: 'cel'' for gene store", "string"),
+                  sw.queryParam("qk", "Json key to query", "string", false),
+                  sw.queryParam("qv", "Key value to filter by", "string", false)],
     responseMessages : [swe.notFound('item'), swe.invalid('subStore'), swe.invalid('serviceName')]
   },
   'action': function (req,res) {
-    console.log('resources.js getStore()');
+    console.log('resources.js queryStore()');
     if (! req.params.serviceName) {
       throw swe.invalid('serviceName'); 
     }
@@ -91,12 +94,24 @@ exports.getStore = {
       
     var serviceName = req.params.serviceName;
     var subStore = req.params.subStore;
+      
+    var queryKeysString = req.query.qk;
+    var queryValue = req.query.qv;
+      
+      console.log('resources.js queryStore() qk=%s,qv=%s', queryKeysString , queryValue);
+      
+       var subStoreData;
+      if (! queryKeysString || ! queryValue) {
+          subStoreData  = nucleusStore.getStore(serviceName, subStore);
+      } else {
+          subStoreData = nucleusStore.queryStore(serviceName, subStore, queryKeysString, queryValue);
+      }
     
-    var subStoreData = nucleusStore.getStore(serviceName, subStore);
-    console.log('resources.js getStore() subStoreData=' + JSON.stringify(subStoreData));
+    
+    console.log('resources.js queryStore() subStoreData=' + JSON.stringify(subStoreData));
       
     if(subStoreData) res.send(JSON.stringify(subStoreData));
-    else throw swe.notFound('subStore',res);
+    else throw swe.notFound('subStore ' + subStore, res);
   }
 };
 
@@ -130,7 +145,7 @@ exports.getService = {
 };
 
 
-exports.addRecord = {
+exports.putRecord = {
   'spec': {
     path : "/service/{serviceName}/substore/{subStore}/record/{recordId}",
     notes : "add a record",
@@ -144,7 +159,7 @@ exports.addRecord = {
     responseMessages : [swe.invalid('recordId'), swe.notFound('record'), swe.invalid('subStore'), swe.invalid('serviceName')]
   },
   'action': function (req,res) {
-    console.log('resources.js addRecord()');
+    //console.log('resources.js putRecord()');
     if (! req.params.serviceName) {
       throw swe.invalid('serviceName'); 
     }
@@ -159,15 +174,51 @@ exports.addRecord = {
     var serviceName = req.params.serviceName;
     var subStore = req.params.subStore;
     
-    console.log('resources.js addRecord() req.body=' + JSON.stringify(req.body));
+    console.log('resources.js putRecord() req.body=' + JSON.stringify(req.body));
     var payload = req.body;
-    console.log('resources.js addRecord() payload=' + payload);
-    nucleusStore.addRecord(serviceName, subStore, recordId, payload);
+    //console.log('resources.js putRecord() payload=' + payload);
+    nucleusStore.putRecord(serviceName, subStore, recordId, payload);
 
-    res.send(201);
+    res.send(201, {message: "created"});
   }
 };
 
+
+
+
+exports.postRecord = {
+  'spec': {
+    path : "/service/{serviceName}/substore/{subStore}",
+    notes : "add a record",
+    summary : "Add a new record to the service store",
+    method: "POST",  
+    nickname: "postRecord",
+    parameters : [sw.pathParam("serviceName", "Name of of cleint service that will store the record", "string"), 
+                  sw.pathParam("subStore", "Name of service sub-store that needs to be fetched e.g: 'cel'' for gene store", "string"), 
+                  sw.bodyParam("Record", "Record object to be added to the store", "Record")],
+    responseMessages : [swe.invalid('substore'), swe.invalid('serviceName')]
+  },
+  'action': function (req,res) {
+    //console.log('resources.js postRecord()');
+    if (! req.params.serviceName) {
+      throw swe.invalid('serviceName'); 
+    }
+    if (! req.params.subStore) {
+      throw swe.invalid('subStore'); 
+    }
+
+    var serviceName = req.params.serviceName;
+    var subStore = req.params.subStore;
+    
+    console.log('resources.js postRecord() req.body=' + JSON.stringify(req.body));
+    var payload = req.body;
+    //console.log('resources.js postRecord() payload=' + payload);
+    var id = nucleusStore.postRecord(serviceName, subStore, payload);
+
+    res.set('Location:', "/service/" + serviceName + "/substore/" + subStore + "/record/" + id);
+    res.send(201, {message: "created"});
+  }
+};
 
 
 exports.deleteRecord = {

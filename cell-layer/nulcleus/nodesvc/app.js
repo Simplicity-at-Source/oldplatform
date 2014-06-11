@@ -18,9 +18,11 @@ var models = {"Record:": {}};
 swagger.addModels(models);
 swagger.addGet(resources.root);
 swagger.addGet(resources.findById);
-swagger.addGet(resources.getStore);
+//swagger.addGet(resources.getStore);
+swagger.addGet(resources.queryStore);
 swagger.addGet(resources.getService);
-swagger.addPut(resources.addRecord);
+swagger.addPut(resources.putRecord);
+swagger.addPost(resources.postRecord);
 swagger.addDelete(resources.deleteRecord);
 
 swagger.configureDeclaration("Nucleus", {
@@ -69,6 +71,8 @@ function logErrors(err, req, res, next) {
 }
 
 
+
+/*
 function clientErrorHandler(err, req, res, next) {
   console.log('clientErrorHandler');
   if (req.xhr) {
@@ -77,17 +81,19 @@ function clientErrorHandler(err, req, res, next) {
     next(err);
   }
 }
+*/
 
-
+/*
 function errorHandler(err, req, res, next) {
-  console.log('errorHandler');
-  res.status(500);
-  res.render('error', { error: err });
+  console.log('errorHandler: ' + err);
+  res.send(500, err.message);
+  //res.render('error', { error: err });
 }
+*/
 
 app.use(logErrors);
-app.use(clientErrorHandler);
-app.use(errorHandler);
+//app.use(clientErrorHandler);
+//app.use(errorHandler);
 
 /*
 app.on('uncaughtException', function(req, res, route, err) {

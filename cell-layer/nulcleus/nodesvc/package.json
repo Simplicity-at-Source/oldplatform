@@ -13,7 +13,9 @@
         "swagger-node-express": "~2.0",
         "url": "*",
         "cors": "*",
+        "node-uuid": "*",
         "body-parser": "*",
+        "msh": "*",
         "restify": "*"
         
     },
