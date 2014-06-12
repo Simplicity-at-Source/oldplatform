@@ -94,6 +94,7 @@ exports.queryStore = {
       
     var serviceName = req.params.serviceName;
     var subStore = req.params.subStore;
+      console.log('resources.js queryStore() serviceName=%s,subStore=%s', serviceName , subStore);
       
     var queryKeysString = req.query.qk;
     var queryValue = req.query.qv;

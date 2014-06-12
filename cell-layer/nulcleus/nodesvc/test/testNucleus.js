@@ -10,7 +10,7 @@ var msh = require('msh');
 
 
 
-describe('test gene-store: ', function(){
+describe('test nucleus: ', function(){
 
     it('/ works ok', function(done){
         var req = request.get(host + '/');
@@ -34,7 +34,7 @@ describe('test gene-store: ', function(){
 
     
     
-    it('create and get new service for gene-store', function(done) {
+    it('create and retrieve record for gene-store', function(done) {
 
          var h = 'localhost';
             var p = '8080';
@@ -67,19 +67,18 @@ describe('test gene-store: ', function(){
             };
              console.log('msh starting...');
             msh.init(callback, errCallback).put(h, p, url + '/record/sentiment', payload).get(h, p, url + '/record/sentiment').get(h, p, url).end();
-        
-        
+
     });
     
     
     
     
     
-    it('create and query with filter for gene-store', function(done){
+    it('create pokemon records and query with dns filter', function(done){
           
             var h = 'localhost';
             var p = '8080';
-            var url = '/service/gene-store/substore/cell';
+            var url = '/service/pokemon/substore/muon';
             var q = '?qk=env.DNS&qv=cronjob.muoncore.io';
             
             var data1 = {"name":"sentiment","id":"sentiment1","image":"sp_platform/uber-any","env":{"GIT_REPO_URL":"https://github.com/fuzzy-logic/sentiment.git", "DNS": "sentiment.muoncore.io"}};
@@ -112,10 +111,10 @@ describe('test gene-store: ', function(){
     });
     
     
+/*
 
-
-    it('gene-store del new service', function(done){
-        var req = request.del(host + '/service/gene-store/substore/cell/record/sentiment');
+    it('create and delete record for testservice', function(done){
+        var req = request.del(host + '/service/testservice/substore/default/record/sentiment');
         req.end(function(res){
             console.log("it(del /service/gene-store/substore/cell/record/sentiment) response: ");
             console.dir(res.body);
@@ -134,6 +133,43 @@ describe('test gene-store: ', function(){
 
         });
     });
+  */  
+    
+    
+    it('create and delete records for testservice', function(done) {
+
+         var h = 'localhost';
+            var p = '8080';
+            var url = '/service/testservice/substore/default/record/blah';
+            
+           var payload = {"id":"sentiment", "name": "sentiment service"};
+            
+            var errCallback = function(status, host, data) {
+                console.log('errCallback status=%s, host=%s data=%s', status, host, data);
+            };
+            
+            var callback = function(actions) {
+                console.log('msh callback...');
+               // console.dir(actions);
+                
+                var putStatus = actions[0].statusCode;
+                var get1Status = actions[1].statusCode;
+                var delStatus = actions[2].statusCode;
+                var get2Status = actions[3].statusCode;
+                
+                assert.equal(201, putStatus);
+                assert.equal(200, get1Status);
+                assert.equal(204, delStatus);
+                assert.equal(404, get2Status);
+                //assert.equal('cronjob1', results[0].id);
+                
+                done();
+                
+            };
+             console.log('msh starting...');
+            msh.init(callback, errCallback).put(h, p, url, payload).get(h, p, url).del(h, p, url).get(h, p, url).end();
+
+    });    
 
 /*
     it('gene-store callsback to test service', function(done){

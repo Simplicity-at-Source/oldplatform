@@ -88,13 +88,13 @@ exports.deleteSubStore = function(serviceName, subStore, recordId) {
 }
 
 exports.queryStore = function(service, store, queryKeyString, queryValue) {  
-    if (! nucleusStore[serviceName]) {
-        nucleusStore[serviceName] = {};
+    if (! nucleusStore[service]) {
+        nucleusStore[service] = {};
     }
-    if (! nucleusStore[serviceName][subStore]) {
-        nucleusStore[serviceName][subStore] = {};
+    if (! nucleusStore[service][store]) {
+        nucleusStore[service][store] = {};
     }
-    //console.log('nucleusStore.js putRecord(%s, %s, %s, %s)', serviceName, store, queryKeyString, queryValue);
+    console.log('nucleusStore.js queryStore(%s, %s, %s, %s)', service, store, queryKeyString, queryValue);
     var store = nucleusStore[service][store];
     var results = [];
     //console.log("queryStore() initial store=" + JSON.stringify(store));
