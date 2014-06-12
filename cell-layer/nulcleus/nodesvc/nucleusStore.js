@@ -87,8 +87,26 @@ exports.deleteSubStore = function(serviceName, subStore, recordId) {
     return nucleusStore[serviceName][subStore] = undefined;
 }
 
-exports.queryStore = function(service, store, queryKeyString, queryValue) {  
-    if (! nucleusStore[service]) {
+
+exports.queryService = function(serviceName, queryKeyString, queryValue) { 
+     if (! nucleusStore[serviceName]) {
+        return [];
+    }
+    console.log('nucleusStore.js queryService(%s, %s, %s)', serviceName, queryKeyString, queryValue);
+    var service = nucleusStore[serviceName];
+    var results = [];
+     for(var storeName in service) {
+        var store = service[storeName];
+        var storeResults = queryStore(serviceName, storeName, queryKeyString, queryValue);
+        // console.log("nucleusStore.js queryService() storeResults=%s",  JSON.stringify(storeResults));
+        results = results.concat(storeResults);
+    };
+    console.log("nucleusStore.js queryService() %s=%s results=%s",queryKeyString,queryValue,  JSON.stringify(results));
+    return results;
+}
+
+function queryStore(service, store, queryKeyString, queryValue) {
+      if (! nucleusStore[service]) {
         nucleusStore[service] = {};
     }
     if (! nucleusStore[service][store]) {
@@ -103,8 +121,12 @@ exports.queryStore = function(service, store, queryKeyString, queryValue) {
         var result = getJsonValue(storeEntry, queryKeyString);
         if (result == queryValue) results.push(storeEntry);
     };
-    console.log("queryStore() %s=%s results=%s",queryKeyString,queryValue,  JSON.stringify(results));
+    console.log("nucleusStore.js queryStore() %s=%s results=%s",queryKeyString,queryValue,  JSON.stringify(results));
     return results;
+}
+
+exports.queryStore = function(service, store, queryKeyString, queryValue) {  
+  return queryStore(service, store, queryKeyString, queryValue);
 }
 
 function getJsonValue(object, queryKeyString) {

@@ -67,6 +67,53 @@ exports.findById = {
   }
 };
 
+
+exports.queryService = {
+  'spec': {
+    description : "Return and filter records in a service",  
+    path : "/service/{serviceName}",
+    method: "GET",
+    summary : "Filter records in a service",
+    notes : "Returns array of records",
+    type : "array",
+    nickname : "queryServiceData",
+    produces : ["application/json"],
+    parameters : [sw.pathParam("serviceName", "Name of of cleint service that will store the record", "string"), 
+                  sw.queryParam("qk", "Json key to query", "string", false),
+                  sw.queryParam("qv", "Key value to filter by", "string", false)],
+    responseMessages : [swe.notFound('item'), swe.invalid('serviceName')]
+  },
+  'action': function (req,res) {
+    console.log('resources.js queryStore()');
+    if (! req.params.serviceName) {
+      throw swe.invalid('serviceName'); 
+    }
+      
+    var serviceName = req.params.serviceName;
+      console.log('resources.js queryService() serviceName=%s', serviceName);
+      
+    var queryKeysString = req.query.qk;
+    var queryValue = req.query.qv;
+      
+      console.log('resources.js queryService() qk=%s,qv=%s', queryKeysString , queryValue);
+      
+       var serviceData;
+      if (! queryKeysString || ! queryValue) {
+          serviceData  = nucleusStore.getService(serviceName);
+      } else {
+          serviceData = nucleusStore.queryService(serviceName, queryKeysString, queryValue);
+      }
+    
+    
+    console.log('resources.js queryService() serviceData=' + JSON.stringify(serviceData));
+      
+    if(serviceData) res.send(JSON.stringify(serviceData));
+    else throw swe.notFound('serviceData ' + serviceData, res);
+  }
+};
+
+
+
 exports.queryStore = {
   'spec': {
     description : "Return and filter records in substore",  
