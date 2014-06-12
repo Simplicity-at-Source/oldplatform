@@ -16,9 +16,9 @@ import org.springframework.scheduling.annotation.Scheduled
 @EnableScheduling
 class RiakExpressor {
 
-  public static final String GENE_STORE = "http://172.17.0.3:8080/riak"
+  public static final String GENE_STORE = "http://172.17.0.4:8080/service/gene-store/substore/riak"
   static CONTROL_PLANE = "http://172.17.0.2:8080/container"
-  static PHENOTYPE_MONITOR = "http://172.17.0.4:8080/"
+  static PHENOTYPE_MONITOR = "http://172.17.0.4:8080/service/pokemon/substore/muon"
   static MARKER = "sp-riak"
   //for now, use a hardcoded image. Allow overriding at some point when we understand the base behaviour required.
   static RIAK_NODE_IMAGE = "sp_platform/spi_riak_node"
@@ -96,6 +96,8 @@ class RiakExpressor {
       it.id
     }
   }
+
+
 
   @Bean JSONApi api() { new JSONApi() }
 

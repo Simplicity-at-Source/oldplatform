@@ -19,9 +19,9 @@ import org.springframework.scheduling.annotation.Scheduled
 @Slf4j
 class SimpleGeneExpressor {
 
-  public static final String GENE_STORE = "http://172.17.0.3:8080/cell"
+  public static final String GENE_STORE = "http://172.17.0.4:8080/service/gene-store/substore/cell"
   static CONTROL_PLANE = "http://172.17.0.2:8080/container"
-  static PHENOTYPE_MONITOR = "http://172.17.0.4:8080/"
+  static PHENOTYPE_MONITOR = "http://172.17.0.4:8080/service/pokemon/substore/muon"
   static MARKER = "cell"
 
   @Autowired JSONApi api
@@ -112,17 +112,23 @@ class SimpleGeneExpressor {
   }
 }
 
+
+@Slf4j
 class JSONApi {
 
   def post(def url, def data = null) {
+
+    log.info("POST to $url");
     def http = new HTTPBuilder(url)
     def jsonResp
     http.request(Method.POST, ContentType.JSON) { req ->
+      log.info("http POST req $req");
       if (data) {
         body = data
       }
 
       response.success = { resp, json ->
+          log.info("http POST response $resp");
         jsonResp = json
       }
     }
@@ -130,20 +136,23 @@ class JSONApi {
   }
 
   def delete(def url) {
+    log.info("http DELETE $url");
     def http = new HTTPBuilder(url)
     def jsonResp
     http.request(Method.DELETE) { req ->
-
+        log.info("http DELETE req $req");
       response.success = { resp, json ->
-        jsonResp = json
+          log.info("http DELETE response=$resp");
+          jsonResp = json
       }
     }
     jsonResp
   }
 
   def get(def url) {
+      log.info("http GET $url");
     def jsonText = new URL(url).text
-
+      log.info("http GET response=$jsonText");
     new JsonSlurper().parseText(jsonText)
   }
 

@@ -3,6 +3,12 @@ var uuid = require('node-uuid');
 var nucleusStore = {};
 
 exports.getStore = function(serviceName, subStore) {  
+    if (! nucleusStore[serviceName]) {
+        nucleusStore[serviceName] = {};
+    }
+    if (! nucleusStore[serviceName][subStore]) {
+        nucleusStore[serviceName][subStore] = {};
+    }
     console.log('nucleusStore.js getStore(%s, %s)', serviceName, subStore);
     var results = [];
     var store = nucleusStore[serviceName][subStore];
@@ -82,6 +88,12 @@ exports.deleteSubStore = function(serviceName, subStore, recordId) {
 }
 
 exports.queryStore = function(service, store, queryKeyString, queryValue) {  
+    if (! nucleusStore[serviceName]) {
+        nucleusStore[serviceName] = {};
+    }
+    if (! nucleusStore[serviceName][subStore]) {
+        nucleusStore[serviceName][subStore] = {};
+    }
     //console.log('nucleusStore.js putRecord(%s, %s, %s, %s)', serviceName, store, queryKeyString, queryValue);
     var store = nucleusStore[service][store];
     var results = [];

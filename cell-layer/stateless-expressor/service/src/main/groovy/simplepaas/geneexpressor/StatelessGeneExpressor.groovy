@@ -19,9 +19,9 @@ import org.springframework.scheduling.annotation.Scheduled
 @Slf4j
 class StatelessGeneExpressor {
 
-  public static final String GENE_STORE = "http://172.17.0.3:8080/stateless"
+  public static final String GENE_STORE = "http://172.17.0.4:8080/service/gene-store/substore/stateless"
   static CONTROL_PLANE = "http://172.17.0.2:8080/container"
-  static PHENOTYPE_MONITOR = "http://172.17.0.4:8080/"
+  static PHENOTYPE_MONITOR = "http://172.17.0.4:8080/service/pokemon/substore/muon"
   static MARKER = "stateless"
 
   @Autowired JSONApi api
@@ -134,9 +134,11 @@ class StatelessGeneExpressor {
   }
 }
 
+@Slf4j
 class JSONApi {
 
   def post(def url, def data = null) {
+    log.info("POST $url");
     def http = new HTTPBuilder(url)
     def jsonResp
     http.request(Method.POST, ContentType.JSON) { req ->
@@ -152,6 +154,7 @@ class JSONApi {
   }
 
   def delete(def url) {
+    log.info("DELETE $url");
     def http = new HTTPBuilder(url)
     def jsonResp
     http.request(Method.DELETE) { req ->
@@ -164,6 +167,7 @@ class JSONApi {
   }
 
   def get(def url) {
+    log.info("GET $url");
     def jsonText = new URL(url).text
 
     new JsonSlurper().parseText(jsonText)
