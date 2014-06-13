@@ -79,10 +79,10 @@ describe('test nucleus: ', function(){
             var h = 'localhost';
             var p = '8080';
             var url = '/service/pokemon/substore/muon';
-            var q = '?qk=env.DNS&qv=cronjob.muoncore.io';
+            var q = '?qk=config.env&qv=cronjob.muoncore.io';
             
-            var data1 = {"name":"sentiment","id":"sentiment1","image":"sp_platform/uber-any","env":{"GIT_REPO_URL":"https://github.com/fuzzy-logic/sentiment.git", "DNS": "sentiment.muoncore.io"}};
-            var data2 = {"name":"cronjob","id":"cronjob1","image":"sp_platform/uber-any","env":{"GIT_REPO_URL":"https://github.com/fuzzy-logic/cronjob.git", "DNS": "cronjob.muoncore.io"}};
+            var data1 = {"name":"sentiment","id":"sentiment1","image":"sp_platform/uber-any","config": {"env":["GIT_REPO_URL=https://github.com/fuzzy-logic/cronjob.git", "DNSHOST=sentiment.muoncore.io"]}};
+            var data2 = {"name":"cronjob","id":"cronjob1","image":"sp_platform/uber-any","config": {"env":["GIT_REPO_URL=https://github.com/fuzzy-logic/cronjob.git", "DNSHOST=cronjob.muoncore.io"]}};
             
             var errCallback = function(status, host, data) {
                 console.log('errCallback status=%s, host=%s data=%s', status, host, data);
@@ -146,6 +146,7 @@ describe('test nucleus: ', function(){
                 assert.equal(200, getStatus);
                 assert.equal('service3', results[0].name);
                 assert.equal('service4', results[1].name);
+                assert.ok(results[0].nucleusId); //make sure nucleus adds it's id to the json data
                 
                 done();
                 

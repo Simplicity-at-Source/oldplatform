@@ -67,7 +67,7 @@ app.get('/swagger', function(req, res, next) {
 app.use('/swagger', express.static(__dirname + '/swagger-ui/'));
 
 function logErrors(err, req, res, next) {
-  console.error(err.stack);
+  console.error(err);
   next(err);
 }
 

@@ -1,4 +1,5 @@
 var uuid = require('node-uuid');
+var _ = require('underscore');
 
 var nucleusStore = {};
 
@@ -119,7 +120,28 @@ function queryStore(service, store, queryKeyString, queryValue) {
     for(var key in store) {
         var storeEntry = store[key];
         var result = getJsonValue(storeEntry, queryKeyString);
-        if (result == queryValue) results.push(storeEntry);
+        console.log("nucleusStore.js queryStore() result=%s", result);
+        //console.dir(result);
+        if (result instanceof Array) {
+            //console.log("nucleusStore.js queryStore() result for key is Array");
+            _.each(result, function(element, index, list) {
+               if (element && element.indexOf(queryValue) > -1) {
+                  console.log("nucleusStore.js queryStore() found match for %s in Array for given key %s", queryValue, queryKeyString);
+                   storeEntry.nucleusId = key;
+                   results.push(storeEntry);
+               } 
+            });
+        } else if (result instanceof Object) {
+            // do nothing
+            
+        } else if (result) {
+            if (result.indexOf(queryValue) > -1) {
+                console.log("nucleusStore.js queryStore() found match for %s in key %s", queryValue, queryKeyString);
+                storeEntry.nucleusId = key;
+                results.push(storeEntry);
+            }    
+        }
+        
     };
     console.log("nucleusStore.js queryStore() %s=%s results=%s",queryKeyString,queryValue,  JSON.stringify(results));
     return results;
@@ -142,5 +164,6 @@ function getJsonValue(object, queryKeyString) {
         if (result) value = result;
     };
     //console.log("getJsonValue() %s return value=%s", queryKeyString, JSON.stringify(value));
+    if (value == object) value = ''; //we didn't find anything, so return an empty string
     return value;
 } 

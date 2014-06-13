@@ -32,30 +32,30 @@ describe('test nucleus-store: ', function(){
         done();
     });
     
-    it('add and query filter from store', function(done){
+    it('add and query dns via filter from store', function(done){
         var service = 'gene-store';
         var store = 'stateless';
 
-        var record1 = {servicename: "foo", id: "f1", config: {dns: "www.blah.com"}};
-        var record2 = {servicename: "foo", id: "f2", config: {dns: "www.blah.com"}};
-        var record3 = {servicename: "bar",id: "b1", config: {dns: "www.bar.com"}};
-        var record4 = {servicename: "zoo", id: "z1", config: {dns: "www.zoo.com"}};
+        var record1 = {servicename: "foo", id: "f1", config: {env: ["dns=www.blah.com", "other=apple"]}};
+        var record2 = {servicename: "foo", id: "f2", config: {env: ["dns=www.blah.com", "other=pear"]}};
+        var record3 = {servicename: "bar",id: "b1", config: {env: ["dns=www.bar.com", "other=orange"]}};
+        var record4 = {servicename: "zoo", id: "z1", config: {env: ["dns=www.zoo.com", "other=satsuma"]}};
         
         nucleusStore.postRecord(service, store, record1);
         nucleusStore.postRecord(service, store, record2);
         nucleusStore.postRecord(service, store, record3);
         nucleusStore.postRecord(service, store, record4);
         
-        var queryKey = "config.dns";
+        var queryKey = "config.env";
         var queryValue = "www.blah.com";
         var results = nucleusStore.queryStore(service, store, queryKey, queryValue);
 
         assert.ok(results);
         assert.equal(results[0].servicename, "foo");
-        assert.equal(results[0].config.dns, "www.blah.com");
+        assert.equal(results[0].config.env[0], "dns=www.blah.com");
         assert.equal(results[0].id, "f1");
         assert.equal(results[1].servicename, "foo");
-        assert.equal(results[1].config.dns, "www.blah.com");
+        assert.equal(results[1].config.env[0], "dns=www.blah.com");
         assert.equal(results[1].id, "f2");
         
         done();
@@ -84,10 +84,10 @@ describe('test nucleus-store: ', function(){
         assert.ok(results);
         assert.equal(results[0].servicename, "foo");
         assert.equal(results[0].config.dns, "www.blah.com");
-        assert.equal(results[0].id, "f2");
+        //assert.equal(results[0].id, "f2"); // order not gauranteed
         assert.equal(results[1].servicename, "foo");
         assert.equal(results[1].config.dns, "www.blah.com");
-        assert.equal(results[1].id, "f1");
+        //assert.equal(results[1].id, "f1"); // order not gauranteed
         
         done();
     });    
