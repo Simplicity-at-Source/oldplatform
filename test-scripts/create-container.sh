@@ -2,7 +2,7 @@
 
 
 
-curl -vvv -X POST http://172.17.0.4:8080/service/gene-store/substore/cell -d '{ "id": "simplenode", "image": "sp_platform/uber-any", "env": { "GIT_REPO_URL": "https://github.com/fuzzy-logic/simplenode.git" } }' -H 'Content-Type: application/json'
+curl -vvv -X POST http://172.17.0.4:8080/service/gene-store/substore/cell -d '{ "id": "simplenode2", "image": "sp_platform/uber-any", "env": { "GIT_REPO_URL": "https://github.com/fuzzy-logic/simplenode.git", "DNSHOST": "simplenode.muon.cistechfutures.net" } }' -H 'Content-Type: application/json'
 
 
 #sleep 10
