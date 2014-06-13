@@ -7,11 +7,14 @@ import simplepaas.controlplane.JSONApi
 
 import static groovyx.net.http.ContentType.JSON
 import static groovyx.net.http.Method.POST
+import static groovyx.net.http.Method.PUT
 
 @Slf4j
 class SendContainerInformation {
   @Autowired
   JSONApi dockerApi
+
+  def POKEMON_URL = "http://172.17.0.4:8080/service/pokemon/substore/muon/record";
 
   def call() {
 
@@ -29,12 +32,15 @@ class SendContainerInformation {
           [rel:"stderr", href:"http://172.17.0.2:8080/container/${it.Id}/stderr".toString()]
       ]
 
-      def http = new HTTPBuilder("http://172.17.0.4:8080/")
+      def http = new HTTPBuilder("${POKEMON_URL}/${it.Id}")
       def jsonResp
 
       try {
-          http.request( POST, JSON ) { req ->
-            body = [it]
+          http.request( PUT, JSON ) { req ->
+            def l =  it.toString().length();
+            def length = 250 < l ? 250 : l;
+            log.info("PUT ${POKEMON_URL}/${it.Id} ${it.toString().substring(0,length)}");
+            body = it
 
             response.success = { resp, json ->
               jsonResp=json

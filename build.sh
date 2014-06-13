@@ -12,4 +12,4 @@ do
   cd $HERE
 done
 
-echo "Simple PaaS:  Core components built and locally installed.  For a local development install, run cli/sp dev-init"
+echo "Simple PaaS:  Core components built and locally installed.  For a local development install, run ./cli/dev-init"
