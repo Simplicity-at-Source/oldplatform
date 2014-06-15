@@ -9,21 +9,21 @@ var nucleusApi = process.env.NUCLEUS_API_HOST_PORT || "http://172.17.0.4:8080";
 
 exports.next_host = function(req, res) {
     var serviceName = req.params.service_name;
-    console.log("next_host() for serviceName " + serviceName );
+    //console.log("next_host() for serviceName " + serviceName );
 
     var callback = function(response) {  
         
-        console.log('next_host() -> callback() ' );
+        //console.log('next_host() -> callback() ' );
         var allContainerIps = [];
         for (var i in response) {
             var entry = response[i];
-            console.log('next_host() -> callback() entry=' + JSON.stringify(entry).substring(0, 150) );
+            //console.log('next_host() -> callback() entry=' + JSON.stringify(entry).substring(0, 150) );
             var containerIpPort = getHostPort(serviceName, entry);   
             if (containerIpPort) allContainerIps.push(containerIpPort);
         }
         var randomNum = random(0, allContainerIps.length);
         var randomIpPort = allContainerIps[randomNum];
-        console.log('next_host() -> callback() random ip/port number %s: %s', randomNum, randomIpPort);
+        //console.log('next_host() -> callback() random ip/port number %s: %s', randomNum, randomIpPort);
          var host = randomIpPort.split(':')[0];
         var port = randomIpPort.split(':')[1];
         sendHost(host, port, serviceName, res);
@@ -41,12 +41,12 @@ function random(low, high) {
 
 
 function queryNucleus(host, callback) {
-        console.log('queryNucleus() host=%s ', host );
+        //console.log('queryNucleus() host=%s ', host );
         // /service/pokemon?qk=inspection.Config.Env&qv=simplenode.muon.cistechfutures.net
         var queryTerms = '/service/pokemon?qk=inspection.Config.Env&qv=' + host;
     	var req = request.get(nucleusApi + queryTerms);
         req.end(function(res){
-          console.log("queryNucleus() res: " + res.text.substring(0, 150));
+          //console.log("queryNucleus() res: " + res.text.substring(0, 150));
     	   var response = JSON.parse(res.text);    
            callback(response); 
     	});
@@ -66,7 +66,7 @@ function getHostPort(serviceName, containerInfo) {
               port = key.split('/')[0];
             }
             var result = ip + ':' + port;
-            console.log('getHostPort() result=' + result );
+            //console.log('getHostPort() result=' + result );
             return result;
 }
 
