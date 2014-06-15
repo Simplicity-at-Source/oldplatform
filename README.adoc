@@ -44,3 +44,8 @@ Now wait about 10 seconds to test the simplenode service using curl:
 ```
 ./get-simplenode.sh
 ```
+
+Or go to the address below in your browser: 
+```
+http://simplenode.muon.cistechfutures.net/
+```
