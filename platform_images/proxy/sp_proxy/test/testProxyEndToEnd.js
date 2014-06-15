@@ -8,19 +8,10 @@ var proxyurl = 'http://localhost:18888';
 
 describe('test proxy', function(){
     
-  it('proxy calls docker registry and routes to correct ip', function(done){
-	var req = request.get(proxyurl + '/spapi/container');
-	  req.end(function(res){
-          //console.log("proxy docker api res: "  + res.text);
-          assert.ok(contains(res.text, 'mock control-plane response')); 
-          done();
-      });
-  });   
-    
 
     
   it('proxy handles non existing  service gracefully', function(done){
-	var req = request.get(proxyurl + '/spapi/does-not-exist');
+	var req = request.get(proxyurl + '/blah/does-not-exist');
 	  req.end(function(res){
           console.log("no-exist status %s", res.status);
           assert.ok(res.status); 

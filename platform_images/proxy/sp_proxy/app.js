@@ -20,21 +20,11 @@ var proxyUtils = require('./proxyUtils.js');
 
 
 var proxyPort = process.env.SP_PROXY_PORT || 8888;
-//var registryPort = process.env.SP_REGISTRY_PORT || 8888;
-//var registryHost = process.env.SP_REGISTRY_HOST || '172.17.0.6';
-var registryPort = undefined;
-var registryHost = undefined;
-var dockerApiHost = process.env.SP_DOCKER_HOST || '172.17.42.1';
-var dockerApiPort = process.env.SP_DOCKER_PORT || '4321';
+var registryPort = process.env.SP_REGISTRY_PORT || 8080;
+var registryHost = process.env.SP_REGISTRY_HOST || '172.17.0.5';
+
+
 var BAD_GATEWAY_RESPONSE_CODE = 502;
-var gnsContainerName = "sp-gns";
-
-
-var UrlMappings = {
-    "/spapi/container": "sp-control_plane",
-    "/spapi/config": "sp-gene_store",
-    "/spapi/status": "sp-phenotype_monitor"
-}
 
 http.createServer(coreHandler).listen(proxyPort, httpStartupComplete);
 
@@ -42,8 +32,8 @@ function httpStartupComplete() {
     'use strict';
     console.log("To set Proxy Port/Docker REST Api/GNS Host:");
     console.log("export SP_PROXY_PORT=%s", proxyPort);
-    console.log("export SP_DOCKER_HOST=%s", dockerApiHost);
-    console.log("export SP_DOCKER_PORT=%s", dockerApiPort);
+    console.log("export SP_REGISTRY_PORT=%s", registryPort);
+    console.log("export SP_REGISTRY_HOST=%s", registryHost);
     console.log("starting sp proxy service http server on port " + proxyPort);
 }
 
@@ -53,65 +43,17 @@ function coreHandler(clientRequest, clientResponse) {
     var requestUrl = url.parse(clientRequest.url, true, false);
     //console.log('coreHandler() proxy request url path: %s', requestUrl.path );
     var proxyCallbackHandler = proxyRequest(clientRequest, clientResponse);
-    if (requestUrl.path.lastIndexOf('/spapi', 0) === 0 ) { // url path starts with /spapi
-        var pathMapping = "/" + requestUrl.path.split('/')[1] + "/" + requestUrl.path.split('/')[2];
-        var servicename = UrlMappings[pathMapping]; 
-        //console.log("coreHandler() servicename=%s, pathMapping=%s", servicename, pathMapping);
-        if (! servicename || servicename == undefined ) _sendBadGateway(servicename, clientResponse);
-         console.log('coreHandler() proxy via /spapi url path servicename=%s, url path=%s', servicename, requestUrl.path);
-        dockerLookup(servicename,  clientResponse, proxyCallbackHandler); 
-    } else {
-        var servicename = clientRequest.headers.host;  
-        if (servicename.split(':').length > 1) servicename = servicename.split(':')[0];
-         if (! servicename) _sendBadGateway(servicename, clientResponse);
-         console.log('coreHandler() proxy via host header servicename=%s, url path=%s', servicename, requestUrl.path);
-        if (registryHost == undefined) {
-          console.log('coreHandler() registryHost undefined, looking up gns ip...');
-          var callback = function(host, port) {
-             console.log('coreHandler()->callback() setting registryHost=%s registryPort=%s', host, port);
-             registryHost = host;
-             registryPort = port;
-             registryLookup(servicename,  clientResponse, proxyCallbackHandler); 
-          }
-          dockerLookup(gnsContainerName,  clientResponse, callback); 
-        } else {
-          registryLookup(servicename,  clientResponse, proxyCallbackHandler);
-        }
-    }
-        
-}
-
-
-function dockerLookup(servicename, response, proxyCallbackHandler) {
-    console.log('dockerLookup() servicename=' + servicename);
-    var path = '/containers/' + servicename + '/json'; 
-    var errCallback = function(err) {console.log("error contacting docker: " + err.message) };
-    //console.log("dockerApiHost=%s, dockerApiPort=%s",dockerApiHost, dockerApiPort);
-    var dockerCallBack = function(body) {
-        try {
-            var dockerResponse = JSON.parse(body);
-        } catch (err) {
-            _sendBadGateway(servicename, response);
-            return;   
-        }
-           //console.log("dockerCallBack() dockerResponse=" +body);        
-        if (! dockerResponse.NetworkSettings) {
-                _sendBadGateway(servicename, response);
-                return;
-            }
-            var host = dockerResponse.NetworkSettings.IPAddress;
-            var keys = dockerResponse.Config.ExposedPorts; // is this right? or dockerResponse.NetworkSettingsPorts ?
-            var port = '';
-            for (var key in keys) {
-              port = key.split('/')[0];
-            }
-            console.log("got ip/port from docker: " + host + ':' + port);
-            proxyCallbackHandler(host, port, true);
-    }   
+  
     
-    httpio.getJson(dockerApiHost, dockerApiPort, path, dockerCallBack, errCallback);
-}
+    var servicename = clientRequest.headers.host;  
+    if (servicename.split(':').length > 1) servicename = servicename.split(':')[0];
+    if (! servicename) _sendBadGateway(servicename, clientResponse);
+    
+    console.log('coreHandler() proxy via host header servicename=%s, url path=%s', servicename, requestUrl.path);
 
+    registryLookup(servicename,  clientResponse, proxyCallbackHandler);
+    
+}
 
 
 function registryLookup(servicename, clientResponse, proxyCallbackHandler) {
