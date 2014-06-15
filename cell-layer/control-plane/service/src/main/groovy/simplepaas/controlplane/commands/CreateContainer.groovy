@@ -33,7 +33,7 @@ class CreateContainer {
       def proxyStartJson = """
             {
                 "PortBindings": { "8888/tcp": [{ "HostPort": "80" }] },
-                "Privileged": false,
+                "Privileged": true,
                 "PublishAllPorts": false
            }
             """
@@ -64,8 +64,8 @@ class CreateContainer {
     }
 
     env << "sp_proxy_PORT=8888"
-    env << "sp_proxy_HOST=172.17.0.8"
-    env << "sp_proxy_URL=172.17.0.8:8888"
+    env << "sp_proxy_HOST=172.17.0.2"
+    env << "sp_proxy_URL=172.17.0.2:8888"
 
     return env
   }

@@ -23,6 +23,9 @@ exports.next_host = function(req, res) {
         }
         var randomNum = random(0, allContainerIps.length);
         var randomIpPort = allContainerIps[randomNum];
+        if (! randomIpPort || randomIpPort == '') {
+            send404(serviceName, res);   
+        }
         //console.log('next_host() -> callback() random ip/port number %s: %s', randomNum, randomIpPort);
          var host = randomIpPort.split(':')[0];
         var port = randomIpPort.split(':')[1];
@@ -44,6 +47,7 @@ function queryNucleus(host, callback) {
         //console.log('queryNucleus() host=%s ', host );
         // /service/pokemon?qk=inspection.Config.Env&qv=simplenode.muon.cistechfutures.net
         var queryTerms = '/service/pokemon?qk=inspection.Config.Env&qv=' + host;
+        console.log("queryNucleus() GET " + nucleusApi + queryTerms );
     	var req = request.get(nucleusApi + queryTerms);
         req.end(function(res){
           //console.log("queryNucleus() res: " + res.text.substring(0, 150));
@@ -73,11 +77,11 @@ function getHostPort(serviceName, containerInfo) {
 
 
 function sendHost(host, port, serviceName, res) { 
-    console.log("sendHost(host:%s, port:%s, service:%s, res:%s)", host, port, serviceName, res);
+    //console.log("sendHost(host:%s, port:%s, service:%s, res:%s)", host, port, serviceName, res);
     if (! host) {
       send404(serviceName, res);
     } else {
-        console.log("sendHost() returning host/port %s/%s for service %s", host, port, serviceName);
+       console.log("sendHost() returning host/port %s/%s for service %s", host, port, serviceName);
        res.send({host: host, port: port}); 
     }
     

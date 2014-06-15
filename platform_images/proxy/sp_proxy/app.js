@@ -32,8 +32,11 @@ function httpStartupComplete() {
     'use strict';
     console.log("To set Proxy Port/Docker REST Api/GNS Host:");
     console.log("export SP_PROXY_PORT=%s", proxyPort);
-    console.log("export SP_REGISTRY_PORT=%s", registryPort);
-    console.log("export SP_REGISTRY_HOST=%s", registryHost);
+    console.log("export SP_REGISTRY_PORT=%s", process.env.SP_REGISTRY_PORT);
+    console.log("export SP_REGISTRY_HOST=%s", process.env.SP_REGISTRY_HOST);
+    console.log("registryPort=%s", registryPort);
+    console.log("registryHost=%s", registryHost);
+    
     console.log("starting sp proxy service http server on port " + proxyPort);
 }
 
@@ -58,7 +61,7 @@ function coreHandler(clientRequest, clientResponse) {
 
 function registryLookup(servicename, clientResponse, proxyCallbackHandler) {
     //console.log('registryLookup() servicename=' + servicename);
-    var path = '/service/' + servicename + '/host/next'; 
+    var path = '/api/' + servicename + '/host/next'; 
     var errCallback = function(err) {console.log("error contacting registry: " + err.message) };
     var registryCallBack = function(body) {
         registryResponse = JSON.parse(body);
