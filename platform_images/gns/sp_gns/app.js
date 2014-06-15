@@ -4,7 +4,7 @@ var restify = require('restify');
 var  apiroutes = require('./apiroutes');
 
 
-var port = 8888;
+var port = 8080;
 
 
 function respond(req, res, next) {
@@ -20,16 +20,8 @@ server.listen(port, function() {
 });
 
 
+server.get('/api/:service_name/host/next', apiroutes.next_host);
 
-server.get('/service', apiroutes.services);
-server.get('/service/:service_name', apiroutes.get_service);
-server.get('/service/:service_name/host/next', apiroutes.next_host);
-server.get('/debug', apiroutes.debug);
-
-server.post('/service/:service_name', apiroutes.new_service);
-server.post('/service/:service_name/addhost/:host/:port', apiroutes.add_host);
-
-server.del('/service/:service_name/host/:host/:port', apiroutes.delete_host);
 
 server.get('/', function(req, res){
   //res.render('index', {service: 'sp_registry', add_link:'PUT /registry/xyzname', list: 'GET /registry'});
@@ -39,5 +31,18 @@ server.get('/', function(req, res){
   res.send(data);
 });
 
+
+
+function logErrors(err, req, res, next) {
+  console.log("*****************************************************************************************************");
+  console.error(err);
+  next(err);
+}
+
+server.use(logErrors);
+
+process.on('uncaughtException', function(err) {
+    console.log('Threw Exception: ', err.message);
+});
 
 
