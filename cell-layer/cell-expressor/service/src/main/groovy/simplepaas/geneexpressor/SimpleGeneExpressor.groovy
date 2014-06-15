@@ -56,9 +56,9 @@ class SimpleGeneExpressor {
     log.info "Orphaned services ${orphanServices.inspection.Name}"
 
     orphanServices.each {
-      println "Service [${name(it.inspection)}] running without permission, nuking. ${CONTROL_PLANE}/${it.id}"
+      log.info "Service [${name(it.inspection)}] running without permission, nuking. ${CONTROL_PLANE}/${it.id}"
       def resp = api.delete("${CONTROL_PLANE}/${it.id}")
-      println "Control plane replies ${resp}"
+      log.info "Control plane replies ${resp}"
     }
   }
 
@@ -128,7 +128,7 @@ class JSONApi {
       }
 
       response.success = { resp, json ->
-          log.info("http POST response $resp");
+          log.info("http POST response id: ${json?.id}");
         jsonResp = json
       }
     }
@@ -142,7 +142,7 @@ class JSONApi {
     http.request(Method.DELETE) { req ->
         log.info("http DELETE req $req");
       response.success = { resp, json ->
-          log.info("http DELETE response=$resp");
+          log.info("http DELETE response.id= ${json?.id}");
           jsonResp = json
       }
     }
@@ -150,10 +150,12 @@ class JSONApi {
   }
 
   def get(def url) {
-      log.info("http GET $url");
+    log.info("http GET $url");
     def jsonText = new URL(url).text
-      log.info("http GET response=$jsonText");
-    new JsonSlurper().parseText(jsonText)
+    def json = new JsonSlurper().parseText(jsonText)
+    log.info("http GET response.id=${json?.id}")
+    json
+
   }
 
 }

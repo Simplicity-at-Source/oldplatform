@@ -1,6 +1,8 @@
-
- {
-         "Hostname":"ubersentiment",
-         "Env":["GIT_REPO_URL=https://github.com/fuzzy-logic/sentanal.git"],
-         "Image":"sp_platform/uber-any"
-    }
+{ 
+  "id": "simplenode", 
+  "image": "sp_platform/uber-any", 
+  "env": { 
+    "GIT_REPO_URL": "https://github.com/fuzzy-logic/simplenode.git", 
+    "DNSHOST": "simplenode.muon.cistechfutures.net" 
+  }
+}
