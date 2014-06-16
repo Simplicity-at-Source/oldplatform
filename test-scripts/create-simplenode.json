@@ -1,6 +1,7 @@
 { 
   "id": "simplenode", 
   "image": "sp_platform/uber-any", 
+  "count": 3,
   "env": { 
     "GIT_REPO_URL": "https://github.com/fuzzy-logic/simplenode.git", 
     "DNSHOST": "simplenode.muon.cistechfutures.net" 
