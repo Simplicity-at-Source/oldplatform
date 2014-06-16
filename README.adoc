@@ -25,3 +25,27 @@ Runing `cli/dev-init` will install the minimal set of services to act as a PaaS 
 
 These components allow you to take existing Docker images, as normal, and securely deploy them to 
 the local Docker with declarative Service Injection, via the API.
+
+
+## Deploy a service locally
+
+make sure you've got this entry in your muon hosts file:
+``` 
+127.0.0.1 	simplenode.muon.cistechfutures.net 
+```
+
+Now run the script to deploy a simple nodejs web service:
+```
+cd ./test-scripts
+./create-simplenode.sh
+```
+
+Now wait about 10 seconds to test the simplenode service using curl:
+```
+./get-simplenode.sh
+```
+
+Or go to the address below in your browser: 
+```
+http://simplenode.muon.cistechfutures.net/
+```
