@@ -22,6 +22,7 @@ var models = {"Container:": {}};
 
 swagger.addModels(models);
 swagger.addGet(resources.containers);
+swagger.addGet(resources.getContainer);
 //swagger.addGet(resources.findById);
 //swagger.addGet(resources.getStore);
 //swagger.addGet(resources.queryService);
