@@ -6,10 +6,11 @@ require('../app.js'); //Boot up the server for tests
 var host = 'http://localhost:8080';
 var http = require('http');
 var msh = require('msh');
+var _ = require('underscore');
 
 var testFile = 'testControlPlane.js';
 
-
+var testLog = testFile + '';
 
 
 var mockDockerPort = process.env.SP_DOCKER_PORT || 14321;
@@ -19,22 +20,23 @@ var testService = 'control-plane';
 
 
 
-
-
 describe('test ' + testService +': ', function(){
 
     it(testFile + ' /container works ok', function(done){
         var req = request.get(host + '/container');
         req.end(function(res){
-            console.log('********** ' + testFile + "/container res: " + res.text);
+            var ids = ['fa2fa401397c102ae556ca2715f194a587f6a01bdf92e2112e8038b8f7b9afbb', '04e20287aa7b3f9b1ae3817975c87b54a9015c82c672b4b738f5aad2d681d6cc'];            
+             log('GET /container', 'res.text', res.text);
             var json = JSON.parse(res.text);
             assert.equal(200, res.status);
-            assert.equal('fa2fa401397c102ae556ca2715f194a587f6a01bdf92e2112e8038b8f7b9afbb', json[0].Id);
+            var id1 = _.findWhere(json, {Id: ids[0]});
+            var id2 = _.findWhere(json, {Id: ids[1]});
+            log('GET /container', 'id1', id1);
+            assert.equal(ids[0], id1.Id);
+            assert.equal(ids[1], id2.Id);
             done();
         });
     });
-
-
 });
 
 
@@ -43,7 +45,14 @@ describe('test ' + testService +': ', function(){
 
 
 
-
+function log(testname, dataName, data) {
+    var dataStr = data; 
+    try {
+        dataStr = JSON.stringify(data);    
+    }catch (e) {  }
+    var logLength = dataStr < 100 ? dataStr.length : 100;
+    console.log('LOGGER ********** ' + testFile + " " + testname + " " + dataName + ": " + dataStr.substring(0, 100));
+}
 
 
 
