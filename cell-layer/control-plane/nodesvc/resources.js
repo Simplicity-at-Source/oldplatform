@@ -8,7 +8,7 @@ var assert = require('assert');
 var swe = sw.errors;
 
 var dockerPort = process.env.SP_DOCKER_PORT || 4321;
-var dockerIp = process.env.SP_DOCKER_HOST || 'localhost';
+var dockerIp = process.env.SP_DOCKER_HOST || '172.17.42.1';
 var nucleusPort = process.env.SP_NUCLEUS_PORT || 8080;
 var nucleusHost = process.env.SP_NUCLEUS_HOST || 'localhost';
 
@@ -33,7 +33,7 @@ exports.containers = {
     responseMessages : [swe.notFound('container')]
   },
   'action': function (req,res) {
-        console.log('resources.js containers()');
+        console.log('resources.js containers() listing from ' + dockerUrl + '/containers/json');
       
         var req = request.get(dockerUrl + '/containers/json');
         req.end(function(dockerRes){
