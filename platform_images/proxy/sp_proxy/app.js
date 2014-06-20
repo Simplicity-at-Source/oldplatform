@@ -18,11 +18,9 @@ var proxyUtils = require('./proxyUtils.js');
 
 //TODO cache docker api & gns registry lookups
 
-
 var proxyPort = process.env.SP_PROXY_PORT || 8888;
 var registryPort = process.env.SP_REGISTRY_PORT || 8080;
 var registryHost = process.env.SP_REGISTRY_HOST || '172.17.0.5';
-
 
 var BAD_GATEWAY_RESPONSE_CODE = 502;
 
@@ -107,7 +105,6 @@ function proxyRequest(clientRequest, clientResponse) {
         var endPointResponseFunction = endPointResponseHandler(clientRequest, clientResponse, options, host, requestUrl)
         var endPointRequest = http.request(options, endPointResponseFunction);
 
-
            endPointRequest.on('error', function (error) {
                 console.log("proxyRequest() endPointRequest.on('error') err=" + error.message );
                 clientResponse.statusCode = BAD_GATEWAY_RESPONSE_CODE;
@@ -122,14 +119,9 @@ function proxyRequest(clientRequest, clientResponse) {
             clientRequest.on('end', function () {
                 //console.log("proxyRequest() endPointRequest.on('end')");
                 endPointRequest.end();
-              
             });
-        
     }
-
 }
-
-
 
 function endPointResponseHandler(clientRequest, clientResponse, options, host, requestUrl) {
 
@@ -166,8 +158,6 @@ function endPointResponseHandler(clientRequest, clientResponse, options, host, r
     }
 
 }
-
-
 
 function _sendBadGateway(servicename, response) {
     'use strict';   
