@@ -25,15 +25,15 @@ describe('test ' + testService +': ', function(){
     it(testFile + ' /container works ok', function(done){
         var req = request.get(host + '/container');
         req.end(function(res){
-            var ids = ['fa2fa401397c102ae556ca2715f194a587f6a01bdf92e2112e8038b8f7b9afbb', '04e20287aa7b3f9b1ae3817975c87b54a9015c82c672b4b738f5aad2d681d6cc'];            
+            var ids = getListByKey(dockerContainersListJson(), 'Id');         
              log('GET /container', 'res.text', res.text);
             var json = JSON.parse(res.text);
             assert.equal(200, res.status);
-            var id1 = _.findWhere(json, {Id: ids[0]});
-            var id2 = _.findWhere(json, {Id: ids[1]});
-            log('GET /container', 'id1', id1);
-            assert.equal(ids[0], id1.Id);
-            assert.equal(ids[1], id2.Id);
+            for (var i = 0 ; i < ids.length ; i++) {
+                 var entry = _.findWhere(json, {Id: ids[i]});
+                 assert.equal(ids[i], entry.Id);
+                 //log('GET /container', 'found in response id=', ids[i]);
+            }
             done();
         });
     });
@@ -41,7 +41,16 @@ describe('test ' + testService +': ', function(){
 
 
 
-
+function getListByKey(list, keyName) {
+    
+    var response = [];
+    for(var key in list) {
+        value = list[key];
+        //log('getListByKey()', 'value', value[keyName]);
+        response.push(value[keyName]);
+    }
+    return response;
+}
 
 
 
