@@ -4,7 +4,10 @@ var url = require("url");
 var nucleusStore = require('./nucleusStore.js');
 var swe = sw.errors;
 
-
+exports.init = function(notify) {
+    console.log ("Initialising resources with notificaiton");
+    module.notification = notify;
+};
 
 exports.root = {
   'spec': {
@@ -228,6 +231,14 @@ exports.putRecord = {
     nucleusStore.putRecord(serviceName, subStore, recordId, payload);
 
     res.send(201, {message: "created"});
+
+    module.notification({
+        type:"PUT",
+        serviceName:serviceName,
+        subStore:subStore,
+        recordId:recordId,
+        payload:payload
+    });
   }
 };
 
@@ -265,6 +276,14 @@ exports.postRecord = {
 
     res.set('Location:', "/service/" + serviceName + "/substore/" + subStore + "/record/" + id);
     res.send(201, {message: "created"});
+
+      module.notification({
+          type:"POST",
+          serviceName:serviceName,
+          subStore:subStore,
+          recordId:id,
+          payload:payload
+      });
   }
 };
 
@@ -300,5 +319,13 @@ exports.deleteRecord = {
     nucleusStore.deleteRecord(serviceName, subStore, recordId);
 
     res.send(204);
+
+      module.notification({
+          type:"DELETE",
+          serviceName:serviceName,
+          subStore:subStore,
+          recordId:recordId,
+          payload:payload
+      });
   }
 };

@@ -4,9 +4,14 @@ var express = require("express");
 var url = require("url");
 var swagger = require("swagger-node-express");
 var resources = require('./resources.js');
+var socket = require('./socketserver.js');
 
 // Create the application.
 var app = express();
+
+socketServer = socket.init(app);
+resources.init(socket.notify);
+
 app.use(express.json());
 app.use(express.urlencoded());
 
@@ -113,6 +118,7 @@ app.on('uncaughtException', function(req, res, route, err) {
 process.on('uncaughtException', function(err) {
     console.log('Threw Exception: ', err.message);
 });
+
 
 app.listen(8080, function() {
            console.log("listen on port 8080");           

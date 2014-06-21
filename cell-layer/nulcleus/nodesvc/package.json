@@ -16,8 +16,10 @@
         "node-uuid": "*",
         "body-parser": "*",
         "msh": "*",
-        "restify": "*"
-        
+        "restify": "*",
+        "socket.io": "1.0.5",
+        "socket.io-client": "*"
+
     },
     "devDependencies": {
         "mocha": "*",
