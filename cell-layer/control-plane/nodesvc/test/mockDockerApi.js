@@ -47,7 +47,17 @@ function dockerApiHandler(req, res) {
       res.writeHead(201, {'Content-Type': 'application/json'});
       res.write(JSON.stringify({Id: 'xyz123', Env: {STUFF: 'blah=foo,floo=kroo'}}) );
       res.end(); 
-   }  else {
+   }  else if (req.method == 'POST' && url_parts.path == '/containers/xyz123/kill') { 
+     console.log('mockDockerApi, replying 200');
+      res.writeHead(201, {'Content-Type': 'application/json'});
+      res.write(JSON.stringify({Id: 'xyz123', message: 'containter stopped'}) );
+      res.end(); 
+   } else if (req.method == 'DELETE' && url_parts.path == '/containers/xyz123') { 
+     console.log('mockDockerApi, replying 204');
+      res.writeHead(201, {'Content-Type': 'application/json'});
+      res.write(JSON.stringify({Id: 'xyz123', message: 'container destroyed'}) );
+      res.end(); 
+   } else {
       console.log('mockDockerApi, no match for ' + url_parts.path);
       res.writeHead(200, {'Content-Type': 'application/json'});
       res.write(JSON.stringify({error: "no record found matching " + url_parts.path}) );      

@@ -6,11 +6,17 @@ var port = 18081;
 function apiHandler(req, res) { 
    var url_parts = url.parse(req.url);
    //console.log('url path: ' + url_parts.path);    
-   if (req.method == 'POST' && url_parts.path == '/service/pokemon/substore/muon') {
+   if (req.method == 'POST' && url_parts.path == '/service/pokemon/substore/muon/record/xyz123') {
       console.log('mockNucleusApi PUT /service/pokemon/substore/muon');
       res.writeHead(201, {'Content-Type': 'application/json'});
       res.write(JSON.stringify({message: "created"}) );
       res.end(); 
+   } else if (req.method == 'GET' && url_parts.path == '/service/pokemon/substore/muon/record/xyz123') {
+      console.log('mockDockerApi GET /service/pokemon/substore/muon');
+      res.writeHead(200, {'Content-Type': 'application/json'});
+      res.write(JSON.stringify({message: "test"}) );
+      res.end();        
+       
    } else if (req.method == 'GET' && url_parts.path == '/service/pokemon/substore/muon') {
       console.log('mockDockerApi GET /service/pokemon/substore/muon');
       res.writeHead(200, {'Content-Type': 'application/json'});

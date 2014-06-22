@@ -159,7 +159,7 @@ exports.postContainer = {
            msh.init(innerCallback, innerErrCallback)
            .post(dockerIp, dockerPort, startUrl, dockerStartJson)
            .pipe()
-           .post(nucleusHost, nucleusPort, pokemonPath)
+           .post(nucleusHost, nucleusPort, pokemonPath + '/record/' + dockerReply.Id)
            .end();
 
       }
@@ -177,6 +177,58 @@ exports.postContainer = {
       .post(dockerIp, dockerPort, containerUrl, dockerPayload)
       .end();
         
+  }
+};
+
+
+
+
+
+exports.deleteContainer = {
+  'spec': {
+    path : "/container/{containerId}",
+    notes : "delete a container",
+    summary : "Delete a containter",
+    method: "DELETE",  
+    nickname: "deleteContainer",
+    parameters : [sw.pathParam("containerId", "Id of of containter to destroy", "string")],
+    responseMessages : [swe.invalid('containerId'), swe.notFound('containter')]
+  },
+  'action': function (req,res) {
+    console.log('resources.js deleteContainer()');
+    if (! req.params.containerId) {
+      throw swe.invalid('containerId'); 
+    }
+      
+    var containerId = req.params.containerId;
+  
+      var killUrl = '/containers/' + containerId + '/kill';
+      var deleteUrl = '/containers/' + containerId;
+      
+      /*
+
+           def dockerRet = dockerApi.post("/containers/${id}/kill")
+        dockerRet = dockerApi.delete("/containers/${id}")
+
+        [message: "Container Destroyed"]
+      */
+
+      var cb = function(actions) {
+          
+          console.log('resources.js deleteContainer()->callback() actions:');
+          //console.dir(actions);
+          res.send(200, {message: "Container Destroyed"});
+      }
+      
+      var cbe = function(err) {
+          res.send(500, {message: err});
+      }
+      msh.init(cb, cbe)
+      .post(dockerIp, dockerPort, killUrl)
+      .del(dockerIp, dockerPort, deleteUrl)
+      .del(nucleusHost, nucleusPort,  pokemonPath + '/record/' + containerId)
+      .end();
+    
   }
 };
 

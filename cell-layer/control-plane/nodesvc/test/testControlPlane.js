@@ -71,7 +71,20 @@ describe('test ' + testService +': ', function(){
             assert.equal('xyz123', json.id);
             done();
         });
-    });    
+    }); 
+    
+    
+    it(testFile + ' delete container via delete /container', function(done){
+        var req = request.del(host + '/container/xyz123');
+        req.end(function(res){   
+            log('DELETE /container/xyz123', 'res.text', res.text);
+            //console.dir(res);
+            var json = JSON.parse(res.text);
+            assert.equal(200, res.status);
+            //assert.equal('Container Destroyed', json.message);
+            done();
+        });
+    });      
     
     
 });
@@ -92,6 +105,9 @@ function getListByKey(list, keyName) {
 
 
 function log(testname, dataName, data) {
+    if (!data) {
+        data = {};
+    }
     var dataStr = data; 
     try {
         dataStr = JSON.stringify(data);    

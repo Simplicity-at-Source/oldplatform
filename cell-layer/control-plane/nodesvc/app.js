@@ -23,14 +23,8 @@ var models = {"Container:": {}};
 swagger.addModels(models);
 swagger.addGet(resources.containers);
 swagger.addGet(resources.getContainer);
-//swagger.addGet(resources.findById);
-//swagger.addGet(resources.getStore);
-//swagger.addGet(resources.queryService);
-//swagger.addGet(resources.queryStore);
-//swagger.addGet(resources.getService);
-//swagger.addPut(resources.putRecord);
 swagger.addPost(resources.postContainer);
-//swagger.addDelete(resources.deleteRecord);
+swagger.addDelete(resources.deleteContainer);
 
 
 
