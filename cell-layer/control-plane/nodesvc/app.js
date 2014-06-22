@@ -29,7 +29,7 @@ swagger.addGet(resources.getContainer);
 //swagger.addGet(resources.queryStore);
 //swagger.addGet(resources.getService);
 //swagger.addPut(resources.putRecord);
-//swagger.addPost(resources.postRecord);
+swagger.addPost(resources.postContainer);
 //swagger.addDelete(resources.deleteRecord);
 
 

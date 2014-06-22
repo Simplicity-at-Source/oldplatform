@@ -38,20 +38,40 @@ describe('test ' + testService +': ', function(){
             done();
         });
     });
-    
 
-    
     it(testFile + ' /container/b87af06.../json works ok', function(done){
         var req = request.get(host + '/container/b87af061730ca19a8e9452788c8f17918f2ec46e4086e3750c1b7a2b17fc708a');
         req.end(function(res){
             var ids = getListByKey(mockDockerApi.dockerContainersListJson(), 'Id');         
-             log('GET /container/b87af0617...', 'res.text', res.text);
+            log('GET /container/b87af0617...', 'res.text', res.text);
             var json = JSON.parse(res.text);
             assert.equal(200, res.status);
             assert.equal('b87af061730ca19a8e9452788c8f17918f2ec46e4086e3750c1b7a2b17fc708a', json.Id);
             done();
         });
     });
+    
+    
+    it(testFile + ' create container via post /container', function(done){
+         var payload = { 
+                 "name": "simplenode",
+                  "imageId": "foobarImage", 
+                  "env": { 
+                    "FIZZ": "foo", 
+                    "BUZZ": "bar" 
+                  }
+                };
+        var req = request.post(host + '/container');
+        req.send(payload);
+        req.end(function(res){   
+            log('POST /container', 'res.text', res.text);
+            var json = JSON.parse(res.text);
+            assert.equal(201, res.status);
+            assert.equal('Container created', json.message);
+            assert.equal('xyz123', json.id);
+            done();
+        });
+    });    
     
     
 });

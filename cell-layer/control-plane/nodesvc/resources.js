@@ -1,6 +1,10 @@
 var sw = require("swagger-node-express");
 var url = require("url");
+var msh = require('msh');
 var request = require("superagent");
+var transformer = require('./payloadTransformer.js');
+var assert = require('assert');
+
 var swe = sw.errors;
 
 var dockerPort = process.env.SP_DOCKER_PORT || 4321;
@@ -12,7 +16,7 @@ var dockerUrl = 'http://' + dockerIp + ':' + dockerPort;
 var nucleusUrl = 'http://' + nucleusHost + ':' + nucleusPort;
 
 
-
+var pokemonPath = '/service/pokemon/substore/muon'
 
 
 exports.containers = {
@@ -85,6 +89,69 @@ exports.getContainer = {
             }
             
         });
+  }
+};
+
+
+exports.postContainer = {
+  'spec': {
+    description : "Create docker  container via control-plane",  
+    path : "/container",
+    method: "POST",
+    summary : "Create container",
+    notes : "Create docker containter suing json meta data",
+    type : "Message",
+    nickname : "postContainer",
+    produces : ["application/json"],
+    parameters : [sw.bodyParam("Payload", "Container meta data to be created in docker", "Payload")],
+    responseMessages : [swe.notFound('payload'), swe.invalid('payload')]
+  },
+  'action': function (req,res) {
+    
+    console.log('resources.js postContainer() req.body=' + JSON.stringify(req.body));
+    var payload = req.body;
+      
+      if (! payload) {
+           throw swe.invalid('payload'); 
+      }
+
+      var imageUrl = '/images/create?fromImage=' + payload.imageId;
+      var containerUrl = '/containers/create?name=' + payload.name;
+      
+      console.log('resources.js postContainer() imageUrl=' + imageUrl);
+      console.log('resources.js postContainer() containerUrl=' + containerUrl);
+
+      var callback = function(actions) {
+          console.log('resources.js postContainer()->callback()');
+          
+          if (actions[0].statusCode != '201') {
+              res.send(500, {message: 'error posting image to docker'});   
+          } else if (actions[1].statusCode != '201') {
+              res.send(500, {message: 'error posting container to docker'});   
+          } else if (actions[3].statusCode != '201') {
+              res.send(500, {message: 'error posting to nucleus'});   
+          } 
+          var dockerReply =  JSON.parse(actions[1].response);
+          console.log('resources.js postContainer() dockerReply=' + dockerReply);
+          res.send(201, {message: 'Container created', id: dockerReply.Id});   
+          
+      }
+      
+      var errCallback = function(error) {
+          console.log('resources.js postContainer()->errCallback()');
+          res.send(500, {message: 'error 500'});   
+      }
+      
+      var dockerPayload = transformer.muonToDocker(payload);
+      console.log('resources.js postContainer() msh.init() dockerPayload=' + JSON.stringify(dockerPayload));
+      
+      msh.init(callback, errCallback)
+      .post(dockerIp, dockerPort, imageUrl, {})
+      .post(dockerIp, dockerPort, containerUrl, dockerPayload)
+      .pipe()
+      .post(nucleusHost, nucleusPort, pokemonPath)
+      .end();
+        
   }
 };
 

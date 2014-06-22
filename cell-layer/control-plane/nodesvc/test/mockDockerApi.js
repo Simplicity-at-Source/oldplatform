@@ -21,7 +21,7 @@ exports.dockerContainersListJson = dockerContainersListJson;
 
 function dockerApiHandler(req, res) { 
    var url_parts = url.parse(req.url);
-   console.log('dockerApiHandler url path: ' + url_parts.path);    
+   console.log('dockerApiHandler ' + url_parts.path);    
    if (url_parts.path == '/containers/json') {
       console.log('mockDockerApi GET /containers/json writing dockerContainersListJson()');
       res.writeHead(200, {'Content-Type': 'application/json'});
@@ -31,9 +31,18 @@ function dockerApiHandler(req, res) {
       console.log('mockDockerApi, writing dockerContainerJson()');
       res.writeHead(200, {'Content-Type': 'application/json'});
       res.write(JSON.stringify(dockerContainerJson()) );
-      res.end();        
-       
-   } else {
+      res.end();         
+   } else if (req.method == 'POST' && url_parts.path == '/images/create?fromImage=foobarImage') { 
+     console.log('mockDockerApi, replying 201');
+      res.writeHead(201, {'Content-Type': 'application/json'});
+      res.write(JSON.stringify({Id: 'xyz123'}) );
+      res.end(); 
+   } else if (req.method == 'POST' && url_parts.path == '/containers/create?name=simplenode') { 
+     console.log('mockDockerApi, replying 201');
+      res.writeHead(201, {'Content-Type': 'application/json'});
+      res.write(JSON.stringify({Id: 'xyz123'}) );
+      res.end(); 
+   }  else {
       console.log('mockDockerApi, no match for ' + url_parts.path);
       res.writeHead(200, {'Content-Type': 'application/json'});
       res.write(JSON.stringify({error: "no record found matching " + url_parts.path}) );      
