@@ -42,6 +42,11 @@ function dockerApiHandler(req, res) {
       res.writeHead(201, {'Content-Type': 'application/json'});
       res.write(JSON.stringify({Id: 'xyz123'}) );
       res.end(); 
+   }  else if (req.method == 'POST' && url_parts.path == '/containers/xyz123/start') { 
+     console.log('mockDockerApi, replying 201');
+      res.writeHead(201, {'Content-Type': 'application/json'});
+      res.write(JSON.stringify({Id: 'xyz123', Env: {STUFF: 'blah=foo,floo=kroo'}}) );
+      res.end(); 
    }  else {
       console.log('mockDockerApi, no match for ' + url_parts.path);
       res.writeHead(200, {'Content-Type': 'application/json'});

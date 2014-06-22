@@ -118,8 +118,20 @@ exports.postContainer = {
       var imageUrl = '/images/create?fromImage=' + payload.imageId;
       var containerUrl = '/containers/create?name=' + payload.name;
       
-      console.log('resources.js postContainer() imageUrl=' + imageUrl);
-      console.log('resources.js postContainer() containerUrl=' + containerUrl);
+      //console.log('resources.js postContainer() imageUrl=' + imageUrl);
+      //console.log('resources.js postContainer() containerUrl=' + containerUrl);
+      
+      
+       var dockerStartJson = {};
+      
+        if (payload.imageId.indexOf("sp_proxy") > 0 || payload.name.indexOf("sp_proxy") > 0) {
+          dockerStartJson = {
+                "PortBindings": { "8888/tcp": [{ "HostPort": "80" }] },
+                "Privileged": false,
+                "PublishAllPorts": false
+           }
+        } 
+      
 
       var callback = function(actions) {
           console.log('resources.js postContainer()->callback()');
@@ -128,13 +140,28 @@ exports.postContainer = {
               res.send(500, {message: 'error posting image to docker'});   
           } else if (actions[1].statusCode != '201') {
               res.send(500, {message: 'error posting container to docker'});   
-          } else if (actions[3].statusCode != '201') {
-              res.send(500, {message: 'error posting to nucleus'});   
-          } 
+          }
           var dockerReply =  JSON.parse(actions[1].response);
           console.log('resources.js postContainer() dockerReply=' + dockerReply);
-          res.send(201, {message: 'Container created', id: dockerReply.Id});   
           
+          var startUrl = '/containers/' + dockerReply.Id + '/start';
+          
+          var innerCallback = function() {
+               console.log('resources.js postContainer()->callback()->innerCallback()');
+              res.send(201, {message: 'Container created', id: dockerReply.Id});   
+          }
+          
+          var innerErrCallback = function(err) {
+               console.log('resources.js postContainer()->callback()->innerErrCallback()');
+              res.send(500, {message: err});  
+          }
+          
+           msh.init(innerCallback, innerErrCallback)
+           .post(dockerIp, dockerPort, startUrl, dockerStartJson)
+           .pipe()
+           .post(nucleusHost, nucleusPort, pokemonPath)
+           .end();
+
       }
       
       var errCallback = function(error) {
@@ -148,8 +175,6 @@ exports.postContainer = {
       msh.init(callback, errCallback)
       .post(dockerIp, dockerPort, imageUrl, {})
       .post(dockerIp, dockerPort, containerUrl, dockerPayload)
-      .pipe()
-      .post(nucleusHost, nucleusPort, pokemonPath)
       .end();
         
   }
