@@ -153,7 +153,7 @@ function createAndStartDockerContainer(req, res, payload)  {
       //console.log('resources.js postContainer() msh.init() dockerPayload=' + JSON.stringify(dockerPayload));
       
       msh.init(callback, errCallback)
-      .post(dockerIp, dockerPort, imageUrl, {})
+      //.post(dockerIp, dockerPort, imageUrl, {})
       .post(dockerIp, dockerPort, containerUrl, dockerPayload)
       .end();
 }
