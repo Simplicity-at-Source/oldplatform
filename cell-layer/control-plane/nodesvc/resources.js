@@ -191,6 +191,9 @@ function startContainer(req, res, dockerReply, payload)  {
               sendServerError(res, actions[0], actions, 'while starting docker container with id  ' +  dockerReply.Id, 204);  
           } else if (actions[1].statusCode != '200') {
                sendServerError(res, actions[1], actions, 'while gettting started docker container json', 200 );
+          } else if (actions[3].statusCode != '201') {
+               console.log("********** WARNING: PROBLEM ATTEMPTING TO PUT TO NUCLEUS action=" + JSON.stringify(actions[3]));
+              res.send(201, {message: 'Container created', id: dockerReply.Id});
           }  else {
               res.send(201, {message: 'Container created', id: dockerReply.Id});   
           }
