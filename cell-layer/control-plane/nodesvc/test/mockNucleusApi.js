@@ -3,28 +3,44 @@ var http = require('http');
 
 var port = 18081;
 
+
+var log = {};
+
 function apiHandler(req, res) { 
    var url_parts = url.parse(req.url);
-   //console.log('url path: ' + url_parts.path);    
+   console.log('mockNucleusApi ' + req.method + ' ' + url_parts.path);    
    if (req.method == 'POST' && url_parts.path == '/service/pokemon/substore/muon/record/xyz123') {
-      console.log('mockNucleusApi PUT /service/pokemon/substore/muon');
-      res.writeHead(201, {'Content-Type': 'application/json'});
-      res.write(JSON.stringify({message: "created"}) );
-      res.end(); 
+       //console.log('mockNucleusApi POST /service/pokemon/substore/muon');
+       
+       var callback = function(body) {
+            if (! body) {
+                  res.writeHead(400, {'Content-Type': 'application/json'});
+                  res.write(JSON.stringify({message: "no post body"}) );
+                  res.end();    
+              } else {
+                   console.log('mockNucleusApi POST /service/pokemon/substore/muon body=' + body);
+                  res.writeHead(201, {'Content-Type': 'application/json'});
+                  res.write(JSON.stringify({message: "created"}) );
+                  res.end(); 
+              }
+       }
+       getBody(req, callback);
+       
+      
    } else if (req.method == 'GET' && url_parts.path == '/service/pokemon/substore/muon/record/xyz123') {
-      console.log('mockDockerApi GET /service/pokemon/substore/muon');
+      //console.log('mockDockerApi GET /service/pokemon/substore/muon');
       res.writeHead(200, {'Content-Type': 'application/json'});
       res.write(JSON.stringify({message: "test"}) );
       res.end();        
        
    } else if (req.method == 'GET' && url_parts.path == '/service/pokemon/substore/muon') {
-      console.log('mockDockerApi GET /service/pokemon/substore/muon');
+      //console.log('mockDockerApi GET /service/pokemon/substore/muon');
       res.writeHead(200, {'Content-Type': 'application/json'});
       res.write(JSON.stringify({message: "test"}) );
       res.end();        
        
    } else {
-      console.log('mockDockerApi, no match for ' + url_parts.path);
+      //console.log('mockDockerApi, no match for ' + url_parts.path);
       res.writeHead(404, {'Content-Type': 'application/json'});
       res.write(JSON.stringify({error: "no record found matching " + url_parts.path}) );      
       res.end();  
@@ -41,6 +57,39 @@ function httpStartupComplete(port) {
 
 //create mock remote docker API  
 http.createServer(apiHandler).listen(port, httpStartupComplete(port) );
+
+
+
+
+
+
+
+function getBody(request, callback) {
+    if (request.method == 'POST') {
+        var body = '';
+        request.on('data', function (data) {
+            body += data;
+
+            // Too much POST data, kill the connection!
+            if (body.length > 1e6)
+                req.connection.destroy();
+        });
+        request.on('end', function () {
+            var post = body;
+            callback(post);
+        });
+    }
+}
+
+
+
+
+
+
+
+
+
+
 
 /*
 function nucleusJson() {

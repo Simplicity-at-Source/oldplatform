@@ -19,6 +19,7 @@ var nucleusUrl = 'http://' + nucleusHost + ':' + nucleusPort;
 var pokemonPath = '/service/pokemon/substore/muon'
 
 
+
 exports.containers = {
   'spec': {
     description : "Return all docker containers for this control-plane",  
@@ -49,12 +50,6 @@ exports.containers = {
 
 
 
-
-
-
-
-
-// the description will be picked up in the resource listing
 exports.getContainer = {
   'spec': {
     description : "Find nucleus stored item by id",  
@@ -93,6 +88,7 @@ exports.getContainer = {
 };
 
 
+
 exports.postContainer = {
   'spec': {
     description : "Create docker  container via control-plane",  
@@ -110,20 +106,92 @@ exports.postContainer = {
     
     console.log('resources.js postContainer() req.body=' + JSON.stringify(req.body));
     var payload = req.body;
-      
+
       if (! payload) {
            throw swe.invalid('payload'); 
       }
+      
+    createAndStartDockerContainer(req, res, payload);
+        
+  }
+};
+
+
+
+function createAndStartDockerContainer(req, res, payload)  {
+     
 
       var imageUrl = '/images/create?fromImage=' + payload.imageId;
       var containerUrl = '/containers/create?name=' + payload.name;
       
       //console.log('resources.js postContainer() imageUrl=' + imageUrl);
       //console.log('resources.js postContainer() containerUrl=' + containerUrl);
+
+      var callback = function(actions) {
+          //console.log('resources.js postContainer()->callback()');
+          // after we've created the docker container and get it's ID, we can start the container
+
+          if (actions[0].statusCode != '201') {
+                res.send(500, {message: 'error creating new image via docker api'});   
+          } else if (actions[1].statusCode != '201') {
+              res.send(500, {message: 'error creating new container via docker api'});   
+          }
+          if (! actions.allOk() ) {
+              res.send(500, {message: 'error during msh callbacks', logs: actions});    
+          }
+          var dockerReply =  actions[1].response;
+          //console.log('resources.js postContainer() dockerReply=' + dockerReply);
+          
+          startContainer(req, res, dockerReply, payload);
+      }
       
+      var errCallback = function(error) {
+          //console.log('resources.js postContainer()->errCallback()');
+          res.send(500, {message: 'error 500', desc: error});   
+      }
       
-       var dockerStartJson = {};
+      var dockerPayload = transformer.muonToDocker(payload);
+      //console.log('resources.js postContainer() msh.init() dockerPayload=' + JSON.stringify(dockerPayload));
       
+      msh.init(callback, errCallback)
+      .post(dockerIp, dockerPort, imageUrl, {})
+      .post(dockerIp, dockerPort, containerUrl, dockerPayload)
+      .end();
+}
+
+
+
+
+
+function startContainer(req, res, dockerReply, payload)  {
+    
+     var dockerStartJson =  createDockerStartJson(dockerStartJson, payload);
+
+      var startUrl = '/containers/' + dockerReply.Id + '/start';
+
+      var callback = function() {
+           //console.log('resources.js postContainer()->callback()->innerCallback()');
+          res.send(201, {message: 'Container created', id: dockerReply.Id});   
+      }
+
+      var errCallback = function(err) {
+           //console.log('resources.js postContainer()->callback()->innerErrCallback()');
+          res.send(500, {message: err});  
+      }
+
+       msh.init(callback, errCallback)
+       .post(dockerIp, dockerPort, startUrl, dockerStartJson)
+       .pipe()
+       .post(nucleusHost, nucleusPort, pokemonPath + '/record/' + dockerReply.Id)
+       .end();
+    
+}
+
+
+function createDockerStartJson(dockerStartJson, payload) {
+      var dockerStartJson = {};
+
+    // Expose proxy on port 80 if this is the sp_proxy container being created
         if (payload.imageId.indexOf("sp_proxy") > 0 || payload.name.indexOf("sp_proxy") > 0) {
           dockerStartJson = {
                 "PortBindings": { "8888/tcp": [{ "HostPort": "80" }] },
@@ -131,54 +199,8 @@ exports.postContainer = {
                 "PublishAllPorts": false
            }
         } 
-      
-
-      var callback = function(actions) {
-          console.log('resources.js postContainer()->callback()');
-          
-          if (actions[0].statusCode != '201') {
-              res.send(500, {message: 'error posting image to docker'});   
-          } else if (actions[1].statusCode != '201') {
-              res.send(500, {message: 'error posting container to docker'});   
-          }
-          var dockerReply =  JSON.parse(actions[1].response);
-          console.log('resources.js postContainer() dockerReply=' + dockerReply);
-          
-          var startUrl = '/containers/' + dockerReply.Id + '/start';
-          
-          var innerCallback = function() {
-               console.log('resources.js postContainer()->callback()->innerCallback()');
-              res.send(201, {message: 'Container created', id: dockerReply.Id});   
-          }
-          
-          var innerErrCallback = function(err) {
-               console.log('resources.js postContainer()->callback()->innerErrCallback()');
-              res.send(500, {message: err});  
-          }
-          
-           msh.init(innerCallback, innerErrCallback)
-           .post(dockerIp, dockerPort, startUrl, dockerStartJson)
-           .pipe()
-           .post(nucleusHost, nucleusPort, pokemonPath + '/record/' + dockerReply.Id)
-           .end();
-
-      }
-      
-      var errCallback = function(error) {
-          console.log('resources.js postContainer()->errCallback()');
-          res.send(500, {message: 'error 500'});   
-      }
-      
-      var dockerPayload = transformer.muonToDocker(payload);
-      console.log('resources.js postContainer() msh.init() dockerPayload=' + JSON.stringify(dockerPayload));
-      
-      msh.init(callback, errCallback)
-      .post(dockerIp, dockerPort, imageUrl, {})
-      .post(dockerIp, dockerPort, containerUrl, dockerPayload)
-      .end();
-        
-  }
-};
+        return dockerStartJson;
+}
 
 
 
@@ -195,41 +217,44 @@ exports.deleteContainer = {
     responseMessages : [swe.invalid('containerId'), swe.notFound('containter')]
   },
   'action': function (req,res) {
-    console.log('resources.js deleteContainer()');
-    if (! req.params.containerId) {
-      throw swe.invalid('containerId'); 
-    }
-      
-    var containerId = req.params.containerId;
-  
+        console.log('resources.js deleteContainer()');
+        if (! req.params.containerId) {
+          throw swe.invalid('containerId'); 
+        }
+
+        var containerId = req.params.containerId;
+        deleteContainer(req, res, containerId);
+    
+  }
+};
+
+
+
+function deleteContainer(req, res, containerId) {
       var killUrl = '/containers/' + containerId + '/kill';
       var deleteUrl = '/containers/' + containerId;
       
       /*
-
-           def dockerRet = dockerApi.post("/containers/${id}/kill")
+        def dockerRet = dockerApi.post("/containers/${id}/kill")
         dockerRet = dockerApi.delete("/containers/${id}")
 
         [message: "Container Destroyed"]
       */
 
-      var cb = function(actions) {
-          
-          console.log('resources.js deleteContainer()->callback() actions:');
+      var callback = function(actions) {
+          //console.log('resources.js deleteContainer()->callback() actions:');
           //console.dir(actions);
           res.send(200, {message: "Container Destroyed"});
       }
       
-      var cbe = function(err) {
+      var errCallback = function(err) {
           res.send(500, {message: err});
       }
-      msh.init(cb, cbe)
+      
+      msh.init(callback, errCallback)
       .post(dockerIp, dockerPort, killUrl)
       .del(dockerIp, dockerPort, deleteUrl)
       .del(nucleusHost, nucleusPort,  pokemonPath + '/record/' + containerId)
       .end();
-    
-  }
-};
-
+}
 
