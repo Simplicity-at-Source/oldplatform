@@ -20,6 +20,10 @@ var pokemonPath = '/service/pokemon/substore/muon'
 
 
 
+console.log("********** nucleusUrl=" + nucleusUrl);
+console.log("********** dockerUrl=" + dockerUrl);
+
+
 exports.containers = {
   'spec': {
     description : "Return all docker containers for this control-plane",  
