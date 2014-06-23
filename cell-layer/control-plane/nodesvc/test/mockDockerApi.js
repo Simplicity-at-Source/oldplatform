@@ -27,7 +27,12 @@ function dockerApiHandler(req, res) {
       res.writeHead(200, {'Content-Type': 'application/json'});
       res.write(JSON.stringify(dockerContainersListJson()) );
       res.end(); 
-   } else if (url_parts.path == '/containers/b87af061730ca19a8e9452788c8f17918f2ec46e4086e3750c1b7a2b17fc708a/json') {
+   } else if (req.method == 'GET' && url_parts.path == '/containers/b87af061730ca19a8e9452788c8f17918f2ec46e4086e3750c1b7a2b17fc708a/json') {
+      console.log('mockDockerApi, writing dockerContainerJson()');
+      res.writeHead(200, {'Content-Type': 'application/json'});
+      res.write(JSON.stringify(dockerContainerJson()) );
+      res.end();         
+   } else if (req.method == 'GET' && url_parts.path == '/containers/xyz123/json') {
       console.log('mockDockerApi, writing dockerContainerJson()');
       res.writeHead(200, {'Content-Type': 'application/json'});
       res.write(JSON.stringify(dockerContainerJson()) );
@@ -43,13 +48,13 @@ function dockerApiHandler(req, res) {
       res.write(JSON.stringify({Id: 'xyz123'}) );
       res.end(); 
    }  else if (req.method == 'POST' && url_parts.path == '/containers/xyz123/start') { 
-     console.log('mockDockerApi, replying 201');
-      res.writeHead(201, {'Content-Type': 'application/json'});
+     console.log('mockDockerApi, replying 204');
+      res.writeHead(204, {'Content-Type': 'application/json'});
       res.write("{Id: 'xyz123', Env: ['blah=foo','floo=kroo']}" );
       res.end(); 
    }  else if (req.method == 'POST' && url_parts.path == '/containers/xyz123/kill') { 
-     console.log('mockDockerApi, replying 200');
-      res.writeHead(201, {'Content-Type': 'application/json'});
+     console.log('mockDockerApi, replying 204');
+      res.writeHead(24, {'Content-Type': 'application/json'});
       res.write(JSON.stringify({Id: 'xyz123', message: 'containter stopped'}) );
       res.end(); 
    } else if (req.method == 'DELETE' && url_parts.path == '/containers/xyz123') { 
@@ -59,7 +64,7 @@ function dockerApiHandler(req, res) {
       res.end(); 
    } else {
       console.log('mockDockerApi, no match for ' + url_parts.path);
-      res.writeHead(200, {'Content-Type': 'application/json'});
+      res.writeHead(404, {'Content-Type': 'application/json'});
       res.write(JSON.stringify({error: "no record found matching " + url_parts.path}) );      
       res.end();  
        
