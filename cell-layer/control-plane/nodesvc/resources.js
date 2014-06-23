@@ -15,6 +15,8 @@ var nucleusHost = process.env.SP_NUCLEUS_HOST || 'localhost';
 var dockerUrl = 'http://' + dockerIp + ':' + dockerPort;
 var nucleusUrl = 'http://' + nucleusHost + ':' + nucleusPort;
 
+var nucleusUp = false;
+
 
 var pokemonPath = '/service/pokemon/substore/muon'
 
@@ -183,20 +185,36 @@ function startContainer(req, res, dockerReply, payload)  {
       var startUrl = '/containers/' + dockerReply.Id + '/start';
 
       var callback = function(actions) {
-           console.log('resources.js postContainer()->callback() actions:');
-          //console.dir(actions);
-          //console.log("*********************************** actions[0].statusCode=" + actions[0].statusCode);
+          // console.log('*********************************************************************************');
+        //   console.log('resources.js postContainer()->callback() actions:');
+        //   console.log('payload=' + JSON.stringify(payload));
+        //  console.dir(actions);
+        //  console.log("actions[0].statusCode=" + actions[0].statusCode);
           
-          if (actions[0].statusCode != '204') {
+          
+          
+          if (actions[0] && actions[0].statusCode != '204') {
               sendServerError(res, actions[0], actions, 'while starting docker container with id  ' +  dockerReply.Id, 204);  
-          } else if (actions[1].statusCode != '200') {
+              return;
+          } 
+          if (actions[1] && actions[1].statusCode != '200') {
                sendServerError(res, actions[1], actions, 'while gettting started docker container json', 200 );
-          } else if (actions[3].statusCode != '201') {
+              return;
+          }
+          if (actions[3] && actions[3].statusCode != '201') {
                console.log("********** WARNING: PROBLEM ATTEMPTING TO PUT TO NUCLEUS action=" + JSON.stringify(actions[3]));
               res.send(201, {message: 'Container created', id: dockerReply.Id});
-          }  else {
-              res.send(201, {message: 'Container created', id: dockerReply.Id});   
+              return;
           }
+         // console.log("******************** testing payload.name.indexOf('nucleus') ");
+         if (payload.name.indexOf('nucleus') > -1) {
+             // console.log("******************** nucleus container created, setting nucleusUp=true");
+              nucleusUp = true;
+          } 
+        
+
+          res.send(201, {message: 'Container created', id: dockerReply.Id});   
+          
           
       }
 
@@ -204,13 +222,24 @@ function startContainer(req, res, dockerReply, payload)  {
            //console.log('resources.js postContainer()->callback()->innerErrCallback()');
           sendServerError(res, {}, [], 'unknown error ' + err , 0);
       }
+      
+      
+      if (nucleusUp) {
+           
+            msh.init(callback, errCallback)
+           .post(dockerIp, dockerPort, startUrl, dockerStartJson)
+           .get(dockerIp, dockerPort, '/containers/' + dockerReply.Id + '/json')
+           .pipe()
+           .put(nucleusHost, nucleusPort, pokemonPath + '/record/' + dockerReply.Id)
+           .end();
+      } else {
+            console.log("********** Nucleus Down Not PUTing container info to nucleus **********");
+            msh.init(callback, errCallback)
+           .post(dockerIp, dockerPort, startUrl, dockerStartJson)
+           .end();
+      }
 
-       msh.init(callback, errCallback)
-       .post(dockerIp, dockerPort, startUrl, dockerStartJson)
-       .get(dockerIp, dockerPort, '/containers/' + dockerReply.Id + '/json')
-       .pipe()
-       .put(nucleusHost, nucleusPort, pokemonPath + '/record/' + dockerReply.Id)
-       .end();
+      
     
 }
 

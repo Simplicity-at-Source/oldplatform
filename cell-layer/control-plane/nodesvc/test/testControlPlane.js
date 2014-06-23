@@ -53,7 +53,9 @@ describe('test ' + testService +': ', function(){
     
     
     it(testFile + ' create container via post /container', function(done){
-         var payload = { 
+        
+        var callback = function() {
+              var payload = { 
                  "name": "simplenode",
                   "imageId": "foobarImage", 
                   "env": { 
@@ -61,16 +63,20 @@ describe('test ' + testService +': ', function(){
                     "BUZZ": "bar" 
                   }
                 };
-        var req = request.post(host + '/container');
-        req.send(payload);
-        req.end(function(res){   
-            log('POST /container', 'res.text', res.text);
-            var json = JSON.parse(res.text);
-            assert.equal(201, res.status);
-            assert.equal('Container created', json.message);
-            assert.equal('xyz123', json.id);
-            done();
-        });
+            var req = request.post(host + '/container');
+            req.send(payload);
+            req.end(function(res){   
+                log('POST /container', 'res.text', res.text);
+                var json = JSON.parse(res.text);
+                assert.equal(201, res.status);
+                assert.equal('Container created', json.message);
+                assert.equal('xyz123', json.id);
+                done();
+            });
+        }
+        createNucleus(callback);
+        
+       
     }); 
     
     
@@ -114,6 +120,24 @@ function log(testname, dataName, data) {
     }catch (e) {  }
     var logLength = dataStr < 100 ? dataStr.length : 100;
     console.log('LOGGER ********** ' + testFile + " " + testname + " " + dataName + ": " + dataStr.substring(0, 100));
+}
+
+function createNucleus(callback) {
+     var payload = { 
+                 "name": "nucleus",
+                  "imageId": "nucleus", 
+                  "env": { 
+                    "FIZZ": "foo", 
+                    "BUZZ": "bar" 
+                  }
+                };
+        var req = request.post(host + '/container');
+        req.send(payload);
+        req.end(function(res){   
+            log('createNucleus() POST /container', 'res.text', res.text);
+            var json = JSON.parse(res.text);
+            callback();
+        });
 }
 
 

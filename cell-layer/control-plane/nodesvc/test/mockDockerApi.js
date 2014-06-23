@@ -42,7 +42,12 @@ function dockerApiHandler(req, res) {
       res.writeHead(201, {'Content-Type': 'application/json'});
       res.write(JSON.stringify({Id: 'xyz123'}) );
       res.end(); 
-   } else if (req.method == 'POST' && url_parts.path == '/containers/create?name=simplenode') { 
+   }  else if (req.method == 'POST' && url_parts.path == '/containers/create?name=simplenode') { 
+     console.log('mockDockerApi, replying 201');
+      res.writeHead(201, {'Content-Type': 'application/json'});
+      res.write(JSON.stringify({Id: 'xyz123'}) );
+      res.end(); 
+   } else if (req.method == 'POST' && url_parts.path == '/containers/create?name=nucleus') { 
      console.log('mockDockerApi, replying 201');
       res.writeHead(201, {'Content-Type': 'application/json'});
       res.write(JSON.stringify({Id: 'xyz123'}) );
