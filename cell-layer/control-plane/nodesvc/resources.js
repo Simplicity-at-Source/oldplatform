@@ -131,14 +131,16 @@ function createAndStartDockerContainer(req, res, payload)  {
           //console.log('resources.js postContainer()->callback()');
           // after we've created the docker container and get it's ID, we can start the container
 
+          //if (actions[0].statusCode != '201') {
+        //         sendServerError(res, actions[0], actions, 'error creating new image via docker api'  );    
+        //  } 
           if (actions[0].statusCode != '201') {
-                 sendServerError(res, actions[0], actions, 'error creating new image via docker api'  );    
-          } else if (actions[1].statusCode != '201') {
               sendServerError(res, actions[0], actions, 'error creating new container via docker api'  );    
-          } else if (! actions.allOk() ) {
+          } 
+          else if (! actions.allOk() ) {
               res.send(500, {message: 'error during msh callbacks', logs: actions});    
           }
-          var dockerReply =  actions[1].response;
+          var dockerReply =  actions[0].response;
           //console.log('resources.js postContainer() dockerReply=' + dockerReply);
           
           startContainer(req, res, dockerReply, payload);
