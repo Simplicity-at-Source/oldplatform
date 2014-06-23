@@ -132,11 +132,10 @@ function createAndStartDockerContainer(req, res, payload)  {
           // after we've created the docker container and get it's ID, we can start the container
 
           if (actions[0].statusCode != '201') {
-                res.send(500, {message: 'error creating new image via docker api'});   
+                 sendServerError(res, actions[0], actions, 'error creating new image via docker api'  );    
           } else if (actions[1].statusCode != '201') {
-              res.send(500, {message: 'error creating new container via docker api'});   
-          }
-          if (! actions.allOk() ) {
+              sendServerError(res, actions[0], actions, 'error creating new container via docker api'  );    
+          } else if (! actions.allOk() ) {
               res.send(500, {message: 'error during msh callbacks', logs: actions});    
           }
           var dockerReply =  actions[1].response;
@@ -161,7 +160,14 @@ function createAndStartDockerContainer(req, res, payload)  {
 
 
 
-
+function sendServerError(res, action, actions, message) {
+    console.log("*********** UNEXPECTED ERROR: NON 200-300 HTTP STAUS CODE RETURNED **************************************");
+    console.log("message=" + message);
+    console.log("action=" + JSON.stringify(action));
+    console.dir(actions);
+    console.log("*********** END UNEXPECTED ERROR ************************************************************************");
+    res.send(500, {message: message, error: 'request error in action ' + action.counter, action: JSON.stringify(action) });   
+}
 
 function startContainer(req, res, dockerReply, payload)  {
     
@@ -169,9 +175,19 @@ function startContainer(req, res, dockerReply, payload)  {
 
       var startUrl = '/containers/' + dockerReply.Id + '/start';
 
-      var callback = function() {
-           //console.log('resources.js postContainer()->callback()->innerCallback()');
-          res.send(201, {message: 'Container created', id: dockerReply.Id});   
+      var callback = function(actions) {
+           console.log('resources.js postContainer()->callback() actions:');
+          //console.dir(actions);
+          if (actions[0].statusCode != '201') {
+              sendServerError(res, actions[0], actions, 'while starting docker container with id  ' +  dockerReply.Id);  
+          } else if (actions[2].statusCode != '201') {
+               sendServerError(res, actions[2], actions, 'while posting docker container info to nucleus' );
+          } else if (! actions.allOk() ) {
+               sendServerError(res, actions[2], actions, 'unknown http error status code returned during msh execution ' );
+          } else {
+              res.send(201, {message: 'Container created', id: dockerReply.Id});   
+          }
+          
       }
 
       var errCallback = function(err) {
@@ -182,7 +198,7 @@ function startContainer(req, res, dockerReply, payload)  {
        msh.init(callback, errCallback)
        .post(dockerIp, dockerPort, startUrl, dockerStartJson)
        .pipe()
-       .post(nucleusHost, nucleusPort, pokemonPath + '/record/' + dockerReply.Id)
+       .put(nucleusHost, nucleusPort, pokemonPath + '/record/' + dockerReply.Id)
        .end();
     
 }

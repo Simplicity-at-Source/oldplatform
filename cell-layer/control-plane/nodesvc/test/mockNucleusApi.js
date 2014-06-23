@@ -9,8 +9,9 @@ var log = {};
 function apiHandler(req, res) { 
    var url_parts = url.parse(req.url);
    console.log('mockNucleusApi ' + req.method + ' ' + url_parts.path);    
-   if (req.method == 'POST' && url_parts.path == '/service/pokemon/substore/muon/record/xyz123') {
-       //console.log('mockNucleusApi POST /service/pokemon/substore/muon');
+   if (req.method == 'PUT' && url_parts.path == '/service/pokemon/substore/muon/record/xyz123') {
+       console.log('mockNucleusApi PUT ' + url_parts.path);
+       console.log('mockNucleusApi body ' + req.body);
        
        var callback = function(body) {
             if (! body) {
@@ -65,19 +66,22 @@ http.createServer(apiHandler).listen(port, httpStartupComplete(port) );
 
 
 function getBody(request, callback) {
-    if (request.method == 'POST') {
+    if (request.method == 'POST' || request.method == 'PUT') {
         var body = '';
         request.on('data', function (data) {
+            //console.log('************************ mockNucleusApi getBody() request.on("data")');
             body += data;
-
             // Too much POST data, kill the connection!
             if (body.length > 1e6)
                 req.connection.destroy();
         });
         request.on('end', function () {
+             //console.log('************************ mockNucleusApi getBody() request.on("end")');
             var post = body;
             callback(post);
         });
+    } else {
+        callback();
     }
 }
 
