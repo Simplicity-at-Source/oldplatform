@@ -21,7 +21,7 @@ var pokemonPath = '/service/pokemon/substore/muon'
 
 
 console.log("********** nucleusUrl=" + nucleusUrl);
-console.log("********** dockerUrl=" + dockerUrl);
+console.log("********** nucleusUrl=" + dockerUrl);
 
 
 exports.containers = {
@@ -151,8 +151,7 @@ function createAndStartDockerContainer(req, res, payload)  {
       }
       
       var errCallback = function(error) {
-          //console.log('resources.js postContainer()->errCallback()');
-          res.send(500, {message: 'error 500', desc: error});   
+          sendServerError(res, {}, [], 'unknown error ' + err , 0);
       }
       
       var dockerPayload = transformer.muonToDocker(payload);
@@ -185,18 +184,14 @@ function startContainer(req, res, dockerReply, payload)  {
 
       var callback = function(actions) {
            console.log('resources.js postContainer()->callback() actions:');
-          console.dir(actions);
-          console.log("*********************************** actions[0].statusCode=" + actions[0].statusCode);
+          //console.dir(actions);
+          //console.log("*********************************** actions[0].statusCode=" + actions[0].statusCode);
           
           if (actions[0].statusCode != '204') {
               sendServerError(res, actions[0], actions, 'while starting docker container with id  ' +  dockerReply.Id, 204);  
           } else if (actions[1].statusCode != '200') {
                sendServerError(res, actions[1], actions, 'while gettting started docker container json', 200 );
-          } else if (actions[3].statusCode != '201') {
-               sendServerError(res, actions[3], actions, 'while posting docker container info to nucleus' , 201);
-          } else if (! actions.allOk() ) {
-               sendServerError(res, actions[2], actions, 'unknown http error status code returned during msh execution ', 200 );
-          } else {
+          }  else {
               res.send(201, {message: 'Container created', id: dockerReply.Id});   
           }
           
@@ -204,7 +199,7 @@ function startContainer(req, res, dockerReply, payload)  {
 
       var errCallback = function(err) {
            //console.log('resources.js postContainer()->callback()->innerErrCallback()');
-          res.send(500, {message: err});  
+          sendServerError(res, {}, [], 'unknown error ' + err , 0);
       }
 
        msh.init(callback, errCallback)

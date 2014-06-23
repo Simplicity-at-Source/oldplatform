@@ -9,7 +9,7 @@ var log = {};
 function apiHandler(req, res) { 
    var url_parts = url.parse(req.url);
    console.log('mockNucleusApi ' + req.method + ' ' + url_parts.path);    
-   if (req.method == 'PUT' && url_parts.path == '/service/pokemon/substore/muon/record/xyz123') {
+   if (req.method == 'POST' && url_parts.path == '/service/pokemon/substore/muon/record/xyz123') {
        console.log('mockNucleusApi PUT ' + url_parts.path);
        console.log('mockNucleusApi body ' + req.body);
        
