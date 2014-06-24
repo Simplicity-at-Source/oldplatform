@@ -5,7 +5,26 @@ var  request = require('superagent');
 
 var services = {};
 
-var nucleusApi = process.env.NUCLEUS_API_HOST_PORT || "http://172.17.0.4:8080";
+/*
+
+"DNSHOST=riak_node.dev.muon.io",
+"DOMAIN=dev.muon.io",
+"MUON_CONTROL_PLANE_IP=172.17.0.2",
+"MUON_NUCLEUS_IP=172.17.0.4",
+"MUON_NUCLEUS_PORT=8080",
+"MUON_GNS_IP=172.17.0.5",
+"MUON_GNS_PORT=8080",
+"MUON_GNS_IP=172.17.0.3",
+"MUON_GNS_PORT=8080",
+
+*/
+
+var nucleusHost = process.env.MUON_NUCLEUS_IP || undefined;
+var nucleusPort =  process.env.MUON_NUCLEUS_PORT || undefined;
+
+var nucleusApi = 'http://' + nucleusHost + ':' + nucleusPort;
+
+console.log('********** nucleusApi=' + nucleusApi);
 
 exports.next_host = function(req, res) {
     var serviceName = req.params.service_name;

@@ -1,6 +1,6 @@
-sp_proxy
 nucleus
 gns
+sp_proxy
 cell_expressor
 stateless_expressor
 riak_expressor

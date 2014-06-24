@@ -7,6 +7,8 @@ class StatelessGeneExpressorSpec extends Specification {
 
   JSONApi api = Mock(JSONApi)
 
+    //System.getenv().get("MUON_NUCLEUS_IP");
+
   def "Correctly reaps surplus instances when required"() {
     given:
     def command = new StatelessGeneExpressor(api: api)

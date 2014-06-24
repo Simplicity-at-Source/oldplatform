@@ -7,10 +7,25 @@ var assert = require('assert');
 
 var swe = sw.errors;
 
+/*
+
+"DNSHOST=riak_node.dev.muon.io",
+"DOMAIN=dev.muon.io",
+"MUON_CONTROL_PLANE_IP=172.17.0.2",
+"MUON_NUCLEUS_IP=172.17.0.4",
+"MUON_NUCLEUS_PORT=8080",
+"MUON_GNS_IP=172.17.0.5",
+"MUON_GNS_PORT=8080",
+"MUON_GNS_IP=172.17.0.3",
+"MUON_GNS_PORT=8080",
+
+*/
+
+
 var dockerPort = process.env.SP_DOCKER_PORT || 4321;
 var dockerIp = process.env.SP_DOCKER_HOST || '172.17.42.1';
-var nucleusPort = process.env.SP_NUCLEUS_PORT;
-var nucleusHost = process.env.SP_NUCLEUS_HOST;
+var nucleusPort = process.env.MUON_NUCLEUS_PORT || undefined;
+var nucleusHost = process.env.MUON_NUCLEUS_IP || undefined;
 
 var dockerUrl = 'http://' + dockerIp + ':' + dockerPort;
 var nucleusUrl = 'http://' + nucleusHost + ':' + nucleusPort;
@@ -272,6 +287,11 @@ function logCoreServices(dockerPayload) {
         coreServices[service].service = service;
          coreServices[service].host = dockerPayload.NetworkSettings.IPAddress;
          coreServices[service].port = 8080;
+    }
+    
+    if (nucleusUp && ! nucleusPort && ! nucleusHost) {
+     nucleusPort = coreServices.nucleus.port;
+     nucleusHost = coreServices.nucleus.host;
     }
     
 }

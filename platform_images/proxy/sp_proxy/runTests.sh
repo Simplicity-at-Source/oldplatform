@@ -2,8 +2,8 @@
 
 
 export SP_PROXY_PORT=18888
-export SP_REGISTRY_PORT=18081
-export SP_REGISTRY_HOST=localhost
+export MUON_GNS_PORT=18081
+export MUON_GNS_HOST=localhost
 
 
 npm install

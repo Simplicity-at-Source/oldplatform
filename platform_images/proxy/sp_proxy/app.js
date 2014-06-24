@@ -16,13 +16,33 @@ var proxyUtils = require('./proxyUtils.js');
  *
  */
 
+
+
+/*
+
+"DNSHOST=riak_node.dev.muon.io",
+"DOMAIN=dev.muon.io",
+"MUON_CONTROL_PLANE_IP=172.17.0.2",
+"MUON_NUCLEUS_IP=172.17.0.4",
+"MUON_NUCLEUS_PORT=8080",
+"MUON_GNS_IP=172.17.0.5",
+"MUON_GNS_PORT=8080",
+"MUON_GNS_IP=172.17.0.3",
+"MUON_GNS_PORT=8080",
+
+*/
+
+
 //TODO cache docker api & gns registry lookups
 
 var proxyPort = process.env.SP_PROXY_PORT || 8888;
-var registryPort = process.env.SP_REGISTRY_PORT || 8080;
-var registryHost = process.env.SP_REGISTRY_HOST || '172.17.0.5';
+var registryPort = process.env.MUON_GNS_PORT || undefined;
+var registryHost = process.env.MUON_GNS_IP || undefined;
 
 var BAD_GATEWAY_RESPONSE_CODE = 502;
+
+
+console.log('********** gns url: http://%s:%s/', registryHost, registryPort);
 
 http.createServer(coreHandler).listen(proxyPort, httpStartupComplete);
 

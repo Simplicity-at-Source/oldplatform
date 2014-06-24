@@ -5,6 +5,22 @@ var url = require("url");
 var swagger = require("swagger-node-express");
 var resources = require('./resources.js');
 
+
+/*
+
+"DNSHOST=riak_node.dev.muon.io",
+"DOMAIN=dev.muon.io",
+"MUON_CONTROL_PLANE_IP=172.17.0.2",
+"MUON_NUCLEUS_IP=172.17.0.4",
+"MUON_NUCLEUS_PORT=8080",
+"MUON_GNS_IP=172.17.0.5",
+"MUON_GNS_PORT=8080",
+"MUON_GNS_IP=172.17.0.3",
+"MUON_GNS_PORT=8080",
+
+*/
+
+
 // Create the application.
 var app = express();
 app.use(express.json());

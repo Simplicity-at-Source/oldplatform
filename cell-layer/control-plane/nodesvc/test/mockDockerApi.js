@@ -616,7 +616,7 @@ function nucleusContainerJson() {
       },
       "IPPrefixLen" : 16,
       "PortMapping" : null,
-      "IPAddress" : "172.17.0.36",
+      "IPAddress" : "127.0.0.1",
       "Bridge" : "docker0",
       "Gateway" : "172.17.42.1"
    },

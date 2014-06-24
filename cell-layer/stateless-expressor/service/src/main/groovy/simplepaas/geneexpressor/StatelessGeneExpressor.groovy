@@ -19,10 +19,20 @@ import org.springframework.scheduling.annotation.Scheduled
 @Slf4j
 class StatelessGeneExpressor {
 
-  public static final String GENE_STORE = "http://172.17.0.4:8080/service/gene-store/substore/stateless"
+
   static CONTROL_PLANE = "http://172.17.0.2:8080/container"
-  static PHENOTYPE_MONITOR = "http://172.17.0.4:8080/service/pokemon/substore/muon"
+
+  static NUCLEUS_IP = System.getenv("MUON_NUCLEUS_IP");
+  static NUCLEUS_PORT = System.getenv("MUON_NUCLEUS_PORT");
+
+  static PHENOTYPE_MONITOR = "http://${NUCLEUS_IP}:${NUCLEUS_PORT}/service/pokemon/substore/muon"
+  public static final String GENE_STORE = "http://${NUCLEUS_IP}:${NUCLEUS_PORT}/service/gene-store/substore/stateless"
   static MARKER = "stateless"
+
+
+    public StatelessGeneExpressor() {
+        log.info("nucleus url = ${PHENOTYPE_MONITOR}");
+    }
 
   @Autowired JSONApi api
 
