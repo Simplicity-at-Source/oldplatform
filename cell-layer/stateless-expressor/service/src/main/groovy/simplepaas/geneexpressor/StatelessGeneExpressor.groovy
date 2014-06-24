@@ -78,7 +78,24 @@ class StatelessGeneExpressor {
 
   def countInstances(def gene) {
     log.info "counting instances for ${gene.id}"
-    def runningServiceNames = api.get(PHENOTYPE_MONITOR).findAll {
+    def results = api.get(PHENOTYPE_MONITOR);
+
+
+      results.each {
+          int logsize = 300;
+          if (it.toString().length() < 300) {
+              logsize =  it.toString().length();
+          }
+          if (it) {
+              log.info("pokemon result: ${it.toString().substring(0, logsize)}" );
+          } else {
+              log.info("pokemon result empty" );
+          }
+
+      }
+
+
+      def runningServiceNames = results.findAll {
       it.inspection
     }.collect {
       it.inspection.Name[1..-1].toString()
