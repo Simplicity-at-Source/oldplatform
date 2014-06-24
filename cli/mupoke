@@ -1,0 +1,1 @@
+curl -X GET  http://172.17.0.4:8080/service/pokemon/substore/muon

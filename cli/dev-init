@@ -51,6 +51,7 @@ then
   for SERVICE in `cat $LOCALDIR/lib/services`
   do
     boot_service $SERVICE
+    sleep 3
   done
 else 
   boot_service $SINGLE_SERVICE_NAME
