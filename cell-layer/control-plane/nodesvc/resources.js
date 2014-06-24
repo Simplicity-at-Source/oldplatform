@@ -22,6 +22,8 @@ var pokemonPath = '/service/pokemon/substore/muon'
 
 
 
+
+
 console.log("********** nucleusUrl=" + nucleusUrl);
 console.log("********** nucleusUrl=" + dockerUrl);
 
@@ -208,7 +210,7 @@ function startContainer(req, res, dockerReply, payload)  {
           }
          // console.log("******************** testing payload.name.indexOf('nucleus') ");
          if (payload.name.indexOf('nucleus') > -1) {
-             // console.log("******************** nucleus container created, setting nucleusUp=true");
+              console.log("******************** nucleus container created, setting nucleusUp=true");
               nucleusUp = true;
           } 
         

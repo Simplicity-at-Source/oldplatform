@@ -15,7 +15,7 @@
         "cors": "*",
         "node-uuid": "*",
         "body-parser": "*",
-        "msh": "0.1.1",
+        "msh": "0.1.3",
         "restify": "*"
         
     },

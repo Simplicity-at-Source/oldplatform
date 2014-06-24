@@ -39,7 +39,7 @@ describe('test ' + testService +': ', function(){
         });
     });
 
-    it(testFile + ' /container/b87af06.../json works ok', function(done){
+    it(testFile + ' /container/b87af06.../json returns as expected', function(done){
         var req = request.get(host + '/container/b87af061730ca19a8e9452788c8f17918f2ec46e4086e3750c1b7a2b17fc708a');
         req.end(function(res){
             var ids = getListByKey(mockDockerApi.dockerContainersListJson(), 'Id');         

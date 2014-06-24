@@ -26,7 +26,7 @@ class StatelessGeneExpressor {
 
   @Autowired JSONApi api
 
-  @Scheduled(fixedRate = 5000l)
+  @Scheduled(fixedRate = 10000l)
   public void heartbeat() {
 
     removeDeletedGenes(findApplicableGenes())
@@ -77,18 +77,22 @@ class StatelessGeneExpressor {
   }
 
   def countInstances(def gene) {
+    log.info "counting instances for ${gene.id}"
     def runningServiceNames = api.get(PHENOTYPE_MONITOR).findAll {
       it.inspection
     }.collect {
       it.inspection.Name[1..-1].toString()
     }
+    log.info "${gene.id} instance count ${runningServiceNames.size()}"
     runningServiceNames.findAll {
       it.startsWith "$MARKER-${gene.id}-".toString()
     }.size()
   }
 
   def removeDeletedGenes(def genes) {
+      log.info "removing deleted genes..."
     def geneIds = genes.collect {
+        log.info "removing  gene ${it.id}"
       "$MARKER-${it.id}"
     }
 
