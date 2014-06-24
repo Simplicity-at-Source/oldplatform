@@ -227,11 +227,10 @@ function startContainer(req, res, dockerReply, payload)  {
       
       
       if (nucleusUp) {
-           
             msh.init(callback, errCallback)
            .post(dockerIp, dockerPort, startUrl, dockerStartJson)
            .get(dockerIp, dockerPort, '/containers/' + dockerReply.Id + '/json')
-           .pipe()
+           .pipe(createPokemonJson)
            .put(nucleusHost, nucleusPort, pokemonPath + '/record/' + dockerReply.Id)
            .end();
       } else {
@@ -242,6 +241,51 @@ function startContainer(req, res, dockerReply, payload)  {
       }
 
       
+    
+}
+
+var  createPokemonJson = function(dockerJson) {
+    console.log("transforming docker response to nucleus payload");
+    var id = dockerJson.Id
+    /*
+     it.id = it.Id
+      it.inspection = dockerApi.get("/containers/${it.Id}/json")
+      it.provides = generateProvides(it.inspection)
+    */
+    return {
+        id: id,
+        inspection: dockerJson,
+        provides: 'TBC..' //generateProvides(dockerJson)
+    };
+    
+}
+
+function generateProvides(dockerJson) {
+        /*
+        def provides = containerInspection.Config?.Env?.find {
+          it.startsWith("PROVIDES")
+        }
+
+        if (!provides) {
+          return []
+        }
+
+        def provisions = provides.substring(9)?.split(",")
+
+        return provisions.collect {
+          def (name, port) = it.split(":")
+          [name: name, port: port]
+        }
+      }
+        */
+    
+    var  provides = _.find(dockerJson.Config.Env, function(element) {
+        element.indexOf('PROVIDES') > -1;
+    });
+    
+    var provisions = provides.substring(9).split(",");
+    //errrw wtf now?.....
+    var result = _.each();
     
 }
 
