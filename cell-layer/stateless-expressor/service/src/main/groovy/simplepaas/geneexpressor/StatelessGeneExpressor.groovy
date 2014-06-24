@@ -81,9 +81,20 @@ class StatelessGeneExpressor {
     def results = api.get(PHENOTYPE_MONITOR);
 
 
+      int logsize = 600;
+      if (results) {
+          if (results?.toString().length() < logsize) {
+              logsize =  results.toString().length();
+          }
+
+          log.info("pokemon results: ${results.toString().substring(0, logsize)}" );
+      } else {
+          log.info("pokemon results empty" );
+      }
+
       results.each {
-          int logsize = 300;
-          if (it.toString().length() < 300) {
+          logsize = 300;
+          if (it.toString().length() < logsize) {
               logsize =  it.toString().length();
           }
           if (it) {
