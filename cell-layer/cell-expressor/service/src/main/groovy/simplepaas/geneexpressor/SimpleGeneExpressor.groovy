@@ -153,7 +153,7 @@ class JSONApi {
     log.info("http GET $url");
     def jsonText = new URL(url).text
     def json = new JsonSlurper().parseText(jsonText)
-    log.info("http GET response.id=${json?.id}")
+    log.info("http GET response response=${json}")
     json
 
   }
