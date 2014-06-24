@@ -37,15 +37,11 @@ make sure you've got this entry in your muon hosts file:
 Now run the script to deploy a simple nodejs web service:
 ```
 cd ./test-scripts
-./create-simplenode.sh
+./create-simplenode-stateless.sh
 ```
 
-Now wait about 10 seconds to test the simplenode service using curl:
-```
-./get-simplenode.sh
-```
 
-Or go to the address below in your browser: 
+Now, go to the address below in your browser: 
 ```
 http://simplenode.muon.cistechfutures.net/
 ```
