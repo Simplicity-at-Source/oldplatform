@@ -17,8 +17,8 @@
         "body-parser": "*",
         "msh": "*",
         "restify": "*",
-        "socket.io": "1.0.5",
-        "socket.io-client": "*"
+        "socket.io": "0.9",
+        "socket.io-client": "0.9"
 
     },
     "devDependencies": {

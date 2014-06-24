@@ -5,6 +5,7 @@ MAINTAINER Simplicity Itself
 
 ENV PROVIDES riak:8080
 
+RUN sed -i.bak 's/main$/main universe/' /etc/apt/sources.list
 RUN apt-get update
 #This breaks :-(
 #RUN apt-get upgrade -y
