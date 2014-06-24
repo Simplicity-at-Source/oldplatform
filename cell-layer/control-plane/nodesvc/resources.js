@@ -9,8 +9,8 @@ var swe = sw.errors;
 
 var dockerPort = process.env.SP_DOCKER_PORT || 4321;
 var dockerIp = process.env.SP_DOCKER_HOST || '172.17.42.1';
-var nucleusPort = process.env.SP_NUCLEUS_PORT || 8080;
-var nucleusHost = process.env.SP_NUCLEUS_HOST || 'localhost';
+var nucleusPort = process.env.SP_NUCLEUS_PORT;
+var nucleusHost = process.env.SP_NUCLEUS_HOST;
 
 var dockerUrl = 'http://' + dockerIp + ':' + dockerPort;
 var nucleusUrl = 'http://' + nucleusHost + ':' + nucleusPort;
@@ -21,7 +21,7 @@ var nucleusUp = false;
 var pokemonPath = '/service/pokemon/substore/muon'
 
 
-
+var coreServices = {};
 
 
 console.log("********** nucleusUrl=" + nucleusUrl);
@@ -163,7 +163,7 @@ function createAndStartDockerContainer(req, res, payload)  {
       
       msh.init(callback, errCallback)
       //.post(dockerIp, dockerPort, imageUrl, {})
-      .post(dockerIp, dockerPort, containerUrl, dockerPayload)
+      .post(dockerIp, dockerPort, containerUrl, injectPlatformVariables(dockerPayload))
       .end();
 }
 
@@ -182,16 +182,23 @@ function sendServerError(res, action, actions, message, expectedCode) {
 
 function startContainer(req, res, dockerReply, payload)  {
     
+    
+     //if (payload.name.indexOf('nucleus') > -1) {
+     //         console.log("******************** nucleus container created, setting nucleusUp=true");
+      //        nucleusUp = true;
+       //   }
+    
      var dockerStartJson =  createDockerStartJson(dockerStartJson, payload);
 
       var startUrl = '/containers/' + dockerReply.Id + '/start';
 
       var callback = function(actions) {
-          // console.log('*********************************************************************************');
-        //   console.log('resources.js postContainer()->callback() actions:');
-        //   console.log('payload=' + JSON.stringify(payload));
-        //  console.dir(actions);
-        //  console.log("actions[0].statusCode=" + actions[0].statusCode);
+         console.log('*********************************************************************************');
+           console.log('resources.js postContainer()->callback() actions:');
+           //console.log('payload=' + JSON.stringify(payload));
+          // console.log('dockerStartJson=' + JSON.stringify(dockerStartJson));
+          console.dir(actions);
+          //console.log("actions[0].statusCode=" + actions[0].statusCode);
           
           
           
@@ -208,13 +215,9 @@ function startContainer(req, res, dockerReply, payload)  {
               res.send(201, {message: 'Container created', id: dockerReply.Id});
               return;
           }
-         // console.log("******************** testing payload.name.indexOf('nucleus') ");
-         if (payload.name.indexOf('nucleus') > -1) {
-              console.log("******************** nucleus container created, setting nucleusUp=true");
-              nucleusUp = true;
-          } 
-        
-
+          
+        logCoreServices(actions[1].response);
+          
           res.send(201, {message: 'Container created', id: dockerReply.Id});   
           
           
@@ -237,11 +240,64 @@ function startContainer(req, res, dockerReply, payload)  {
             console.log("********** Nucleus Down Not PUTing container info to nucleus **********");
             msh.init(callback, errCallback)
            .post(dockerIp, dockerPort, startUrl, dockerStartJson)
+            .get(dockerIp, dockerPort, '/containers/' + dockerReply.Id + '/json')
            .end();
       }
 
-      
+}
+
+
+function logCoreServices(dockerPayload) {
     
+     console.log('********************************************************** resources.js logCoreServices() ****************************************************************************************');
+    console.log('resources.js logCoreServices() dockerPayload=' + JSON.stringify(dockerPayload));
+     console.log('resources.js logCoreServices() coreServices=' + JSON.stringify(coreServices));
+    var host;
+    var port;
+    var service = undefined;
+    
+     if (dockerPayload.Name.indexOf('nucleus') > -1) {
+          service = 'nucleus';
+          nucleusUp = true;
+      } else if (dockerPayload.Name.indexOf('proxy') > -1) {
+          service = 'proxy';
+      } else if (dockerPayload.Name.indexOf('gns') > -1) {
+          service = 'gns';
+      } 
+    
+    if (service) {
+         console.log("******************** %s core service container created. Setting up coreServices object with host/port data", service); 
+         coreServices[service] = {};
+        coreServices[service].id = dockerPayload.Id;
+        coreServices[service].service = service;
+         coreServices[service].host = dockerPayload.NetworkSettings.IPAddress;
+         coreServices[service].port = 8080;
+    }
+    
+}
+function injectPlatformVariables(dockerPayload) {
+   console.log('********************************************************** resources.js injectPlatformVariables() ****************************************************************************************');
+    console.log('resources.js injectPlatformVariables() dockerPayload=' + JSON.stringify(dockerPayload));
+     console.log('resources.js injectPlatformVariables() coreServices=' + JSON.stringify(coreServices));
+    
+    if (coreServices.nucleus) {
+        console.log('******************** injectPlatformVariables() enriching with nucleus data');  
+       dockerPayload.Env.push("MUON_NUCLEUS_IP=" + coreServices.nucleus.host);
+       dockerPayload.Env.push("MUON_NUCLEUS_PORT=" + coreServices.nucleus.port);
+    }
+    if (coreServices.gns) {
+         console.log('******************** injectPlatformVariables() enriching with gns data');  
+       dockerPayload.Env.push("MUON_GNS_IP=" + coreServices.gns.host);
+       dockerPayload.Env.push("MUON_GNS_PORT=" + coreServices.gns.port);
+    }
+    if (coreServices.proxy) {
+         console.log('******************** injectPlatformVariables() enriching with proxy data');  
+       dockerPayload.Env.push("MUON_GNS_IP=" + coreServices.proxy.host);
+       dockerPayload.Env.push("MUON_GNS_PORT=" + coreServices.proxy.port);
+    }    
+      
+     console.log('******************** resources.js END injectPlatformVariables() dockerPayload=' + JSON.stringify(dockerPayload));
+    return dockerPayload;
 }
 
 var  createPokemonJson = function(dockerJson) {

@@ -7,13 +7,14 @@ exports.getEnvironmentVariables = getEnvironmentVariables;
 
 function muonToDocker(payload) {
       var dockerPayload =  {
+            'Name': payload.name,
             'Image': payload.imageId
       };  
     dockerPayload["Env"] = getEnvironmentVariables(payload);
     return dockerPayload;
 }
 
-function getEnvironmentVariables(json) {
+function getEnvironmentVariables(dockerPayload) {
     
     /*
     var env = json?.dependencies?.collect {
@@ -26,16 +27,11 @@ function getEnvironmentVariables(json) {
     */
     var env = [];
    
-     for (var key in json.env) {
-         var value = json.env[key];
+     for (var key in dockerPayload.env) {
+         var value = dockerPayload.env[key];
          var str = key + '=' + value;
          env.push(str);
      }
-
-    
-    env.push("sp_proxy_PORT=8888");
-    env.push("sp_proxy_HOST=172.17.0.8");
-    env.push("sp_proxy_URL=172.17.0.8:8888");
     return env
 
 }

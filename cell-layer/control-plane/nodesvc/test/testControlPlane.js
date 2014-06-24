@@ -79,6 +79,59 @@ describe('test ' + testService +': ', function(){
        
     }); 
     
+    it(testFile + ' create core platform services', function(done){
+        
+        var callback = function() {
+              var payload = { 
+                 "name": "gns",
+                  "imageId": "gnsImage", 
+                  "env": { 
+                    "FIZZ": "foo", 
+                    "BUZZ": "bar" 
+                  }
+                };
+            var req = request.post(host + '/container');
+            req.send(payload);
+            req.end(function(res){   
+                log('POST /container', 'res.text', res.text);
+                var json = JSON.parse(res.text);
+                assert.equal(201, res.status);
+                assert.equal('Container created', json.message);
+                assert.equal('gnsxyz123', json.id);
+
+                   var payload = { 
+                         "name": "simplenode",
+                          "imageId": "simpleImage", 
+                          "env": { 
+                            "FIZZ": "foo", 
+                            "BUZZ": "bar" 
+                          }
+                        };
+                    var req = request.post(host + '/container');
+                    req.send(payload);
+                    req.end(function(res){   
+                        log('POST /container', 'res.text', res.text);
+                        var json = JSON.parse(res.text);
+                        
+                         assert.equal(201, res.status);
+                        assert.equal('Container created', json.message);
+                        assert.equal('simplenodexyz123', json.id);
+                         done();
+                    });
+                
+                
+                
+                
+               
+            });
+        }
+        createNucleus(callback);
+        
+        
+        //msh.init().post().post().post().end();
+       
+    });     
+    
     
     it(testFile + ' delete container via delete /container', function(done){
         var req = request.del(host + '/container/xyz123');
@@ -122,10 +175,12 @@ function log(testname, dataName, data) {
     console.log('LOGGER ********** ' + testFile + " " + testname + " " + dataName + ": " + dataStr.substring(0, 100));
 }
 
+
+
 function createNucleus(callback) {
      var payload = { 
                  "name": "nucleus",
-                  "imageId": "nucleus", 
+                  "imageId": "nucleusImage", 
                   "env": { 
                     "FIZZ": "foo", 
                     "BUZZ": "bar" 
