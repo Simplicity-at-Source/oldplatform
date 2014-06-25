@@ -22,6 +22,8 @@ var swe = sw.errors;
 */
 
 
+var muonDomain = process.env.MUON_DOMAIN || '.';
+
 var dockerPort = process.env.SP_DOCKER_PORT || 4321;
 var dockerIp = process.env.SP_DOCKER_HOST || '172.17.42.1';
 var nucleusPort = process.env.MUON_NUCLEUS_PORT || undefined;
@@ -39,6 +41,7 @@ var pokemonPath = '/service/pokemon/substore/muon'
 var coreServices = {};
 
 
+console.log("********** MUON_DOMAIN=" + muonDomain);
 console.log("********** nucleusUrl=" + nucleusUrl);
 console.log("********** nucleusUrl=" + dockerUrl);
 

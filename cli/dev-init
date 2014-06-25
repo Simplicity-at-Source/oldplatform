@@ -6,7 +6,7 @@ then
   exit 1
 fi
 
-export DOMAIN=$1
+export MUON_DOMAIN=$1
 
 LOCALDIR="$( cd "$( dirname "$0" )" && pwd )" 
 
@@ -55,7 +55,7 @@ echo "Simple PaaS: Connection to local Docker Daemon Initialised"
   boot_control_plane
   for SERVICE in `cat $LOCALDIR/lib/services`
   do
-    boot_service $SERVICE $DOMAIN
+    boot_service $SERVICE $MUON_DOMAIN
     sleep 3
   done
 
