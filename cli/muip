@@ -1,0 +1,1 @@
+muspect $1 | grep -i ipaddress | awk -F\" '{print $4}'

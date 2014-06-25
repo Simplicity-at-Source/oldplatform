@@ -1,1 +1,2 @@
-curl -X GET  http://172.17.0.3:8080/service/pokemon/substore/muon
+IP=`muip nucleus`
+curl -X GET  http://$IP:8080/service/pokemon/substore/muon

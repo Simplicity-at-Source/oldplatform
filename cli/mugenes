@@ -1,1 +1,2 @@
-curl -X GET  http://172.17.0.4:8080/service/gene-store
+IP=`muip nucleus`
+curl -X GET  http://$IP:8080/service/gene-store

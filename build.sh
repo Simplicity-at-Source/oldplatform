@@ -12,4 +12,7 @@ do
   cd $HERE
 done
 
+
+export PATH=$PATH:`pwd`/cli
+
 echo "Simple PaaS:  Core components built and locally installed.  For a local development install, run ./cli/dev-init"

@@ -1,0 +1,2 @@
+
+muid $1 | xargs docker inspect
