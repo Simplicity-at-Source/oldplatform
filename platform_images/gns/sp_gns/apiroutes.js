@@ -70,8 +70,21 @@ function queryNucleus(host, callback) {
     	var req = request.get(nucleusApi + queryTerms);
         req.end(function(res){
           //console.log("queryNucleus() res: " + res.text.substring(0, 150));
-    	   var response = JSON.parse(res.text);    
-           callback(response); 
+    	   
+            if (res.statusCode == "404") {
+                    var queryTerms = '/service/pokemon?qk=inspection.Env&qv=' + host;
+                    console.log("queryNucleus() 404 response, retrying... GET " + nucleusApi + queryTerms );
+                    var req = request.get(nucleusApi + queryTerms);
+                    req.end(function(res){
+                      //console.log("queryNucleus() res: " + res.text.substring(0, 150));
+                       var response = JSON.parse(res.text);    
+                       callback(response); 
+                    });
+            } else {
+                 var response = JSON.parse(res.text);    
+                callback(response); 
+            }
+           
     	});
     
 }
