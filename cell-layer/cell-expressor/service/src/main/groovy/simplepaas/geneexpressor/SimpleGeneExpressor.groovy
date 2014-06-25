@@ -19,10 +19,30 @@ import org.springframework.scheduling.annotation.Scheduled
 @Slf4j
 class SimpleGeneExpressor {
 
-  public static final String GENE_STORE = "http://172.17.0.4:8080/service/gene-store/substore/cell"
-  static CONTROL_PLANE = "http://172.17.0.2:8080/container"
-  static PHENOTYPE_MONITOR = "http://172.17.0.4:8080/service/pokemon/substore/muon"
-  static MARKER = "cell"
+  //public static final String GENE_STORE = "http://172.17.0.4:8080/service/gene-store/substore/cell"
+  //static CONTROL_PLANE = "http://172.17.0.2:8080/container"
+  //static PHENOTYPE_MONITOR = "http://172.17.0.4:8080/service/pokemon/substore/muon"
+
+
+
+    static MUON_CONTROL_PLANE_IP = System.getenv("MUON_CONTROL_PLANE_IP");
+    static MUON_CONTROL_PLANE_PORT = System.getenv("MUON_CONTROL_PLANE_PORT");
+
+    static CONTROL_PLANE = "http://${MUON_CONTROL_PLANE_IP}:${MUON_CONTROL_PLANE_PORT}/container"
+
+    static NUCLEUS_IP = System.getenv("MUON_NUCLEUS_IP");
+    static NUCLEUS_PORT = System.getenv("MUON_NUCLEUS_PORT");
+
+    static PHENOTYPE_MONITOR = "http://${NUCLEUS_IP}:${NUCLEUS_PORT}/service/pokemon/substore/muon"
+    public static final String GENE_STORE = "http://${NUCLEUS_IP}:${NUCLEUS_PORT}/service/gene-store/substore/cell"
+    static MARKER = "cell"
+
+
+    public SimpleGeneExpressor() {
+        log.info("nucleus pokemon url = ${PHENOTYPE_MONITOR}");
+        log.info("nucleus gene-store url = ${GENE_STORE}");
+        log.info("control-plane url = ${CONTROL_PLANE}");
+    }
 
   @Autowired JSONApi api
 
@@ -153,7 +173,7 @@ class JSONApi {
     log.info("http GET $url");
     def jsonText = new URL(url).text
     def json = new JsonSlurper().parseText(jsonText)
-    log.info("http GET response.id=${json?.id}")
+    log.info("http GET response response=${json}")
     json
 
   }

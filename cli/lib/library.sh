@@ -18,7 +18,7 @@ boot_service() {
   echo "Control plane [$CONTROL_PLANE] says $CONTROL_PLANE_STATUS"
   
   if [ "$CONTROL_PLANE_STATUS" != "FAILED" ]; then
-    PAYLOAD="{\"name\":\"sp-$1\",\"imageId\":\"sp_platform/spi_$1\",\"dependencies\":[{\"dependency\":\"sp-control-plane\",\"host\":\"$CONTROL_PLANE\",\"port\":8080}]}"
+    PAYLOAD="{\"name\":\"sp-$1\",\"imageId\":\"sp_platform/spi_$1\",\"env\": {\"DNSHOST\": \"$1.$2\", \"DOMAIN\": \"$2\",\"MUON_CONTROL_PLANE_PORT\": \"8080\", \"MUON_CONTROL_PLANE_IP\": \"$CONTROL_PLANE\"}, \"dependencies\":[{\"dependency\":\"sp-control-plane\",\"host\":\"$CONTROL_PLANE\",\"port\":8080}]}"
     echo "Sending $PAYLOAD"
     RESPONSE=$(curl --silent -X POST -H "Content-Type: application/json" -d "$PAYLOAD" http://$CONTROL_PLANE:8080/container)
     echo "Control Plane says $RESPONSE"

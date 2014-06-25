@@ -9,18 +9,15 @@ var port = 18081;
 
 function apiHandler(req, res) { 
    var url_parts = url.parse(req.url);
-   //console.log('url path: ' + url_parts.path);    
-   if (url_parts.path == '/service/pokemon?qk=inspectionC.Config.Env&qv=simplenode.muon.cistechfutures.net') {
+   //console.log('url path: ' + url_parts.path);  
+    
+
+   if (url_parts.path == '/service/pokemon?qk=inspection.Config.Env&qv=simplenode.muon.cistechfutures.net') {
       console.log('mockNucleusApi GET /service/pokemon/substore/muon writing nucleusJson()');
       res.writeHead(200, {'Content-Type': 'application/json'});
       res.write(JSON.stringify(nucleusJson()) );
       res.end(); 
-   } else if (url_parts.path == '/service/pokemon?qk=inspection.Env&qv=simplenode.muon.cistechfutures.net') {
-      console.log('mockNucleusApi GET /service/pokemon/substore/muon writing nucleusJson()');
-      res.writeHead(200, {'Content-Type': 'application/json'});
-      res.write(JSON.stringify(nucleusJson()) );
-      res.end(); 
-   }else if (url_parts.path == '/service/gene-store/substore/cell') {
+   } else if (url_parts.path == '/service/gene-store/substore/cell') {
       console.log('mockDockerApi, writing phenotypeJson()');
       res.writeHead(200, {'Content-Type': 'application/json'});
       res.write(JSON.stringify({message: "test"}) );
@@ -28,7 +25,7 @@ function apiHandler(req, res) {
        
    } else {
       console.log('mockDockerApi, no match for ' + url_parts.path);
-      res.writeHead(404, {'Content-Type': 'application/json'});
+      res.writeHead(200, {'Content-Type': 'application/json'});
       res.write(JSON.stringify({error: "no record found matching " + url_parts.path}) );      
       res.end();  
        
@@ -1430,6 +1427,7 @@ SAMPLE NUCLEUS RESULT:
 ]
 
 */
+
 
 
 

@@ -1,10 +1,17 @@
 #!/bin/bash
 
+if [ -z "$1" ]
+then
+  echo "useage: $0 <domain (eg: dev.muon.io)>"
+  exit 1
+fi
+
+export DOMAIN=$1
+
 LOCALDIR="$( cd "$( dirname "$0" )" && pwd )" 
 
 . $LOCALDIR/lib/library.sh
 
-SINGLE_SERVICE_NAME=$1
 
 
 boot_control_plane() {
@@ -45,16 +52,12 @@ socat TCP4-LISTEN:4321,fork,reuseaddr,range=172.17.0.0/8 UNIX:/var/run/docker.so
 
 echo "Simple PaaS: Connection to local Docker Daemon Initialised"
 
-if [ -z "$SINGLE_SERVICE_NAME" ]
-then
   boot_control_plane
   for SERVICE in `cat $LOCALDIR/lib/services`
   do
-    boot_service $SERVICE
+    boot_service $SERVICE $DOMAIN
+    sleep 3
   done
-else 
-  boot_service $SINGLE_SERVICE_NAME
-fi
 
 echo ""
 echo "Simple PaaS: Dev Installation Completed, Simple PaaS Cell is running."

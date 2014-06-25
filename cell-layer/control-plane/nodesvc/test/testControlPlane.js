@@ -38,20 +38,112 @@ describe('test ' + testService +': ', function(){
             done();
         });
     });
-    
 
-    
-    it(testFile + ' /container/b87af06.../json works ok', function(done){
+    it(testFile + ' /container/b87af06.../json returns as expected', function(done){
         var req = request.get(host + '/container/b87af061730ca19a8e9452788c8f17918f2ec46e4086e3750c1b7a2b17fc708a');
         req.end(function(res){
             var ids = getListByKey(mockDockerApi.dockerContainersListJson(), 'Id');         
-             log('GET /container/b87af0617...', 'res.text', res.text);
+            log('GET /container/b87af0617...', 'res.text', res.text);
             var json = JSON.parse(res.text);
             assert.equal(200, res.status);
             assert.equal('b87af061730ca19a8e9452788c8f17918f2ec46e4086e3750c1b7a2b17fc708a', json.Id);
             done();
         });
     });
+    
+    
+    it(testFile + ' create container via post /container', function(done){
+        
+        var callback = function() {
+              var payload = { 
+                 "name": "simplenode",
+                  "imageId": "foobarImage", 
+                  "env": { 
+                    "FIZZ": "foo", 
+                    "BUZZ": "bar" 
+                  }
+                };
+            var req = request.post(host + '/container');
+            req.send(payload);
+            req.end(function(res){   
+                log('POST /container', 'res.text', res.text);
+                var json = JSON.parse(res.text);
+                assert.equal(201, res.status);
+                assert.equal('Container created', json.message);
+                assert.equal('xyz123', json.id);
+                done();
+            });
+        }
+        createNucleus(callback);
+        
+       
+    }); 
+    
+    it(testFile + ' create core platform services', function(done){
+        
+        var callback = function() {
+              var payload = { 
+                 "name": "gns",
+                  "imageId": "gnsImage", 
+                  "env": { 
+                    "FIZZ": "foo", 
+                    "BUZZ": "bar" 
+                  }
+                };
+            var req = request.post(host + '/container');
+            req.send(payload);
+            req.end(function(res){   
+                log('POST /container', 'res.text', res.text);
+                var json = JSON.parse(res.text);
+                assert.equal(201, res.status);
+                assert.equal('Container created', json.message);
+                assert.equal('gnsxyz123', json.id);
+
+                   var payload = { 
+                         "name": "simplenode",
+                          "imageId": "simpleImage", 
+                          "env": { 
+                            "FIZZ": "foo", 
+                            "BUZZ": "bar" 
+                          }
+                        };
+                    var req = request.post(host + '/container');
+                    req.send(payload);
+                    req.end(function(res){   
+                        log('POST /container', 'res.text', res.text);
+                        var json = JSON.parse(res.text);
+                        
+                         assert.equal(201, res.status);
+                        assert.equal('Container created', json.message);
+                        assert.equal('simplenodexyz123', json.id);
+                         done();
+                    });
+                
+                
+                
+                
+               
+            });
+        }
+        createNucleus(callback);
+        
+        
+        //msh.init().post().post().post().end();
+       
+    });     
+    
+    
+    it(testFile + ' delete container via delete /container', function(done){
+        var req = request.del(host + '/container/xyz123');
+        req.end(function(res){   
+            log('DELETE /container/xyz123', 'res.text', res.text);
+            //console.dir(res);
+            var json = JSON.parse(res.text);
+            assert.equal(200, res.status);
+            //assert.equal('Container Destroyed', json.message);
+            done();
+        });
+    });      
     
     
 });
@@ -72,12 +164,35 @@ function getListByKey(list, keyName) {
 
 
 function log(testname, dataName, data) {
+    if (!data) {
+        data = {};
+    }
     var dataStr = data; 
     try {
         dataStr = JSON.stringify(data);    
     }catch (e) {  }
     var logLength = dataStr < 100 ? dataStr.length : 100;
     console.log('LOGGER ********** ' + testFile + " " + testname + " " + dataName + ": " + dataStr.substring(0, 100));
+}
+
+
+
+function createNucleus(callback) {
+     var payload = { 
+                 "name": "nucleus",
+                  "imageId": "nucleusImage", 
+                  "env": { 
+                    "FIZZ": "foo", 
+                    "BUZZ": "bar" 
+                  }
+                };
+        var req = request.post(host + '/container');
+        req.send(payload);
+        req.end(function(res){   
+            log('createNucleus() POST /container', 'res.text', res.text);
+            var json = JSON.parse(res.text);
+            callback();
+        });
 }
 
 

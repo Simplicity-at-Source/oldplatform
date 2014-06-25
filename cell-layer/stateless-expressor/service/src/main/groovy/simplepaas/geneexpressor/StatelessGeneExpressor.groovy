@@ -19,14 +19,29 @@ import org.springframework.scheduling.annotation.Scheduled
 @Slf4j
 class StatelessGeneExpressor {
 
-  public static final String GENE_STORE = "http://172.17.0.4:8080/service/gene-store/substore/stateless"
-  static CONTROL_PLANE = "http://172.17.0.2:8080/container"
-  static PHENOTYPE_MONITOR = "http://172.17.0.4:8080/service/pokemon/substore/muon"
+
+    static MUON_CONTROL_PLANE_IP = System.getenv("MUON_CONTROL_PLANE_IP");
+    static MUON_CONTROL_PLANE_PORT = System.getenv("MUON_CONTROL_PLANE_PORT");
+
+  static CONTROL_PLANE = "http://${MUON_CONTROL_PLANE_IP}:${MUON_CONTROL_PLANE_PORT}/container"
+
+  static NUCLEUS_IP = System.getenv("MUON_NUCLEUS_IP");
+  static NUCLEUS_PORT = System.getenv("MUON_NUCLEUS_PORT");
+
+  static PHENOTYPE_MONITOR = "http://${NUCLEUS_IP}:${NUCLEUS_PORT}/service/pokemon/substore/muon"
+  public static final String GENE_STORE = "http://${NUCLEUS_IP}:${NUCLEUS_PORT}/service/gene-store/substore/stateless"
   static MARKER = "stateless"
+
+
+    public StatelessGeneExpressor() {
+        log.info("nucleus pokemon url = ${PHENOTYPE_MONITOR}");
+        log.info("nucleus gene-store url = ${GENE_STORE}");
+        log.info("control-plane url = ${CONTROL_PLANE}");
+    }
 
   @Autowired JSONApi api
 
-  @Scheduled(fixedRate = 5000l)
+  @Scheduled(fixedRate = 10000l)
   public void heartbeat() {
 
     removeDeletedGenes(findApplicableGenes())
@@ -77,18 +92,50 @@ class StatelessGeneExpressor {
   }
 
   def countInstances(def gene) {
-    def runningServiceNames = api.get(PHENOTYPE_MONITOR).findAll {
+    log.info "counting instances for ${gene.id}"
+    def results = api.get(PHENOTYPE_MONITOR);
+
+
+      int logsize = 600;
+      if (results) {
+          if (results?.toString().length() < logsize) {
+              logsize =  results.toString().length();
+          }
+
+          log.info("pokemon results: ${results.toString().substring(0, logsize)}" );
+      } else {
+          log.info("pokemon results empty" );
+      }
+
+      results.each {
+          logsize = 300;
+          if (it.toString().length() < logsize) {
+              logsize =  it.toString().length();
+          }
+          if (it) {
+              log.info("pokemon result: ${it.toString().substring(0, logsize)}" );
+          } else {
+              log.info("pokemon result empty" );
+          }
+
+      }
+
+
+      def runningServiceNames = results.findAll {
       it.inspection
     }.collect {
       it.inspection.Name[1..-1].toString()
     }
+    log.info "${gene.id} instance count ${runningServiceNames.size()}"
     runningServiceNames.findAll {
       it.startsWith "$MARKER-${gene.id}-".toString()
     }.size()
   }
 
   def removeDeletedGenes(def genes) {
+      log.info "removing deleted genes..."
     def geneIds = genes.collect {
+        log.info "removing  gene ${it.id}"
       "$MARKER-${it.id}"
     }
 

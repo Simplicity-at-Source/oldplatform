@@ -1,15 +1,16 @@
  
-FROM sp_platform/spi_java
+FROM sp_platform/spi_base
 
 MAINTAINER Simplicity Itself
 
 ENV PROVIDES sp-control-plane:8080
 
-ADD container/run.sh /
-ADD service/build/libs/sp-control-plane-0.1.jar /
+ADD nodesvc /spaas/project
 
-RUN chmod 755 /run.sh
+RUN chmod 755 /spaas/project/run.sh
 
 EXPOSE 8080
 
-ENTRYPOINT /run.sh
+WORKDIR /spaas/project
+RUN npm install
+ENTRYPOINT /bin/sh /spaas/project/run.sh

@@ -12,4 +12,5 @@ RUN chmod 755 /spaas/project/run.sh
 EXPOSE 8080
 
 WORKDIR /spaas/project
+RUN npm install
 ENTRYPOINT /bin/sh /spaas/project/run.sh
