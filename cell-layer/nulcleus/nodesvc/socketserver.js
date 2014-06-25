@@ -41,11 +41,13 @@ exports.init= function (app) {
 function messageMatchesQueryFilter(message, filter) {
 
     if (filter.hasOwnProperty("serviceName") && message.serviceName != filter.serviceName) {
-        return;
+        return false;
     }
 
     if (filter.hasOwnProperty("subStore") && message.subStore != filter.subStore) {
-        return;
+        return false;
     }
     //todo, json query string.
+
+    return true;
 }
