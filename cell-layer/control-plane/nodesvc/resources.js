@@ -317,7 +317,11 @@ function injectPlatformVariables(dockerPayload) {
          console.log('******************** injectPlatformVariables() enriching with proxy data');  
        dockerPayload.Env.push("MUON_GNS_IP=" + coreServices.proxy.host);
        dockerPayload.Env.push("MUON_GNS_PORT=" + coreServices.proxy.port);
-    }    
+    }   
+    
+    
+    dockerPayload.Env.push("MUON_DOMAIN=" + muonDomain);
+    
       
      console.log('******************** resources.js END injectPlatformVariables() dockerPayload=' + JSON.stringify(dockerPayload));
     return dockerPayload;

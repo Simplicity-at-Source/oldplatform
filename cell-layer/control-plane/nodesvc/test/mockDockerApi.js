@@ -25,7 +25,7 @@ function dockerApiHandler(req, res) {
    if (url_parts.path == '/containers/json') {
       console.log('mockDockerApi GET /containers/json writing dockerContainersListJson()');
       res.writeHead(200, {'Content-Type': 'application/json'});
-      res.write(JSON.stringify(dockerContainersListJson()) );
+      res.write(JSON.stringify(simpleContainerJson()) );
       res.end(); 
    } else if (req.method == 'GET' && url_parts.path == '/containers/b87af061730ca19a8e9452788c8f17918f2ec46e4086e3750c1b7a2b17fc708a/json') {
       console.log('mockDockerApi, writing dockerContainerJson()');
@@ -259,119 +259,6 @@ function dockerContainersListJson() {
 
 
 
-
-
-function gnsContainerJson() {
-    
-    return {
-   "NetworkSettings" : {
-      "Ports" : {
-         "8888/tcp" : [
-            {
-               "HostIp" : "0.0.0.0",
-               "HostPort" : "80"
-            }
-         ]
-      },
-      "IPPrefixLen" : 16,
-      "PortMapping" : null,
-      "IPAddress" : "172.17.0.81",
-      "Bridge" : "docker0",
-      "Gateway" : "172.17.42.1"
-   },
-   "ProcessLabel" : "",
-   "VolumesRW" : {},
-   "State" : {
-      "Pid" : 4756,
-      "Paused" : false,
-      "FinishedAt" : "0001-01-01T00:00:00Z",
-      "ExitCode" : 0,
-      "StartedAt" : "2014-06-20T14:35:20.312395668Z",
-      "Running" : true
-   },
-   "HostsPath" : "/vol1/var/lib/docker/containers/b87af061730ca19a8e9452788c8f17918f2ec46e4086e3750c1b7a2b17fc708a/hosts",
-   "Config" : {
-      "Entrypoint" : [
-         "/bin/sh",
-         "-c",
-         "/spaas/nodejs/bin/node app.js"
-      ],
-      "User" : "",
-      "ExposedPorts" : {
-         "8888/tcp" : {}
-      },
-      "Cmd" : null,
-      "Cpuset" : "",
-      "MemorySwap" : 0,
-      "AttachStdin" : false,
-      "AttachStderr" : false,
-      "CpuShares" : 0,
-      "OpenStdin" : false,
-      "Volumes" : null,
-      "Hostname" : "b87af061730c",
-      "PortSpecs" : null,
-      "Tty" : false,
-      "Env" : [
-         "sp-control-plane_PORT=8080",
-         "sp-control-plane_HOST=172.17.0.58",
-         "sp_proxy_PORT=8888",
-         "sp_proxy_HOST=172.17.0.2",
-         "sp_proxy_URL=172.17.0.2:8888",
-         "HOME=/",
-         "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
-         "SP_REGISTRY_HOST=172.17.0.5"
-      ],
-      "Image" : "sp_platform/spi_sp_proxy",
-      "StdinOnce" : false,
-      "Domainname" : "",
-      "WorkingDir" : "/proxy",
-      "Memory" : 0,
-      "NetworkDisabled" : false,
-      "AttachStdout" : false,
-      "OnBuild" : null
-   },
-   "MountLabel" : "",
-   "HostnamePath" : "/vol1/var/lib/docker/containers/b87af061730ca19a8e9452788c8f17918f2ec46e4086e3750c1b7a2b17fc708a/hostname",
-   "ExecDriver" : "native-0.2",
-   "Args" : [
-      "-c",
-      "/spaas/nodejs/bin/node app.js"
-   ],
-   "Volumes" : {},
-   "Id" : "b87af061730ca19a8e9452788c8f17918f2ec46e4086e3750c1b7a2b17fc708a",
-   "HostConfig" : {
-      "Binds" : null,
-      "NetworkMode" : "",
-      "Privileged" : true,
-      "ContainerIDFile" : "",
-      "DnsSearch" : null,
-      "Links" : null,
-      "LxcConf" : null,
-      "PortBindings" : {
-         "8888/tcp" : [
-            {
-               "HostIp" : "0.0.0.0",
-               "HostPort" : "80"
-            }
-         ]
-      },
-      "VolumesFrom" : null,
-      "PublishAllPorts" : false,
-      "Dns" : null
-   },
-   "Image" : "ec2ca2dceb350a65876f93ae5c90c61743775a56e0a710212916dd3d23137bb5",
-   "ResolvConfPath" : "/etc/resolv.conf",
-   "Created" : "2014-06-20T14:35:20.186838452Z",
-   "Path" : "/bin/sh",
-   "Driver" : "aufs",
-   "Name" : "/sp-sp_gns"
-};
-}
-    
-    
-    
-    
-    
     
     
     
