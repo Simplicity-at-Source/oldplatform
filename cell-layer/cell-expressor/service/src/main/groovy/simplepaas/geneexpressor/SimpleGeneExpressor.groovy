@@ -34,7 +34,7 @@ class SimpleGeneExpressor {
     static NUCLEUS_PORT = System.getenv("MUON_NUCLEUS_PORT");
 
     static PHENOTYPE_MONITOR = "http://${NUCLEUS_IP}:${NUCLEUS_PORT}/service/pokemon/substore/muon"
-    public static final String GENE_STORE = "http://${NUCLEUS_IP}:${NUCLEUS_PORT}/service/gene-store/substore/stateless"
+    public static final String GENE_STORE = "http://${NUCLEUS_IP}:${NUCLEUS_PORT}/service/gene-store/substore/cell"
     static MARKER = "cell"
 
 
