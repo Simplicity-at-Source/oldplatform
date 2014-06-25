@@ -28,7 +28,7 @@ boot_control_plane() {
      echo "Simple Paas: Control Plane already exists and is running with ID $current_id"
   else
     echo "Simple PaaS: Booting Control Plane"
-    CP_PS=$(docker run --name="$CONTAINER" -d $IMAGE)
+    CP_PS=$(docker run -e "MUON_DOMAIN=$MUON_DOMAIN" --name="$CONTAINER" -d $IMAGE)
   fi
 
   local CONTROL_PLANE=$(lookup_control-plane_ip)

@@ -1,3 +1,8 @@
+if [ -z "$1" ]
+then
+  echo "useage muid <container partial name>"
+  exit 1
+fi
 
 ID=`docker ps -a | grep -i $1 | awk '{print $1}'`
 echo $ID

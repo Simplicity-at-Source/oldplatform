@@ -1,7 +1,7 @@
 
 if [ -z "$1" ]
 then
-  echo "useage: $0 <partial service name>"
+  echo "useage: mulogs <partial service name>"
   exit 1
 fi
 SERVICE=$1
