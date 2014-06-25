@@ -21,6 +21,13 @@ var services = {};
 
 var nucleusHost = process.env.MUON_NUCLEUS_IP || undefined;
 var nucleusPort =  process.env.MUON_NUCLEUS_PORT || undefined;
+var controlPlaneHost = process.env.MUON_CONTROL_PLANE_IP || undefined;
+var controlPlanePort =  process.env.MUON_CONTROL_PLANE_PORT || undefined;
+var gnsHost = process.env.MUON_GNS_IP || undefined;
+var gnsPort =  process.env.MUON_GNS_PORT || undefined;
+
+var domain =  process.env.MUON_DOMAIN || undefined;
+
 
 var nucleusApi = 'http://' + nucleusHost + ':' + nucleusPort;
 
@@ -29,30 +36,36 @@ console.log('********** nucleusApi=' + nucleusApi);
 exports.next_host = function(req, res) {
     var serviceName = req.params.service_name;
     //console.log("next_host() for serviceName " + serviceName );
-
-    var callback = function(response) {  
+    
+    if (serviceName == "control-plane." + domain) {
+        sendHost(controlPlaneHost, controlPlanePort, serviceName, res);
+    } else if (serviceName == "nucleus." + domain) {
+        sendHost(nucleusHost, nucleusPort, serviceName, res);
+    } else if (serviceName == "gns." + domain) {
+        sendHost(gnsHost, gnsPort, serviceName, res);
+    } else {
         
-        //console.log('next_host() -> callback() ' );
-        var allContainerIps = [];
-        for (var i in response) {
-            var entry = response[i];
-            //console.log('next_host() -> callback() entry=' + JSON.stringify(entry).substring(0, 150) );
-            var containerIpPort = getHostPort(serviceName, entry);   
-            if (containerIpPort) allContainerIps.push(containerIpPort);
+        var callback = function(response) {  
+            //console.log('next_host() -> callback() ' );
+            var allContainerIps = [];
+            for (var i in response) {
+                var entry = response[i];
+                //console.log('next_host() -> callback() entry=' + JSON.stringify(entry).substring(0, 150) );
+                var containerIpPort = getHostPort(serviceName, entry);   
+                if (containerIpPort) allContainerIps.push(containerIpPort);
+            }
+            var randomNum = random(0, allContainerIps.length);
+            var randomIpPort = allContainerIps[randomNum];
+            if (! randomIpPort || randomIpPort == '') {
+                send404(serviceName, res);   
+            }
+            //console.log('next_host() -> callback() random ip/port number %s: %s', randomNum, randomIpPort);
+             var host = randomIpPort.split(':')[0];
+            var port = randomIpPort.split(':')[1];
+            sendHost(host, port, serviceName, res);
         }
-        var randomNum = random(0, allContainerIps.length);
-        var randomIpPort = allContainerIps[randomNum];
-        if (! randomIpPort || randomIpPort == '') {
-            send404(serviceName, res);   
-        }
-        //console.log('next_host() -> callback() random ip/port number %s: %s', randomNum, randomIpPort);
-         var host = randomIpPort.split(':')[0];
-        var port = randomIpPort.split(':')[1];
-        sendHost(host, port, serviceName, res);
+        queryNucleus(serviceName, callback);
     }
-
-   
-    queryNucleus(serviceName, callback);
    
 };
 
@@ -69,22 +82,10 @@ function queryNucleus(host, callback) {
         console.log("queryNucleus() GET " + nucleusApi + queryTerms );
     	var req = request.get(nucleusApi + queryTerms);
         req.end(function(res){
-          //console.log("queryNucleus() res: " + res.text.substring(0, 150));
-    	   
-            if (res.statusCode == "404") {
-                    var queryTerms = '/service/pokemon?qk=inspection.Env&qv=' + host;
-                    console.log("queryNucleus() 404 response, retrying... GET " + nucleusApi + queryTerms );
-                    var req = request.get(nucleusApi + queryTerms);
-                    req.end(function(res){
-                      //console.log("queryNucleus() res: " + res.text.substring(0, 150));
-                       var response = JSON.parse(res.text);    
-                       callback(response); 
-                    });
-            } else {
-                 var response = JSON.parse(res.text);    
-                callback(response); 
-            }
-           
+          //console.log("queryNucleus() res: " + res.text.substring(0, 150));   
+        var response = JSON.parse(res.text);    
+        callback(response); 
+
     	});
     
 }

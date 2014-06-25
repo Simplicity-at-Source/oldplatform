@@ -8,6 +8,11 @@ var host = 'http://localhost:8080';
 var endPointHostName = "simplenode.muon.cistechfutures.net";
 
 
+var nucleusHost = process.env.MUON_NUCLEUS_IP || undefined;
+var nucleusPort =  process.env.MUON_NUCLEUS_PORT || undefined;
+var domain =  process.env.MUON_DOMAIN || undefined;
+
+
 describe('test GNS: ', function(){
 
     
@@ -52,6 +57,19 @@ describe('test GNS: ', function(){
     	});
 
   });    
+    
+    
+ it('core service derived from env variables', function(done){
+	var req = request.get(host + '/api/nucleus' +'.'+ domain + '/host/next');
+	req.end(function(res){
+         console.log("core service next host res: " + res.text)
+          var json = JSON.parse(res.text);
+    	  assert.ok(json.host == nucleusHost);
+          assert.ok(json.port == nucleusPort);
+    	 done();
+    	});
+
+  });     
      
 
 });
