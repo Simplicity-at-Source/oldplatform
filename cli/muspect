@@ -1,2 +1,8 @@
 
+if [ -z "$1" ]
+then
+  echo "useage muspect <container partial name>"
+  exit 1
+fi
+
 muid $1 | xargs docker inspect

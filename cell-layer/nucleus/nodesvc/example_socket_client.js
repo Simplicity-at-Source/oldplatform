@@ -4,15 +4,15 @@ var socket = io.connect('http://localhost:7777');
 
 socket.on('connect', function () {
     console.log("socket connected");
+
+    socket.emit("query", {
+        "serviceName":"gene-store",
+        "subStore":"stateless"
+    });
 });
 
-socket.on("gene-store/stateless", function(message) {
+socket.on("nucleus", function(message) {
     console.log("Stateless service updated");
-    console.dir(message);
-});
-
-socket.on("gene-store/riak", function(message) {
-    console.log("Riak service updated");
     console.dir(message);
 });
 

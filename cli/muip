@@ -1,1 +1,7 @@
+if [ -z "$1" ]
+then
+  echo "useage muip <container partial name>"
+  exit 1
+fi
+
 muspect $1 | grep -i ipaddress | awk -F\" '{print $4}'
