@@ -43,7 +43,7 @@ var coreServices = {};
 
 console.log("********** MUON_DOMAIN=" + muonDomain);
 console.log("********** nucleusUrl=" + nucleusUrl);
-console.log("********** nucleusUrl=" + dockerUrl);
+console.log("********** dockerUrl=" + dockerUrl);
 
 
 exports.containers = {
@@ -340,38 +340,8 @@ var  createPokemonJson = function(dockerJson) {
         inspection: dockerJson,
         provides: 'TBC..' //generateProvides(dockerJson)
     };
-    
+
 }
-
-function generateProvides(dockerJson) {
-        /*
-        def provides = containerInspection.Config?.Env?.find {
-          it.startsWith("PROVIDES")
-        }
-
-        if (!provides) {
-          return []
-        }
-
-        def provisions = provides.substring(9)?.split(",")
-
-        return provisions.collect {
-          def (name, port) = it.split(":")
-          [name: name, port: port]
-        }
-      }
-        */
-    
-    var  provides = _.find(dockerJson.Config.Env, function(element) {
-        element.indexOf('PROVIDES') > -1;
-    });
-    
-    var provisions = provides.substring(9).split(",");
-    //errrw wtf now?.....
-    var result = _.each();
-    
-}
-
 
 function createDockerStartJson(dockerStartJson, payload) {
       var dockerStartJson = {};
@@ -387,59 +357,25 @@ function createDockerStartJson(dockerStartJson, payload) {
         return dockerStartJson;
 }
 
-
-
-
-
-exports.deleteContainer = {
-  'spec': {
-    path : "/container/{containerId}",
-    notes : "delete a container",
-    summary : "Delete a containter",
-    method: "DELETE",  
-    nickname: "deleteContainer",
-    parameters : [sw.pathParam("containerId", "Id of of containter to destroy", "string")],
-    responseMessages : [swe.invalid('containerId'), swe.notFound('containter')]
-  },
-  'action': function (req,res) {
-        console.log('resources.js deleteContainer()');
-        if (! req.params.containerId) {
-          throw swe.invalid('containerId'); 
-        }
-
-        var containerId = req.params.containerId;
-        deleteContainer(req, res, containerId);
-    
-  }
-};
-
-
-
-function deleteContainer(req, res, containerId) {
+exports.deleteContainer = function (containerId, callback) {
+    console.log('deleteContainer()');
+    if (! req.params.containerId) {
+      throw swe.invalid('containerId');
+    }
       var killUrl = '/containers/' + containerId + '/kill';
       var deleteUrl = '/containers/' + containerId;
-      
-      /*
-        def dockerRet = dockerApi.post("/containers/${id}/kill")
-        dockerRet = dockerApi.delete("/containers/${id}")
 
-        [message: "Container Destroyed"]
-      */
+      var successcallback = function(actions) {
+          //TODO ... send a muon notification?
+          callback({message: "Container Destroyed"});
+      };
 
-      var callback = function(actions) {
-          //console.log('resources.js deleteContainer()->callback() actions:');
-          //console.dir(actions);
-          res.send(200, {message: "Container Destroyed"});
-      }
-      
       var errCallback = function(err) {
-          res.send(500, {message: err});
-      }
-      
+          callback({message: err});
+      };
+
       msh.init(callback, errCallback)
       .post(dockerIp, dockerPort, killUrl)
       .del(dockerIp, dockerPort, deleteUrl)
-      .del(nucleusHost, nucleusPort,  pokemonPath + '/record/' + containerId)
       .end();
-}
-
+};

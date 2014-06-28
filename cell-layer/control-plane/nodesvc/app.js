@@ -71,6 +71,6 @@ process.on('uncaughtException', function(err) {
     console.log('Threw Exception: ', err.message);
 });
 
-app.listen(8080, function() {
+app.listen(7171, function() {
            console.log(serviceName + " listening on port 8080");           
 });
