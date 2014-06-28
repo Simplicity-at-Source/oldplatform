@@ -21,79 +21,79 @@ exports.dockerContainersListJson = dockerContainersListJson;
 
 function dockerApiHandler(req, res) { 
    var url_parts = url.parse(req.url);
-   console.log('dockerApiHandler ' + url_parts.path);    
+   //console.log('dockerApiHandler ' + url_parts.path);    
    if (url_parts.path == '/containers/json') {
-      console.log('mockDockerApi GET /containers/json writing dockerContainersListJson()');
+      //console.log('mockDockerApi GET /containers/json writing dockerContainersListJson()');
       res.writeHead(200, {'Content-Type': 'application/json'});
       res.write(JSON.stringify(simpleContainerJson()) );
       res.end(); 
    } else if (req.method == 'GET' && url_parts.path == '/containers/b87af061730ca19a8e9452788c8f17918f2ec46e4086e3750c1b7a2b17fc708a/json') {
-      console.log('mockDockerApi, writing dockerContainerJson()');
+      //console.log('mockDockerApi, writing dockerContainerJson()');
       res.writeHead(200, {'Content-Type': 'application/json'});
       res.write(JSON.stringify(dockerContainerJson()) );
       res.end();         
    } else if (req.method == 'GET' && url_parts.path == '/containers/simplenodexyz123/json') {
-      console.log('mockDockerApi, writing dockerContainerJson()');
+      //console.log('mockDockerApi, writing dockerContainerJson()');
       res.writeHead(200, {'Content-Type': 'application/json'});
       res.write(JSON.stringify(simpleContainerJson()) );
       res.end();         
    } else if (req.method == 'GET' && url_parts.path == '/containers/nucleusxyz123/json') {
-      console.log('mockDockerApi, writing dockerContainerJson()');
+      //console.log('mockDockerApi, writing dockerContainerJson()');
       res.writeHead(200, {'Content-Type': 'application/json'});
       res.write(JSON.stringify(nucleusContainerJson()) );
       res.end();         
    } else if (req.method == 'GET' && url_parts.path == '/containers/gnsxyz123/json') {
-      console.log('mockDockerApi, writing dockerContainerJson()');
+      //console.log('mockDockerApi, writing dockerContainerJson()');
       res.writeHead(200, {'Content-Type': 'application/json'});
       res.write(JSON.stringify(gnsContainerJson()) );
       res.end();         
    } else if (req.method == 'POST' && url_parts.path == '/images/create?fromImage=foobarImage') { 
-     console.log('mockDockerApi, replying 201');
+     //console.log('mockDockerApi, replying 201');
       res.writeHead(201, {'Content-Type': 'application/json'});
       res.write(JSON.stringify({Id: 'xyz123'}) );
       res.end(); 
    }  else if (req.method == 'POST' && url_parts.path == '/containers/create?name=simplenode') { 
-     console.log('mockDockerApi, replying 201');
+     //console.log('mockDockerApi, replying 201');
       res.writeHead(201, {'Content-Type': 'application/json'});
       res.write(JSON.stringify({Id: 'simplenodexyz123'}) );
       res.end(); 
    } else if (req.method == 'POST' && url_parts.path == '/containers/create?name=nucleus') { 
-     console.log('mockDockerApi, replying 201');
+     //console.log('mockDockerApi, replying 201');
       res.writeHead(201, {'Content-Type': 'application/json'});
       res.write(JSON.stringify({Id: 'nucleusxyz123'}) );
       res.end(); 
    } else if (req.method == 'POST' && url_parts.path == '/containers/create?name=gns') { 
-     console.log('mockDockerApi, replying 201');
+    // console.log('mockDockerApi, replying 201');
       res.writeHead(201, {'Content-Type': 'application/json'});
       res.write(JSON.stringify({Id: 'gnsxyz123'}) );
       res.end(); 
    } else if (req.method == 'POST' && url_parts.path == '/containers/simplenodexyz123/start') { 
-     console.log('mockDockerApi, replying 204');
+    // console.log('mockDockerApi, replying 204');
       res.writeHead(204, {'Content-Type': 'application/json'});
       res.write("{Id: 'simplenodexyz123', Env: ['blah=foo','floo=kroo']}" );
       res.end(); 
    }   else if (req.method == 'POST' && url_parts.path == '/containers/gnsxyz123/start') { 
-     console.log('mockDockerApi, replying 204');
+     //console.log('mockDockerApi, replying 204');
       res.writeHead(204, {'Content-Type': 'application/json'});
       res.write("{Id: 'gnsxyz123', Env: ['blah=foo','floo=kroo']}" );
       res.end(); 
    } else if (req.method == 'POST' && url_parts.path == '/containers/nucleusxyz123/start') { 
-     console.log('mockDockerApi, replying 204');
+     //console.log('mockDockerApi, replying 204');
       res.writeHead(204, {'Content-Type': 'application/json'});
       res.write("{Id: 'nucleusxyz123', Env: ['blah=foo','floo=kroo']}" );
       res.end(); 
    }  else if (req.method == 'POST' && url_parts.path == '/containers/xyz123/kill') { 
-     console.log('mockDockerApi, replying 204');
+     //console.log('mockDockerApi, replying 204');
       res.writeHead(24, {'Content-Type': 'application/json'});
       res.write(JSON.stringify({Id: 'xyz123', message: 'containter stopped'}) );
       res.end(); 
    } else if (req.method == 'DELETE' && url_parts.path == '/containers/xyz123') { 
-     console.log('mockDockerApi, replying 204');
+    // console.log('mockDockerApi, replying 204');
       res.writeHead(201, {'Content-Type': 'application/json'});
       res.write(JSON.stringify({Id: 'xyz123', message: 'container destroyed'}) );
       res.end(); 
    } else {
-      console.log('mockDockerApi, no match for ' + url_parts.path);
+     // console.log('mockDockerApi, no match for ' + url_parts.path);
       res.writeHead(404, {'Content-Type': 'application/json'});
       res.write(JSON.stringify({error: "no record found matching " + url_parts.path}) );      
       res.end();  
@@ -294,7 +294,7 @@ function gnsContainerJson() {
       "StartedAt" : "2014-06-20T14:35:20.312395668Z",
       "Running" : true
    },
-   "HostsPath" : "/vol1/var/lib/docker/containers/b87af061730ca19a8e9452788c8f17918f2ec46e4086e3750c1b7a2b17fc708a/hosts",
+   "HostsPath" : "/vol1/var/lib/docker/containers/gnsxyz123/hosts",
    "Config" : {
       "Entrypoint" : [
          "/bin/sh",
@@ -336,14 +336,14 @@ function gnsContainerJson() {
       "OnBuild" : null
    },
    "MountLabel" : "",
-   "HostnamePath" : "/vol1/var/lib/docker/containers/b87af061730ca19a8e9452788c8f17918f2ec46e4086e3750c1b7a2b17fc708a/hostname",
+   "HostnamePath" : "/vol1/var/lib/docker/containers/gnsxyz123/hostname",
    "ExecDriver" : "native-0.2",
    "Args" : [
       "-c",
       "/spaas/nodejs/bin/node app.js"
    ],
    "Volumes" : {},
-   "Id" : "b87af061730ca19a8e9452788c8f17918f2ec46e4086e3750c1b7a2b17fc708a",
+   "Id" : "gnsxyz123",
    "HostConfig" : {
       "Binds" : null,
       "NetworkMode" : "",
@@ -402,7 +402,7 @@ function simpleContainerJson() {
       "StartedAt" : "2014-06-20T14:35:20.312395668Z",
       "Running" : true
    },
-   "HostsPath" : "/vol1/var/lib/docker/containers/b87af061730ca19a8e9452788c8f17918f2ec46e4086e3750c1b7a2b17fc708a/hosts",
+   "HostsPath" : "/vol1/var/lib/docker/containers/simplenodexyz123/hosts",
    "Config" : {
       "Entrypoint" : [
          "/bin/sh",
@@ -451,7 +451,7 @@ function simpleContainerJson() {
       "/spaas/nodejs/bin/node app.js"
    ],
    "Volumes" : {},
-   "Id" : "b87af061730ca19a8e9452788c8f17918f2ec46e4086e3750c1b7a2b17fc708a",
+   "Id" : "simplenodexyz123",
    "HostConfig" : {
       "Binds" : null,
       "NetworkMode" : "",
@@ -517,7 +517,7 @@ function nucleusContainerJson() {
       "StartedAt" : "2014-06-20T14:35:20.312395668Z",
       "Running" : true
    },
-   "HostsPath" : "/vol1/var/lib/docker/containers/b87af061730ca19a8e9452788c8f17918f2ec46e4086e3750c1b7a2b17fc708a/hosts",
+   "HostsPath" : "/vol1/var/lib/docker/containers/nucleusxyz123/hosts",
    "Config" : {
       "Entrypoint" : [
          "/bin/sh",
@@ -559,14 +559,14 @@ function nucleusContainerJson() {
       "OnBuild" : null
    },
    "MountLabel" : "",
-   "HostnamePath" : "/vol1/var/lib/docker/containers/b87af061730ca19a8e9452788c8f17918f2ec46e4086e3750c1b7a2b17fc708a/hostname",
+   "HostnamePath" : "/vol1/var/lib/docker/containers/nucleusxyz123/hostname",
    "ExecDriver" : "native-0.2",
    "Args" : [
       "-c",
       "/spaas/nodejs/bin/node app.js"
    ],
    "Volumes" : {},
-   "Id" : "b87af061730ca19a8e9452788c8f17918f2ec46e4086e3750c1b7a2b17fc708a",
+   "Id" : "nucleusxyz123",
    "HostConfig" : {
       "Binds" : null,
       "NetworkMode" : "",

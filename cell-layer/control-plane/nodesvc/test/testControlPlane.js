@@ -172,7 +172,7 @@ function log(testname, dataName, data) {
         dataStr = JSON.stringify(data);    
     }catch (e) {  }
     var logLength = dataStr < 100 ? dataStr.length : 100;
-    console.log('LOGGER ********** ' + testFile + " " + testname + " " + dataName + ": " + dataStr.substring(0, 100));
+    console.log('TEST LOGGER ********** ' + testFile + " " + testname + " " + dataName + ": " + dataStr.substring(0, 100));
 }
 
 

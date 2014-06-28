@@ -8,10 +8,10 @@ var log = {};
 
 function apiHandler(req, res) { 
    var url_parts = url.parse(req.url);
-   console.log('mockNucleusApi ' + req.method + ' ' + url_parts.path);    
+   //console.log('mockNucleusApi ' + req.method + ' ' + url_parts.path);    
    if (req.method == 'PUT' && url_parts.path == '/service/pokemon/substore/muon/record/simplenodexyz123') {
-       console.log('mockNucleusApi PUT ' + url_parts.path);
-       console.log('mockNucleusApi body ' + req.body);
+       //console.log('mockNucleusApi PUT ' + url_parts.path);
+       //console.log('mockNucleusApi body ' + req.body);
        
        var callback = function(body) {
             if (! body) {
@@ -19,7 +19,7 @@ function apiHandler(req, res) {
                   res.write(JSON.stringify({message: "no post body"}) );
                   res.end();    
               } else {
-                   console.log('mockNucleusApi POST /service/pokemon/substore/muon body=' + body);
+                  // console.log('mockNucleusApi PUT /service/pokemon/substore/muon body=' + body);
                   res.writeHead(201, {'Content-Type': 'application/json'});
                   res.write(JSON.stringify({message: "created"}) );
                   res.end(); 
@@ -29,8 +29,8 @@ function apiHandler(req, res) {
        
       
    } else if (req.method == 'PUT' && url_parts.path == '/service/pokemon/substore/muon/record/nucleusxyz123') {
-       console.log('mockNucleusApi PUT ' + url_parts.path);
-       console.log('mockNucleusApi body ' + req.body);
+       //console.log('mockNucleusApi PUT ' + url_parts.path);
+       //console.log('mockNucleusApi body ' + req.body);
        
        var callback = function(body) {
             if (! body) {
@@ -38,7 +38,7 @@ function apiHandler(req, res) {
                   res.write(JSON.stringify({message: "no post body"}) );
                   res.end();    
               } else {
-                   console.log('mockNucleusApi POST /service/pokemon/substore/muon body=' + body);
+                   //console.log('mockNucleusApi POST /service/pokemon/substore/muon body=' + body);
                   res.writeHead(201, {'Content-Type': 'application/json'});
                   res.write(JSON.stringify({message: "created"}) );
                   res.end(); 
@@ -48,8 +48,8 @@ function apiHandler(req, res) {
        
       
    } else if (req.method == 'PUT' && url_parts.path == '/service/pokemon/substore/muon/record/gnsxyz123') {
-       console.log('mockNucleusApi PUT ' + url_parts.path);
-       console.log('mockNucleusApi body ' + req.body);
+       //console.log('mockNucleusApi PUT ' + url_parts.path);
+       //console.log('mockNucleusApi body ' + req.body);
        
        var callback = function(body) {
             if (! body) {
@@ -57,7 +57,7 @@ function apiHandler(req, res) {
                   res.write(JSON.stringify({message: "no post body"}) );
                   res.end();    
               } else {
-                   console.log('mockNucleusApi POST /service/pokemon/substore/muon body=' + body);
+                   //console.log('mockNucleusApi POST /service/pokemon/substore/muon body=' + body);
                   res.writeHead(201, {'Content-Type': 'application/json'});
                   res.write(JSON.stringify({message: "created"}) );
                   res.end(); 
