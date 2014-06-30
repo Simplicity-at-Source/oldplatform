@@ -7,10 +7,10 @@ exports.getEnvironmentVariables = getEnvironmentVariables;
 
 function muonToDocker(payload) {
       var dockerPayload =  {
-            'Name': payload.name,
-            'Image': payload.imageId
+            'Name': payload.payload.id,
+            'Image': payload.payload.image
       };  
-    dockerPayload["Env"] = getEnvironmentVariables(payload);
+    dockerPayload["Env"] = getEnvironmentVariables(payload.payload);
     return dockerPayload;
 }
 

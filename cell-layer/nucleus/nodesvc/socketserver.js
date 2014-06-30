@@ -34,17 +34,24 @@ exports.init= function (app) {
                 console.dir(query);
                 theQuery = query;
             });
+
+            socket.on('resource', function(query){
+                console.log('Component ' + socket.id + ' sent a resource query ');
+                console.dir(query);
+                //TODO, do the actualy querying . ...
+                socket.emit("resource", []);
+            });
         }
     });
 };
 
 function messageMatchesQueryFilter(message, filter) {
 
-    if (filter.hasOwnProperty("serviceName") && message.serviceName != filter.serviceName) {
+    if (filter.hasOwnProperty("resource") && message.resource != filter.resource) {
         return false;
     }
 
-    if (filter.hasOwnProperty("subStore") && message.subStore != filter.subStore) {
+    if (filter.hasOwnProperty("type") && message.type != filter.type) {
         return false;
     }
     //todo, json query string.
