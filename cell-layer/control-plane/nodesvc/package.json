@@ -16,8 +16,9 @@
         "node-uuid": "*",
         "body-parser": "*",
         "msh": "0.1.9",
-        "restify": "*"
-        
+        "restify": "*",
+        "socket.io": "0.9",
+        "socket.io-client": "0.9"
     },
     "devDependencies": {
         "mocha": "*",

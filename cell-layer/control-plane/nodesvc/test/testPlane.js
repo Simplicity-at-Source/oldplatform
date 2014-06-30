@@ -1,0 +1,230 @@
+var assert = require('assert');
+var url = require('url');
+var request = require("superagent");
+
+var _ = require('underscore');
+var mockDockerApi = require("./mockDockerApi.js");
+var nucleus = require("./muon-test.js");
+nucleus.listen(7777);
+
+require('../plane.js'); //Boot up the server for tests
+
+var testFile = 'testControlPlane.js';
+
+var testLog = testFile + '';
+
+var mockDockerPort = process.env.SP_DOCKER_PORT || 14321;
+
+var testService = 'control-plane';
+
+describe("Control Plane reacting to nucleus notifications", function() {
+    it ("PUT to /container/XX/gene", function(done) {
+
+        //expect a response message of the correct form, including data from the docker api.
+
+        nucleus.onResourceQuery({
+            resource:"container",
+            type:"gene",
+            recordFilter:""
+        }, [
+
+        ]);
+
+        nucleus.on(function(event) {
+            assert.equal(event.resource, "container");
+            assert.equal(event.type, "runtime");
+            assert.equal(event.recordId, "12345");
+            //    payload:actions[6]
+            done()
+        });
+
+        //tell mock nucleus to emit a PUT.
+        nucleus.send({
+
+        });
+    });
+    it ("POST to /container/XX/gene", function(done) {
+
+    });
+    it ("DELETE to /container/xx/gene", function(done) {
+
+    });
+});
+
+describe('test ' + testService +': ', function(){
+
+    it(testFile + ' /container works ok', function(done){
+        var req = request.get(host + '/container');
+        req.end(function(res){
+            var ids = getListByKey(mockDockerApi.dockerContainersListJson(), 'Id');         
+             log('GET /container', 'res.text', res.text);
+            var json = JSON.parse(res.text);
+            assert.equal(200, res.status);
+            for (var i = 0 ; i < ids.length ; i++) {
+                 var entry = _.findWhere(json, {Id: ids[i]});
+                 assert.equal(ids[i], entry.Id);
+                 log('GET /container', 'found in response id=', ids[i]);
+            }
+            done();
+        });
+    });
+
+    it(testFile + ' /container/b87af06.../json returns as expected', function(done){
+        var req = request.get(host + '/container/b87af061730ca19a8e9452788c8f17918f2ec46e4086e3750c1b7a2b17fc708a');
+        req.end(function(res){
+            var ids = getListByKey(mockDockerApi.dockerContainersListJson(), 'Id');         
+            log('GET /container/b87af0617...', 'res.text', res.text);
+            var json = JSON.parse(res.text);
+            assert.equal(200, res.status);
+            assert.equal('b87af061730ca19a8e9452788c8f17918f2ec46e4086e3750c1b7a2b17fc708a', json.Id);
+            done();
+        });
+    });
+    
+    
+    it(testFile + ' create container via post /container', function(done){
+        
+        var callback = function() {
+              var payload = { 
+                 "name": "simplenode",
+                  "imageId": "foobarImage", 
+                  "env": { 
+                    "FIZZ": "foo", 
+                    "BUZZ": "bar" 
+                  }
+                };
+            var req = request.post(host + '/container');
+            req.send(payload);
+            req.end(function(res){   
+                log('POST /container', 'res.text', res.text);
+                var json = JSON.parse(res.text);
+                assert.equal(201, res.status);
+                assert.equal('Container created', json.message);
+                assert.equal('xyz123', json.id);
+                done();
+            });
+        }
+        createNucleus(callback);
+        
+       
+    }); 
+    
+    it(testFile + ' create core platform services', function(done){
+        
+        var callback = function() {
+              var payload = { 
+                 "name": "gns",
+                  "imageId": "gnsImage", 
+                  "env": { 
+                    "FIZZ": "foo", 
+                    "BUZZ": "bar" 
+                  }
+                };
+            var req = request.post(host + '/container');
+            req.send(payload);
+            req.end(function(res){   
+                log('POST /container', 'res.text', res.text);
+                var json = JSON.parse(res.text);
+                assert.equal(201, res.status);
+                assert.equal('Container created', json.message);
+                assert.equal('gnsxyz123', json.id);
+
+                   var payload = { 
+                         "name": "simplenode",
+                          "imageId": "simpleImage", 
+                          "env": { 
+                            "FIZZ": "foo", 
+                            "BUZZ": "bar" 
+                          }
+                        };
+                    var req = request.post(host + '/container');
+                    req.send(payload);
+                    req.end(function(res){   
+                        log('POST /container', 'res.text', res.text);
+                        var json = JSON.parse(res.text);
+                        
+                         assert.equal(201, res.status);
+                        assert.equal('Container created', json.message);
+                        assert.equal('simplenodexyz123', json.id);
+                         done();
+                    });
+                
+                
+                
+                
+               
+            });
+        }
+        createNucleus(callback);
+        
+        
+        //msh.init().post().post().post().end();
+       
+    });     
+    
+    
+    it(testFile + ' delete container via delete /container', function(done){
+        var req = request.del(host + '/container/xyz123');
+        req.end(function(res){   
+            log('DELETE /container/xyz123', 'res.text', res.text);
+            //console.dir(res);
+            var json = JSON.parse(res.text);
+            assert.equal(200, res.status);
+            //assert.equal('Container Destroyed', json.message);
+            done();
+        });
+    });      
+    
+    
+});
+
+
+
+function getListByKey(list, keyName) {
+    
+    var response = [];
+    for(var key in list) {
+        value = list[key];
+        //log('getListByKey()', 'value', value[keyName]);
+        response.push(value[keyName]);
+    }
+    return response;
+}
+
+
+
+function log(testname, dataName, data) {
+    if (!data) {
+        data = {};
+    }
+    var dataStr = data; 
+    try {
+        dataStr = JSON.stringify(data);    
+    }catch (e) {  }
+    var logLength = dataStr < 100 ? dataStr.length : 100;
+    console.log('TEST LOGGER ********** ' + testFile + " " + testname + " " + dataName + ": " + dataStr.substring(0, 100));
+}
+
+
+
+function createNucleus(callback) {
+     var payload = { 
+                 "name": "nucleus",
+                  "imageId": "nucleusImage", 
+                  "env": { 
+                    "FIZZ": "foo", 
+                    "BUZZ": "bar" 
+                  }
+                };
+        var req = request.post(host + '/container');
+        req.send(payload);
+        req.end(function(res){   
+            log('createNucleus() POST /container', 'res.text', res.text);
+            var json = JSON.parse(res.text);
+            callback();
+        });
+}
+
+
+
+
