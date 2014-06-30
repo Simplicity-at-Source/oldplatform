@@ -9,8 +9,6 @@
     },
     "dependencies": {
         "underscore": "*",
-        "express": "3.x",
-        "swagger-node-express": "~2.0",
         "url": "*",
         "cors": "*",
         "node-uuid": "*",
@@ -18,7 +16,8 @@
         "msh": "0.1.9",
         "restify": "*",
         "socket.io": "0.9",
-        "socket.io-client": "0.9"
+        "socket.io-client": "0.9",
+        "url-template": "*"
     },
     "devDependencies": {
         "mocha": "*",

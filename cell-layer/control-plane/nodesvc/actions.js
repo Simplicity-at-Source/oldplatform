@@ -4,6 +4,7 @@ var msh = require('msh');
 var request = require("superagent");
 var transformer = require('./payloadTransformer.js');
 var assert = require('assert');
+var _ = require('underscore');
 
 var swe = sw.errors;
 
@@ -23,16 +24,46 @@ var swe = sw.errors;
 
 var muonDomain = process.env.MUON_DOMAIN || '.';
 
-var dockerPort = process.env.SP_DOCKER_PORT || 4321;
-var dockerIp = process.env.SP_DOCKER_HOST || '172.17.42.1';
+var dockerPort = process.env.SP_DOCKER_PORT || 14321;
+var dockerIp = process.env.SP_DOCKER_HOST || 'localhost';
 
 var dockerUrl = 'http://' + dockerIp + ':' + dockerPort;
 
 var coreServices = {
-    nucleus: {
-        host:"",
-        port:""
-    }
+
+};
+
+exports.loadCoreServices = function(muon, done) {
+    coreServices["nucleus"] = {
+        host:muon.getIp(),
+        port:muon.getPort()
+    };
+
+    muon.readNucleus({
+        resource:"container",
+        type:"runtime"
+    }, function(records) {
+        console.log("Checking core services")
+        _.each(records, function(container) {
+            console.log(container.recordId);
+            switch(container.recordId) {
+                case "gns":
+                case "proxy":
+                case "control-plane":
+                    console.log(container.recordId + ", will inject into containers.");
+
+                    coreServices[container.recordId] = {
+                        host:container.inspection.NetworkSettings.IPAddress,
+                        port:8080
+                    };
+
+                    break;
+                default:
+                    console.log(container.recordId + " is not a core service");
+            }
+        });
+        done();
+    });
 };
 
 exports.createAndStartDockerContainer = function (payload, muon) {
@@ -50,14 +81,8 @@ exports.createAndStartDockerContainer = function (payload, muon) {
         };
     };
 
-    muon.readNucleus({
-        resource:"container",
-        type:"gene",
-        recordFilter:""
-    }, function(pokemons) {
-
+    exports.loadCoreServices(muon, function() {
         var end = function (actions) {
-
             if (actions[0].statusCode != '201') {
                 sendServerError(muon, actions[0], actions, 'error creating new container via docker api', 201);
                 return;
@@ -77,14 +102,14 @@ exports.createAndStartDockerContainer = function (payload, muon) {
                 resource:"container",
                 type:"runtime",
                 recordId:payload.recordId,
-                payload:actions[6]
+                payload:createPokemonJson(payload.recordId, actions[5].response)
             });
         };
 
         var dockerPayload = injectPlatformVariables(transformer.muonToDocker(payload));
 
         //var imageUrl = '/images/create?fromImage=' + payload.imageId;
-        var containerUrl = '/containers/create?name=' + payload.name;
+        var containerUrl = '/containers/create?name=' + payload.payload.id;
 
         msh.init(end, errCallback)
             //.post(dockerIp, dockerPort, imageUrl, {}) // not currently cerating the image
@@ -94,8 +119,6 @@ exports.createAndStartDockerContainer = function (payload, muon) {
             .post(dockerIp, dockerPort, '/containers/{dockerId}/start')
             .template(urlTemplate)
             .get(dockerIp, dockerPort, '/containers/{dockerId}/json')
-            .pipe(createPokemonJson)
-            .template(urlTemplate)
             .end();
 
     });
@@ -142,9 +165,9 @@ function injectPlatformVariables(dockerPayload) {
     return dockerPayload;
 }
 
-var createPokemonJson = function (dockerJson) {
+var createPokemonJson = function (recordId, dockerJson) {
     //console.log("transforming docker response to nucleus payload");
-    var id = dockerJson.Id
+    var id = dockerJson.Id;
     /*
      it.id = it.Id
      it.inspection = dockerApi.get("/containers/${it.Id}/json")
@@ -152,31 +175,43 @@ var createPokemonJson = function (dockerJson) {
      */
     return {
         id: id,
+        recordId:recordId,
         inspection: dockerJson,
         provides: 'TBC..' //generateProvides(dockerJson)
     };
 
-}
+};
 
 exports.deleteContainer = function (containerId, callback) {
     console.log('deleteContainer()');
-    if (!req.params.containerId) {
-        throw swe.invalid('containerId');
-    }
-    var killUrl = '/containers/' + containerId + '/kill';
-    var deleteUrl = '/containers/' + containerId;
 
-    var successcallback = function (actions) {
-        //TODO ... send a muon notification?
-        callback({message: "Container Destroyed"});
-    };
+    muon.readNucleus({
+        resource:"container",
+        type:"runtime",
+        recordId:containerId
+        //TODO, a record filter...
+    }, function(records) {
+        var runningContainer = _.find(records, function(rec) {
+            return rec.recordId == containerId;
+        });
 
-    var errCallback = function (err) {
-        callback({message: err});
-    };
+        var killUrl = '/containers/' + runningContainer.id + '/kill';
+        var deleteUrl = '/containers/' + runningContainer.id;
 
-    msh.init(callback, errCallback)
-        .post(dockerIp, dockerPort, killUrl)
-        .del(dockerIp, dockerPort, deleteUrl)
-        .end();
+        var successcallback = function (actions) {
+            //TODO ... send a muon notification?
+            console.log("Success for the Muon!");
+            callback({message: "Container Destroyed"});
+        };
+
+        var errCallback = function (err) {
+            console.log("Failed for great misery ...");
+            callback({message: err});
+        };
+
+        msh.init(successcallback, errCallback)
+                .post(dockerIp, dockerPort, killUrl)
+                .del(dockerIp, dockerPort, deleteUrl)
+                .end();
+    });
 };
