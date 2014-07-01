@@ -1,3 +1,3 @@
 #!/bin/bash
 
-java -jar /sp-stateless-expressor-0.1.jar
+java -Xmx2048m -jar /sp-control-plane-0.1.jar
