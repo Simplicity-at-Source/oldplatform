@@ -3,6 +3,11 @@ var _ = require('underscore');
 
 var nucleusStore = {};
 
+exports.init = function (notify) {
+    console.log("Initialising nucleus store with notifications");
+    module.notification = notify;
+};
+
 exports.getStore = function(serviceName, subStore) {  
     if (! nucleusStore[serviceName]) {
         nucleusStore[serviceName] = {};
@@ -19,22 +24,21 @@ exports.getStore = function(serviceName, subStore) {
     };
     console.log('nucleusStore.js getStore() results=', JSON.stringify(results));
     return results;
-}
+};
 
 exports.getAll = function(serviceName, subStore) {
     console.log('nucleusStore.js getAll() ');
      return nucleusStore;
-}
+};
 
 exports.getService = function(serviceName) {
       return nucleusStore[serviceName];
-}
-
+};
 
 exports.getRecord = function(serviceName, subStore, recordId) {
      console.log('nucleusStore.js getRecord() ');
     return nucleusStore[serviceName][subStore][recordId];
-}
+};
 
 exports.putRecord = function(serviceName, subStore, recordId, record) {
     console.log('nucleusStore.js putRecord(%s, %s, %s, %s)', serviceName, subStore, recordId, JSON.stringify(record));
@@ -44,11 +48,15 @@ exports.putRecord = function(serviceName, subStore, recordId, record) {
     if (! nucleusStore[serviceName][subStore]) {
         nucleusStore[serviceName][subStore] = {};
     }
-    //if (! nucleusStore[serviceName][subStore][recordId]) {
-    //    nucleusStore[serviceName][subStore][recordId] = {};
-    //}    
     nucleusStore[serviceName][subStore][recordId] = record;
-}
+    module.notification({
+        action: "put",
+        resource: serviceName,
+        type: subStore,
+        recordId: recordId,
+        payload: record
+    });
+};
 
 exports.postRecord = function(serviceName, subStore, record) {
      console.log('nucleusStore.js postRecord(%s, %s, %s)', serviceName, subStore, JSON.stringify(record));
@@ -60,8 +68,14 @@ exports.postRecord = function(serviceName, subStore, record) {
         nucleusStore[serviceName][subStore] = {};
     }  
     nucleusStore[serviceName][subStore][recordId] = record;
-}
-
+    module.notification({
+        action: "post",
+        resource: serviceName,
+        type: subStore,
+        recordId: recordId,
+        payload: record
+    });
+};
 
 exports.deleteRecord = function(serviceName, subStore, recordId) {
     if (! nucleusStore[serviceName]) {
@@ -74,19 +88,34 @@ exports.deleteRecord = function(serviceName, subStore, recordId) {
         return;
     }
     nucleusStore[serviceName][subStore][recordId] = undefined;
-}
+    module.notification({
+        action: "delete",
+        resource: serviceName,
+        type: subStore,
+        recordId: recordId
+    });
+};
 
 exports.deleteService = function(serviceName, subStore, recordId) {
-     return nucleusStore[serviceName] = undefined;
-}
+    module.notification({
+        action: "delete",
+        resource: serviceName
+    });
+    return nucleusStore[serviceName] = undefined;
+};
 
 
 exports.deleteSubStore = function(serviceName, subStore, recordId) {
     if (! nucleusStore[serviceName]) {
         return;
     }
+    module.notification({
+        action: "delete",
+        resource: serviceName,
+        type:subStore
+    });
     return nucleusStore[serviceName][subStore] = undefined;
-}
+};
 
 
 exports.queryService = function(serviceName, queryKeyString, queryValue) { 
@@ -104,7 +133,7 @@ exports.queryService = function(serviceName, queryKeyString, queryValue) {
     };
     console.log("nucleusStore.js queryService() %s=%s results=%s",queryKeyString,queryValue,  JSON.stringify(results));
     return results;
-}
+};
 
 function queryStore(service, store, queryKeyString, queryValue) {
       if (! nucleusStore[service]) {

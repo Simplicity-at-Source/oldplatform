@@ -1,12 +1,12 @@
 var sw = require("swagger-node-express");
 //var param = require("../lib/paramTypes.js");
 var url = require("url");
-var nucleusStore = require('./nucleusStore.js');
+var nucleusStore;
 var swe = sw.errors;
 
-exports.init = function (notify) {
+exports.init = function (nucleus) {
     console.log("Initialising resources with notificaiton");
-    module.notification = notify;
+    nucleusStore = nucleus;
 };
 
 exports.root = {
@@ -34,7 +34,7 @@ exports.root = {
 exports.findById = {
     'spec': {
         description: "Find nucleus stored item by id",
-        path: "/resource/{resource}/type/{type}/record/{recordId}",
+        path: "/resource/{resource}/record/{recordId}/type/{type}",
         method: "GET",
         summary: "Find custom record by ID",
         notes: "Returns a /service/dtore/recordId custom record based on ID",
@@ -119,7 +119,7 @@ exports.queryService = {
 exports.queryStore = {
     'spec': {
         description: "Return and filter records in type",
-        path: "/resource/{resource}/{type}",
+        path: "/resource/{resource}/type/{type}",
         method: "GET",
         summary: "Filter records in a service's sub-store",
         notes: "Returns array of records",
@@ -196,7 +196,7 @@ exports.getService = {
 
 exports.putRecord = {
     'spec': {
-        path: "/resource/{resource}/type/{type}/record/{recordId}",
+        path: "/resource/{resource}/record/{recordId}/type/{type}",
         notes: "add a record",
         summary: "Add a new record to the service store",
         method: "PUT",
@@ -204,11 +204,11 @@ exports.putRecord = {
         parameters: [sw.pathParam("resource", "Name of of cleint service that will store the record", "string"),
             sw.pathParam("type", "Name of service sub-store that needs to be fetched e.g: 'cel'' for gene store", "string"),
             sw.pathParam("recordId", "ID of record that needs to be fetched", "string"),
-            sw.bodyParam("Record", "Record object to be added to the store", "Record")],
+            sw.bodyParam("RecordObj", "Record object to be added to the store", "Record")],
         responseMessages: [swe.invalid('recordId'), swe.notFound('record'), swe.invalid('type'), swe.invalid('resource')]
     },
     'action': function (req, res) {
-        //console.log('resources.js putRecord()');
+        console.log('resources.js putRecord()');
         if (!req.params.resource) {
             throw swe.invalid('resource');
         }
@@ -229,14 +229,6 @@ exports.putRecord = {
         nucleusStore.putRecord(resource, type, recordId, payload);
 
         res.send(201, {message: "created"});
-
-        module.notification({
-            action: "put",
-            resource: resource,
-            type: type,
-            recordId: recordId,
-            payload: payload
-        });
     }
 };
 
@@ -272,21 +264,12 @@ exports.postRecord = {
 
         res.set('Location:', "/service/" + resource + "/type/" + type + "/record/" + id);
         res.send(201, {message: "created"});
-
-        module.notification({
-            action: "post",
-            resource: resource,
-            type: type,
-            recordId: id,
-            payload: payload
-        });
     }
 };
 
-
 exports.deleteRecord = {
     'spec': {
-        path: "/resource/{resource}/type/{type}/record/{recordId}",
+        path: "/resource/{resource}/record/{recordId}/type/{type}",
         notes: "delete a record",
         summary: "Delete a record from the service store",
         method: "DELETE",
@@ -315,13 +298,5 @@ exports.deleteRecord = {
         nucleusStore.deleteRecord(resource, type, recordId);
 
         res.send(204);
-
-        module.notification({
-            action: "delete",
-            resource: resource,
-            type: type,
-            recordId: recordId,
-            payload: payload
-        });
     }
 };

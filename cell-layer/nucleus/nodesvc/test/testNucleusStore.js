@@ -1,12 +1,15 @@
 var assert = require('assert');
-var nucleusStore = require('../nucleusStore.js'); 
-
-
+var nucleusStore = require('../nucleusStore.js');
 
 describe('test nucleus-store: ', function(){
 
     it('add and remove record', function(done){
-        
+
+        var ev;
+        nucleusStore.init(function(event) {
+            ev = event;
+        });
+
         console.log('testNucluesStore.js add/remove test');
         
         var service = 'foo';
@@ -28,7 +31,9 @@ describe('test nucleus-store: ', function(){
 
         assert.equal(record.name, storeData[0].name);
         assert.equal(record.name, serviceData[store][recordName].name);
-        
+        assert.equal(ev.recordId, "zip");
+        assert.equal(ev.resource, "foo");
+        assert.equal(ev.type, "bah");
         done();
     });
     

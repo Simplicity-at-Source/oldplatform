@@ -9,7 +9,7 @@ exports.notify = function(msg) {
     }
 };
 
-exports.init= function (app) {
+exports.init= function (nucleus) {
 
     var io = require('socket.io').listen(7777);
 
@@ -41,6 +41,25 @@ exports.init= function (app) {
                 //TODO, do the actualy querying . ...
                 socket.emit("resource", []);
             });
+
+            socket.on('nucleus', function(event){
+                console.log('Component ' + socket.id + ' sent a message, possibly use to PUT/POST etc');
+                console.dir(event);
+
+                if (event.hasOwnProperty("action")) {
+                    switch(event.action) {
+                        case "put":
+                            nucleus.putRecord(event.resource, event.type, event.recordId, event.payload);
+                            break;
+                        case "post":
+                            nucleus.postRecord(event.resource, event.type, event.payload);
+                            break;
+                        case "delete":
+                            nucleus.putRecord(event.resource, event.type, event.recordId);
+                            break;
+                    }
+                }
+            });
         }
     });
 };
@@ -52,6 +71,12 @@ function messageMatchesQueryFilter(message, filter) {
     }
 
     if (filter.hasOwnProperty("type") && message.type != filter.type) {
+        return false;
+    }
+    if (filter.hasOwnProperty("action") && message.action != filter.action) {
+        return false;
+    }
+    if (filter.hasOwnProperty("recordId") && message.recordId != filter.recordId) {
         return false;
     }
     //todo, json query string.

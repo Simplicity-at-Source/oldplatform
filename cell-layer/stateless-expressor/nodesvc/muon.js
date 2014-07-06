@@ -3,6 +3,9 @@ var io = require('socket.io-client')
 
 var nucleusPort =  process.env.SP_NUCLEUS_PORT || 7777;
 var nucleusHost =  process.env.SP_NUCLEUS_HOST || "localhost";
+console.log("SP_NUCLEUS_HOST=" + process.env.SP_NUCLEUS_HOST);
+console.log("SP_NUCLEUS_PORT=" + process.env.SP_NUCLEUS_PORT);
+
 var globalNucleusUrl =  "http://" + nucleusHost + ":" + nucleusPort;
 
 module.exports = function(overrideNucleus) {
@@ -39,21 +42,35 @@ module.exports = function(overrideNucleus) {
 
     return {
         on:function(filter, callback) {
-            //TODO, use the filter...
+            console.log("New Muon Client Connection to " + nucleusUrl);
 
-            //socket.emit("query", filter);
-            socket.on("nucleus", function(ev) {
+            var listensocket = io.connect(nucleusUrl);
+
+            listensocket.on('connect', function () {
+                console.log("muon socket connected");
+            });
+            listensocket.on('error', function () {
+                console.log("balls ..");
+            });
+            listensocket.on('reconnect_failed', function () {
+                console.log("reconnect_failed ..");
+            });
+            listensocket.on('disconnect', function () {
+                console.log("disconnect ..");
+            });
+
+            listensocket.on('reconnecting', function () {
+                console.log("reconnecting ..");
+            });
+
+            listensocket.on('reconnect_error', function (err) {
+                console.log("reconnect_error ..");
+                console.dir(err);
+            });
+
+            listensocket.emit("query", filter);
+            listensocket.on("nucleus", function(ev) {
                 console.log("Muon Client Received Message!");
-                if (filter.hasOwnProperty("resource") && ev.resource != filter.resource) {
-                    return false;
-                }
-
-                if (filter.hasOwnProperty("type") && ev.type != filter.type) {
-                    return false;
-                }
-                if (filter.hasOwnProperty("recordId") && ev.recordId != filter.recordId) {
-                    return false;
-                }
                 callback(ev);
             });
         },

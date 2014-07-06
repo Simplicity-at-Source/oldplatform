@@ -3,9 +3,9 @@ var bodyParser = require('body-parser');
 var express = require("express");
 var url = require("url");
 var swagger = require("swagger-node-express");
+var nucleusStore = require('./nucleusStore.js');
 var resources = require('./resources.js');
 var socket = require('./socketserver.js');
-
 
 /*
 
@@ -25,8 +25,9 @@ var socket = require('./socketserver.js');
 // Create the application.
 var app = express();
 
-socketServer = socket.init(app);
-resources.init(socket.notify);
+socketServer = socket.init(nucleusStore);
+nucleusStore.init(socket.notify);
+resources.init(nucleusStore);
 
 app.use(express.json());
 app.use(express.urlencoded());
@@ -54,7 +55,7 @@ swagger.configureDeclaration("Nucleus", {
 });
 
 swagger.setApiInfo({
-  title: "Swagger Sample App",
+  title: "Nucleus",
   description: "Nucleus API",
   termsOfServiceUrl: "http://muoncore.io/terms/",
   contact: "team@muoncore.io",

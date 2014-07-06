@@ -3,7 +3,12 @@ var io = require('socket.io-client')
 
 var nucleusPort =  process.env.SP_NUCLEUS_PORT || 7777;
 var nucleusHost =  process.env.SP_NUCLEUS_HOST || "localhost";
+console.log("SP_NUCLEUS_HOST=" + process.env.SP_NUCLEUS_HOST);
+console.log("SP_NUCLEUS_PORT=" + process.env.SP_NUCLEUS_PORT);
+
 var globalNucleusUrl =  "http://" + nucleusHost + ":" + nucleusPort;
+
+var callbacks = [];
 
 module.exports = function(overrideNucleus) {
     var nucleusUrl = globalNucleusUrl;
@@ -36,25 +41,25 @@ module.exports = function(overrideNucleus) {
         console.log("reconnect_error ..");
         console.dir(err);
     });
+    socket.on("nucleus", function(ev) {
+        console.log("Muon Client Received Message!");
+        for(var i = 0; i < callbacks.length; i++) {
+            var c = callbacks[i];
+            console.log("Checking the filter !");
+            console.dir(c);
+            if (messageMatchesQueryFilter(ev, c.filter)) {
+                c.callback(ev);
+            }
+        }
+    });
 
     return {
         on:function(filter, callback) {
-            //TODO, use the filter...
-
             //socket.emit("query", filter);
-            socket.on("nucleus", function(ev) {
-                console.log("Muon Client Received Message!");
-                if (filter.hasOwnProperty("resource") && ev.resource != filter.resource) {
-                    return false;
-                }
 
-                if (filter.hasOwnProperty("type") && ev.type != filter.type) {
-                    return false;
-                }
-                if (filter.hasOwnProperty("recordId") && ev.recordId != filter.recordId) {
-                    return false;
-                }
-                callback(ev);
+            callbacks.push({
+                filter:filter,
+                callback:callback
             });
         },
         emit:function(event) {
@@ -62,6 +67,10 @@ module.exports = function(overrideNucleus) {
         },
         createResource : function(event) {
             event.action = "put";
+            socket.emit("nucleus", event);
+        },
+        deleteResource : function(event) {
+            event.action = "delete";
             socket.emit("nucleus", event);
         },
         shutdown:function() {
@@ -83,4 +92,24 @@ module.exports = function(overrideNucleus) {
         }
     }
 };
+
+function messageMatchesQueryFilter(message, filter) {
+
+    if (filter.hasOwnProperty("resource") && message.resource != filter.resource) {
+        return false;
+    }
+
+    if (filter.hasOwnProperty("type") && message.type != filter.type) {
+        return false;
+    }
+    if (filter.hasOwnProperty("action") && message.action != filter.action) {
+        return false;
+    }
+    if (filter.hasOwnProperty("recordId") && message.recordId != filter.recordId) {
+        return false;
+    }
+    //todo, json query string.
+
+    return true;
+}
 
