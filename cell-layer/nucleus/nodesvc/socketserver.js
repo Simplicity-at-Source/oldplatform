@@ -38,8 +38,9 @@ exports.init= function (nucleus) {
             socket.on('resource', function(query){
                 console.log('Component ' + socket.id + ' sent a resource query ');
                 console.dir(query);
-                //TODO, do the actualy querying . ...
-                socket.emit("resource", []);
+                //TODO, better querying . ...
+                var ret = nucleus.getRecord(query.resource, query.type, query.recordId);
+                socket.emit("resource", [ret]);
             });
 
             socket.on('nucleus', function(event){

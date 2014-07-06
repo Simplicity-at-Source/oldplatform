@@ -27,6 +27,9 @@ var muonDomain = process.env.MUON_DOMAIN || '.';
 var dockerPort = process.env.SP_DOCKER_PORT || 14321;
 var dockerIp = process.env.SP_DOCKER_HOST || 'localhost';
 
+console.log("SP_DOCKER_HOST=" + process.env.SP_DOCKER_HOST);
+console.log("SP_DOCKER_PORT=" + process.env.SP_DOCKER_PORT);
+
 var dockerUrl = 'http://' + dockerIp + ':' + dockerPort;
 
 var coreServices = {
@@ -81,7 +84,7 @@ exports.createAndStartDockerContainer = function (payload, muon) {
         };
     };
 
-    exports.loadCoreServices(muon, function() {
+//    exports.loadCoreServices(muon, function() {
         var end = function (actions) {
             if (actions[0].statusCode != '201') {
                 sendServerError(muon, actions[0], actions, 'error creating new container via docker api', 201);
@@ -121,7 +124,7 @@ exports.createAndStartDockerContainer = function (payload, muon) {
             .get(dockerIp, dockerPort, '/containers/{dockerId}/json')
             .end();
 
-    });
+//    });
 };
 
 function sendServerError(muon, action, actions, message, expectedCode) {
@@ -148,16 +151,16 @@ function injectPlatformVariables(dockerPayload) {
         dockerPayload.Env.push("MUON_NUCLEUS_IP=" + coreServices.nucleus.host);
         dockerPayload.Env.push("MUON_NUCLEUS_PORT=" + coreServices.nucleus.port);
     }
-    if (coreServices.gns) {
-        //  console.log('********** injectPlatformVariables() enriching with gns data');
-        dockerPayload.Env.push("MUON_GNS_IP=" + coreServices.gns.host);
-        dockerPayload.Env.push("MUON_GNS_PORT=" + coreServices.gns.port);
-    }
-    if (coreServices.proxy) {
-        console.log('********** injectPlatformVariables() enriching with proxy data');
-        dockerPayload.Env.push("MUON_GNS_IP=" + coreServices.proxy.host);
-        dockerPayload.Env.push("MUON_GNS_PORT=" + coreServices.proxy.port);
-    }
+//    if (coreServices.gns) {
+//        //  console.log('********** injectPlatformVariables() enriching with gns data');
+//        dockerPayload.Env.push("MUON_GNS_IP=" + coreServices.gns.host);
+//        dockerPayload.Env.push("MUON_GNS_PORT=" + coreServices.gns.port);
+//    }
+//    if (coreServices.proxy) {
+//        console.log('********** injectPlatformVariables() enriching with proxy data');
+//        dockerPayload.Env.push("MUON_GNS_IP=" + coreServices.proxy.host);
+//        dockerPayload.Env.push("MUON_GNS_PORT=" + coreServices.proxy.port);
+//    }
 
     dockerPayload.Env.push("MUON_DOMAIN=" + muonDomain);
 
@@ -195,8 +198,8 @@ exports.deleteContainer = function (containerId, callback) {
             return rec.recordId == containerId;
         });
 
-        var killUrl = '/containers/' + runningContainer.id + '/kill';
-        var deleteUrl = '/containers/' + runningContainer.id;
+        var killUrl = '/containers/' + runningContainer.inspection.ID + '/kill';
+        var deleteUrl = '/containers/' + runningContainer.inspection.ID;
 
         var successcallback = function (actions) {
             //TODO ... send a muon notification?

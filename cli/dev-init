@@ -13,33 +13,51 @@ LOCALDIR="$( cd "$( dirname "$0" )" && pwd )"
 . $LOCALDIR/lib/library.sh
 
 
-
 boot_control_plane() {
   local IMAGE="sp_platform/spi_control_plane"
   local CONTAINER="sp-control_plane"
+  local NUCLEUS=$(lookup_nucleus_ip)
 
-  echo "Simple PaaS: Starting the Local Control Plane"
+  echo "Muon: Starting the Local Control Plane"
   local current_id=$(docker ps -a|grep $CONTAINER|tr -s ' ' | cut -d ' ' -f 1)
   if [[ -n $current_id ]]; then
      local running_id=$(docker ps |grep $CONTAINER|tr -s ' ' | cut -d ' ' -f 1)
      if [[ -z $running_id ]]; then
       docker_boot=$(docker start $current_id)
      fi
-     echo "Simple Paas: Control Plane already exists and is running with ID $current_id"
+     echo "Muon: Control Plane already exists and is running with ID $current_id"
   else
-    echo "Simple PaaS: Booting Control Plane"
+    echo "Muon: Booting Control Plane, nucleus = $NUCLEUS"
+    CP_PS=$(docker run -e "MUON_DOMAIN=$MUON_DOMAIN" -e SP_NUCLEUS_PORT=7777 -e "SP_NUCLEUS_HOST=$NUCLEUS" -e "SP_DOCKER_HOST=172.17.42.1" -e "SP_DOCKER_PORT=4321" --name="$CONTAINER" -d $IMAGE)
+  fi
+}
+
+boot_nucleus() {
+  local IMAGE="sp_platform/spi_nucleus"
+  local CONTAINER="sp-nucleus"
+
+  echo "Muon: Starting the Local Nucleus"
+  local current_id=$(docker ps -a|grep $CONTAINER|tr -s ' ' | cut -d ' ' -f 1)
+  if [[ -n $current_id ]]; then
+     local running_id=$(docker ps |grep $CONTAINER|tr -s ' ' | cut -d ' ' -f 1)
+     if [[ -z $running_id ]]; then
+      docker_boot=$(docker start $current_id)
+     fi
+     echo "Muon: Nucleus exists and is running with ID $current_id"
+  else
+    echo "Muon: Booting Control Plane"
     CP_PS=$(docker run -e "MUON_DOMAIN=$MUON_DOMAIN" --name="$CONTAINER" -d $IMAGE)
   fi
 
-  local CONTROL_PLANE=$(lookup_control-plane_ip)
-  echo "Simple PaaS: Control Plane is running on IP $CONTROL_PLANE, waiting for service to be available..."
+  local NUCLEUS=$(lookup_nucleus_ip)
+  echo "Muon: Nucleus is running on IP $NUCLEUS"
 
 }
 
 
 ## TODO, possibly install a daemon instead of this socat run?
 
-echo "Simple PaaS: Creating connection to local Docker daemon"
+echo "Muon: Creating connection to local Docker daemon"
 
 #TODO, this is not encrypted/ authorised, use a secured version below
 #any docker container could connect to the docker API with this.
@@ -50,8 +68,8 @@ socat TCP4-LISTEN:4321,fork,reuseaddr,range=172.17.0.0/8 UNIX:/var/run/docker.so
 ## TODO, use the below command to start the local port forward over SSL
 #socat OPENSSL-LISTEN:4321,fork,reuseaddr,cert=cert.pem,cafile=cert.pem,key=key.pem UNIX:/var/run/docker.sock
 
-echo "Simple PaaS: Connection to local Docker Daemon Initialised"
-
+echo "Muon: Connection to local Docker Daemon Initialised"
+  boot_nucleus
   boot_control_plane
   for SERVICE in `cat $LOCALDIR/lib/services`
   do
@@ -60,4 +78,4 @@ echo "Simple PaaS: Connection to local Docker Daemon Initialised"
   done
 
 echo ""
-echo "Simple PaaS: Dev Installation Completed, Simple PaaS Cell is running."
+echo "Muon: Dev Installation Completed, Muon Cell is running."
