@@ -150,7 +150,7 @@ function injectPlatformVariables(dockerPayload) {
 
     if (coreServices.nucleus) {
         // console.log('********** injectPlatformVariables() enriching with nucleus data');
-        dockerPayload.Env.push("MUON_NUCLEUS_IP=" + coreServices.nucleus.host);
+        dockerPayload.Env.push("MUON_NUCLEUS_HOST=" + coreServices.nucleus.host);
         dockerPayload.Env.push("MUON_NUCLEUS_PORT=" + coreServices.nucleus.port);
         dockerPayload.Env.push("MUON_NUCLEUS_HTTP_PORT=" + coreServices.nucleus.httpPort);
     }
