@@ -24,11 +24,11 @@ var swe = sw.errors;
 
 var muonDomain = process.env.MUON_DOMAIN || '.';
 
-var dockerPort = process.env.SP_DOCKER_PORT || 14321;
-var dockerIp = process.env.SP_DOCKER_HOST || 'localhost';
+var dockerPort = process.env.CP_DOCKER_PORT || 14321;
+var dockerIp = process.env.CP_DOCKER_HOST || 'localhost';
 
-console.log("SP_DOCKER_HOST=" + process.env.SP_DOCKER_HOST);
-console.log("SP_DOCKER_PORT=" + process.env.SP_DOCKER_PORT);
+console.log("SP_DOCKER_HOST=" + process.env.CP_DOCKER_HOST);
+console.log("SP_DOCKER_PORT=" + process.env.CP_DOCKER_PORT);
 
 var dockerUrl = 'http://' + dockerIp + ':' + dockerPort;
 
@@ -39,10 +39,11 @@ var coreServices = {
 exports.loadCoreServices = function(muon, done) {
     coreServices["nucleus"] = {
         host:muon.getIp(),
-        port:muon.getPort()
+        port:muon.getPort(),
+        httpPort:muon.getHttpPort()
     };
 
-    muon.readNucleus({
+    /*muon.readNucleus({
         resource:"container",
         type:"runtime"
     }, function(records) {
@@ -66,7 +67,8 @@ exports.loadCoreServices = function(muon, done) {
             }
         });
         done();
-    });
+    }); */
+    done();
 };
 
 exports.createAndStartDockerContainer = function (payload, muon) {
@@ -84,7 +86,7 @@ exports.createAndStartDockerContainer = function (payload, muon) {
         };
     };
 
-//    exports.loadCoreServices(muon, function() {
+    exports.loadCoreServices(muon, function() {
         var end = function (actions) {
             if (actions[0].statusCode != '201') {
                 sendServerError(muon, actions[0], actions, 'error creating new container via docker api', 201);
@@ -124,7 +126,7 @@ exports.createAndStartDockerContainer = function (payload, muon) {
             .get(dockerIp, dockerPort, '/containers/{dockerId}/json')
             .end();
 
-//    });
+    });
 };
 
 function sendServerError(muon, action, actions, message, expectedCode) {
@@ -150,6 +152,7 @@ function injectPlatformVariables(dockerPayload) {
         // console.log('********** injectPlatformVariables() enriching with nucleus data');
         dockerPayload.Env.push("MUON_NUCLEUS_IP=" + coreServices.nucleus.host);
         dockerPayload.Env.push("MUON_NUCLEUS_PORT=" + coreServices.nucleus.port);
+        dockerPayload.Env.push("MUON_NUCLEUS_HTTP_PORT=" + coreServices.nucleus.httpPort);
     }
 //    if (coreServices.gns) {
 //        //  console.log('********** injectPlatformVariables() enriching with gns data');
@@ -192,14 +195,11 @@ exports.deleteContainer = function (containerId, callback) {
         resource:"container",
         type:"runtime",
         recordId:containerId
-        //TODO, a record filter...
     }, function(records) {
-        var runningContainer = _.find(records, function(rec) {
-            return rec.recordId == containerId;
-        });
+        var runningContainer = records;
 
-        var killUrl = '/containers/' + runningContainer.inspection.ID + '/kill';
-        var deleteUrl = '/containers/' + runningContainer.inspection.ID;
+        var killUrl = '/containers/' + runningContainer.id + '/kill';
+        var deleteUrl = '/containers/' + runningContainer.id;
 
         var successcallback = function (actions) {
             //TODO ... send a muon notification?

@@ -1,12 +1,14 @@
-var io = require('socket.io-client')
+var io = require('socket.io-client');
+var msh = require("msh");
 
+var nucleusSocketPort =  process.env.MUON_NUCLEUS_PORT || 7777;
+var nucleusPort =  process.env.MUON_NUCLEUS_HTTP_PORT || 8080;
+var nucleusHost =  process.env.MUON_NUCLEUS_HOST || "localhost";
+console.log("SP_NUCLEUS_HOST=" + process.env.MUON_NUCLEUS_HOST);
+console.log("SP_NUCLEUS_PORT=" + process.env.MUON_NUCLEUS_PORT);
 
-var nucleusPort =  process.env.SP_NUCLEUS_PORT || 7777;
-var nucleusHost =  process.env.SP_NUCLEUS_HOST || "localhost";
-console.log("SP_NUCLEUS_HOST=" + process.env.SP_NUCLEUS_HOST);
-console.log("SP_NUCLEUS_PORT=" + process.env.SP_NUCLEUS_PORT);
-
-var globalNucleusUrl =  "http://" + nucleusHost + ":" + nucleusPort;
+var globalNucleusUrl =  "http://" + nucleusHost + ":" + nucleusSocketPort;
+var nucleusHttpUrl =  "http://" + nucleusHost + ":" + nucleusSocketPort;
 
 var callbacks = [];
 
@@ -16,7 +18,7 @@ module.exports = function(overrideNucleus) {
     if (overrideNucleus != null) {
         nucleusUrl = overrideNucleus;
     }
-    console.log("Booting Muon Client Connection to " + nucleusUrl);
+    console.log("Booting Muon Client Connection to " + nucleusUrl + "/ HTTP [" + nucleusHttpUrl + "]");
 
     var socket = io.connect(nucleusUrl);
 
@@ -77,17 +79,39 @@ module.exports = function(overrideNucleus) {
             socket.disconnect();
         },
         readNucleus:function(query, callback) {
-            function listener(value) {
-                socket.removeListener("resource", listener);
-                callback(value)
+
+            var success = function(actions) {
+                console.log("Connected to nucleus and read resource data");
+                console.dir(actions[0].response);
+                callback(actions[0].response);
+            };
+            var failed = function(actions) {
+                console.error("Failed to connect to nucleus and read resource data");
+                console.dir(actions);
+            };
+
+            var urlPath = "/resource/" + query.resource;
+
+            if (query.hasOwnProperty("recordId")) {
+                urlPath += "/record/" + query.recordId;
             }
-            socket.on("resource", listener);
-            socket.emit("resource", query);
+            if (query.hasOwnProperty("type")) {
+                urlPath += "/type/" + query.type;
+            }
+
+            if (query.hasOwnProperty("query")) {
+                urlPath += "?" + query.query.key + "=" + query.query.value;
+            }
+
+            msh.init(success, failed).get(nucleusHost, nucleusPort, urlPath).end();
         },
         getIp: function() {
             return nucleusHost
         },
         getPort: function() {
+            return nucleusSocketPort
+        },
+        getHttpPort: function() {
             return nucleusPort
         }
     }
