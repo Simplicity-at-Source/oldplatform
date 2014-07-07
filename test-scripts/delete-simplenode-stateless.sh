@@ -7,7 +7,7 @@ echo "**************************************************************************
 echo "PUT http://$NUCLEUS_IP:8080/service/gene-store/substore/stateless/record/simplenode"
 echo "*****************************************************************************"
 
-curl -vvv -X PUT http://$NUCLEUS_IP:8080/resource/stateless/record/simplenode/type/gene -d @create-simplenode.json -H 'Content-Type: application/json'
+curl -vvv -X DELETE http://$NUCLEUS_IP:8080/resource/stateless/record/simplenode/type/gene 
 
 
 

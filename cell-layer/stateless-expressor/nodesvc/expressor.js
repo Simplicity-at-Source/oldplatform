@@ -2,10 +2,11 @@
 exports.muon = null;
 
 function createContainerPayload(event) {
-    var payload = new event.payload();
+  //todo, copy the payload then modify ...
+    var payload = event.payload;
 
     payload.statelessService = event.recordId;
-    delete payload.count;
+    //delete payload.count;
     return payload;
 }
 
@@ -45,7 +46,7 @@ exports.connect = function(host) {
         muon.readNucleus({
             resource:"container",
             type:"gene",
-            query:""//TODO?
+            //query:""   TODO?
         }, function(containerGene) {
             if(containerGene.hasOwnProperty("statelessService") &&   //this is a surrogate filter until it's implemented.
                 containerGene.statelessService == event.recordId) {
