@@ -28,7 +28,7 @@ boot_control_plane() {
      echo "Muon: Control Plane already exists and is running with ID $current_id"
   else
     echo "Muon: Booting Control Plane, nucleus = $NUCLEUS"
-    CP_PS=$(docker run -e "MUON_DOMAIN=$MUON_DOMAIN" -e SP_NUCLEUS_PORT=7777 -e "SP_NUCLEUS_HOST=$NUCLEUS" -e "SP_DOCKER_HOST=172.17.42.1" -e "SP_DOCKER_PORT=4321" --name="$CONTAINER" -d $IMAGE)
+    CP_PS=$(docker run -e "MUON_DOMAIN=$MUON_DOMAIN" -e MUON_NUCLEUS_PORT=7777 -e MUON_NUCLEUS_HTTP_PORT=8080 -e "MUON_NUCLEUS_HOST=$NUCLEUS" -e "CP_DOCKER_HOST=172.17.42.1" -e "CP_DOCKER_PORT=4321" --name="$CONTAINER" -d $IMAGE)
   fi
 }
 
