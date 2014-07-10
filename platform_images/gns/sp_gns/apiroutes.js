@@ -97,7 +97,7 @@ function queryNucleus(host, callback) {
     muon.readNucleus({
             resource:"container",
             type:"gene",
-            query: {"inspection.Config.Env", host},
+            query: {'inspection.Config.Env': host},
         }, function(containerGene) {
             if(containerGene.hasOwnProperty("statelessService") &&   //this is a surrogate filter until it's implemented.
                 containerGene.statelessService == event.recordId) {
