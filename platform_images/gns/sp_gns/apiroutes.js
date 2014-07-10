@@ -2,7 +2,7 @@ var _ = require("underscore");
 var validator = require('validator');
 var  http = require('http');
 var  request = require('superagent');
-
+var muon = require('munode');
 var services = {};
 
 /*
@@ -75,7 +75,7 @@ function random(low, high) {
 }
 
 
-function queryNucleus(host, callback) {
+function queryNucleusOld(host, callback) {
         //console.log('queryNucleus() host=%s ', host );
         // /service/pokemon?qk=inspection.Config.Env&qv=simplenode.muon.cistechfutures.net
         var queryTerms = '/service/pokemon?qk=inspection.Config.Env&qv=' + host;
@@ -87,6 +87,25 @@ function queryNucleus(host, callback) {
         callback(response); 
 
     	});
+    
+}
+
+
+function queryNucleus(host, callback) {
+    
+    console.log("queryNucleus() muon.readNucleus inspection.Config.Env=" + host );
+    muon.readNucleus({
+            resource:"container",
+            type:"gene",
+            query: {"inspection.Config.Env", host},
+        }, function(containerGene) {
+            if(containerGene.hasOwnProperty("statelessService") &&   //this is a surrogate filter until it's implemented.
+                containerGene.statelessService == event.recordId) {
+                console.log("Found a container gene matching deleted service " + containerGene.recordId);
+
+                callback(containerGene);
+            }
+        });
     
 }
 

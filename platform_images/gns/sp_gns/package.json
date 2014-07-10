@@ -12,6 +12,7 @@
         "superagent": "*",
         "assert": "*",
         "restify": "*",
+        "munode": "*",
         "validator": "*"
     },
     "devDependencies": {

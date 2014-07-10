@@ -1,7 +1,10 @@
 var assert = require('assert');
 var request = require("superagent");
+var muon = require('munode');
+
 require("./mockNucleusApi.js");
 require('../app.js'); //Boot up the server for tests
+
 //var host = config.host + ':' + config.port;
 var host = 'http://localhost:8080';
 
