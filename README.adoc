@@ -1,25 +1,25 @@
-# Muon Core
+# OLD Core
 
 PaaS for Micro-Services
 
 ## Local Installation
 
-Muon Core adds PaaS capabilities on top of the core Docker infrastructure and container management functionality.
+OLD Core adds PaaS capabilities on top of the core Docker infrastructure and container management functionality.
 
 It does not seek to replace or abstract Docker.
 
-To start using Muon, install Docker and the unix utility, socat.
+To start OLD, install Docker and the unix utility, socat.
 
-Build the Muon images into your local image repo.
+Build the OLD images into your local image repo.
 
 ```
-git clone https://github.com/Simplicity-at-Source/muoncore
-cd muoncore
+git clone https://github.com/Simplicity-at-Source/oldplatform
+cd oldplatform
 ./build.sh
 ./cli/dev-init
 ```
 
-Running `build.sh` will download and install all the muon core docker images.
+Running `build.sh` will download and install all the OLD core docker images.
 
 Runing `cli/dev-init` will install the minimal set of services to act as a PaaS on a single node.
 
@@ -31,7 +31,7 @@ the local Docker with declarative Service Injection, via the API.
 
 make sure you've got this entry in your muon hosts file:
 ``` 
-127.0.0.1 	simplenode.muon.cistechfutures.net 
+127.0.0.1 	simplenode.OLD.cistechfutures.net 
 ```
 
 Now run the script to deploy a simple nodejs web service:
@@ -43,5 +43,5 @@ cd ./test-scripts
 
 Now, go to the address below in your browser: 
 ```
-http://simplenode.muon.cistechfutures.net/
+http://simplenode.OLD.cistechfutures.net/
 ```
