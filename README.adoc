@@ -29,7 +29,7 @@ the local Docker with declarative Service Injection, via the API.
 
 ## Deploy a service locally
 
-make sure you've got this entry in your muon hosts file:
+make sure you've got this entry in your OLD hosts file:
 ``` 
 127.0.0.1 	simplenode.OLD.cistechfutures.net 
 ```
